@@ -1,6 +1,5 @@
 import { useState, useRef } from 'react';
 import { DayPilot, DayPilotCalendar, DayPilotNavigator } from '@daypilot/daypilot-lite-react';
-import { useNavigate } from 'react-router-dom';
 
 type UseSyncAgendaWithLegalLimit = {
   selectedAgendaDate: DayPilot.Date;
@@ -23,14 +22,11 @@ export default function useSyncAgendaWithLegalLimit(
   const agendaCalendarRef = useRef<DayPilotCalendar>(null);
   const agendaNavigatorRef = useRef<DayPilotNavigator>(null);
 
-  const navigate = useNavigate();
-
   const resetToToday = () => {
     const today = DayPilot.Date.today();
     setSelectedAgendaDate(today);
     agendaCalendarRef.current?.control?.update({ startDate: today });
     agendaNavigatorRef.current?.control?.select(today);
-    navigate('/secretary');
   };
 
   const handleDateSelectionWithLimit = (selectedDate: DayPilot.Date) => {

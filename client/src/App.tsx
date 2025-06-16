@@ -90,6 +90,10 @@ const router = createBrowserRouter([
             path: '/doctor',
             element: <DoctorAgendaPage />,
           },
+          {
+            path: '/doctor/appointment/create',
+            element: <NewAppointementByDoctor />,
+          },
         ],
       },
     ],

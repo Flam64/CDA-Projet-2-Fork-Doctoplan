@@ -23,7 +23,6 @@ export default function AgendaWithNavigator() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const [showAddPatientModal, setShowAddPatientModal] = useState(false);
   const [modalContent, setModalContent] = useState({
     title: '',
     message: '',
@@ -79,11 +78,11 @@ export default function AgendaWithNavigator() {
       aria-label="Agenda de tous les professionnels du service"
     >
       <AgendaHeader
+        showDepartmentSelector={true}
         selectedDepartment={selectedDepartment}
         setSelectedDepartment={setSelectedDepartment}
         setCurrentPage={setCurrentPage}
-        showAddPatientModal={showAddPatientModal}
-        setShowAddPatientModal={setShowAddPatientModal}
+        enableCreatePatient={true}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         isOpen={isOpen}

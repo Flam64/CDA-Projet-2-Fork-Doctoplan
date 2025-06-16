@@ -4,61 +4,84 @@ import CreatePatient from '@/components/patientFile/CreatePatient';
 import SearchBar, { type SearchSource } from '@/components/form/SearchBar';
 import type { Doctor } from '@/types/doctor.type';
 import type { Patient } from '@/types/patient.type';
+import { useState } from 'react';
 
 type AgendaHeaderProps = {
-  selectedDepartment: string;
-  setSelectedDepartment: (val: string) => void;
-  setCurrentPage: (page: number) => void;
-  showAddPatientModal: boolean;
-  setShowAddPatientModal: (open: boolean) => void;
+  showDepartmentSelector?: boolean;
+  selectedDepartment?: string;
+  setSelectedDepartment?: (val: string) => void;
+  setCurrentPage?: (page: number) => void;
+
+  // Patient management (button + modal included)
+  enableCreatePatient?: boolean;
+
+  // Optional custom action (e.g. create appointment, manage absences)
+  renderActionButton?: React.ReactNode;
+
+  // Search
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   isOpen: boolean;
-  setIsOpen: (boolean: boolean) => void;
+  setIsOpen: (open: boolean) => void;
   searchSources: SearchSource<Patient | Doctor>[];
+  placeholder?: string;
 };
 
 export default function AgendaHeader({
+  showDepartmentSelector = true,
   selectedDepartment,
   setSelectedDepartment,
   setCurrentPage,
-  showAddPatientModal,
-  setShowAddPatientModal,
+  enableCreatePatient = false,
+  renderActionButton,
   searchQuery,
   setSearchQuery,
   isOpen,
   setIsOpen,
   searchSources,
+  placeholder,
 }: AgendaHeaderProps) {
+  const [showAddPatientModal, setShowAddPatientModal] = useState(false);
+
   return (
     <section className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-6">
-      <div className="flex justify-center lg:justify-start w-full">
-        <DepartmentSelect
-          value={selectedDepartment}
-          onChange={newLabel => {
-            setSelectedDepartment(newLabel);
-            setCurrentPage(0);
-          }}
-        />
-        <button
-          type="button"
-          className="px-3 py-1 bg-blue text-white cursor-pointer rounded-md h-10 mt-8 ml-8 text-sm sm:text-base leading-none sm:leading-normal "
-          onClick={() => setShowAddPatientModal(true)}
-          aria-label="Ajouter un document administratif"
-        >
-          Créer un patient
-        </button>
-        {showAddPatientModal && (
-          <div className="fixed inset-0 z-50 flex justify-center items-center bg-bgModalColor backdrop-blur-xs">
-            <CreatePatient onClose={() => setShowAddPatientModal(false)} />
-          </div>
+      {/* Left controls: department selector + patient creation + custom actions */}
+      <div className="flex flex-wrap lg:flex-nowrap items-center gap-4 w-full lg:w-auto">
+        {showDepartmentSelector && selectedDepartment && setSelectedDepartment && (
+          <DepartmentSelect
+            value={selectedDepartment}
+            onChange={newLabel => {
+              setSelectedDepartment(newLabel);
+              setCurrentPage?.(0);
+            }}
+          />
         )}
+
+        {enableCreatePatient && (
+          <>
+            <button
+              type="button"
+              className="standard-button w-auto whitespace-nowrap text-base"
+              onClick={() => setShowAddPatientModal(true)}
+            >
+              Créer un patient
+            </button>
+            {showAddPatientModal && (
+              <div className="fixed inset-0 z-50 flex justify-center items-center bg-bgModalColor backdrop-blur-xs">
+                <CreatePatient onClose={() => setShowAddPatientModal(false)} />
+              </div>
+            )}
+          </>
+        )}
+
+        {renderActionButton && <div className="flex-shrink-0">{renderActionButton}</div>}
       </div>
 
+      {/* Right: Search bar */}
       <div className="flex justify-center lg:justify-end w-full">
         <div className="w-full max-w-xs">
           <SearchBar<Patient | Doctor>
-            placeholder="Rechercher un patient ou un médecin..."
+            placeholder={placeholder || 'Chercher un patient ou un médecin'}
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
             isOpen={isOpen}
@@ -75,11 +98,9 @@ export default function AgendaHeader({
                     onClick={onSelect}
                   >
                     <p className="font-semibold">
-                      🧑 {String(patient.firstname)} {String(patient.lastname)}
+                      🧑 {patient.firstname} {patient.lastname}
                     </p>
-                    <p className="text-sm text-gray-500">
-                      N° sécu : {String(patient.social_number)}
-                    </p>
+                    <p className="text-sm text-gray-500">N° sécu : {patient.social_number}</p>
                   </Link>
                 );
               }
@@ -92,9 +113,9 @@ export default function AgendaHeader({
                     onClick={onSelect}
                   >
                     <p className="font-semibold">
-                      👨‍⚕️ {String(doctor.firstname)} {String(doctor.lastname)}
+                      👨‍⚕️ {doctor.firstname} {doctor.lastname}
                     </p>
-                    <p className="text-sm text-gray-500">{String(doctor.departement.label)}</p>
+                    <p className="text-sm text-gray-500">{doctor.departement.label}</p>
                   </Link>
                 );
               }

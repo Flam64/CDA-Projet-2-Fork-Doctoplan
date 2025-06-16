@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useGetAppointmentsByDoctorAndDateLazyQuery } from '@/types/graphql-generated';
-import { Appointment as AppointmentType } from '@/types/CalendarEvent.type';
+import type { Appointment as AppointmentType } from '@/types/CalendarEvent.type';
 
-export default function useAppointmentsDataMultiDoctor(doctorIds: number[], date: Date) {
+export default function useAppointmentsData(doctorIds: number[], date: Date) {
   const [appointments, setAppointments] = useState<AppointmentType[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
@@ -53,10 +53,11 @@ export default function useAppointmentsDataMultiDoctor(doctorIds: number[], date
     }
   }, [doctorIds, formattedDate, fetchAppointments]);
 
+  //  Prevent infinite loop using stable dependencies
   useEffect(() => {
     refetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [formattedDate, JSON.stringify(doctorIds)]);
 
   return { appointments, loading, error, refetch };
 }

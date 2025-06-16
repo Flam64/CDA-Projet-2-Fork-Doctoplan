@@ -11,7 +11,7 @@ export default function ModuleList<T>({ data, renderItem, getKey }: ModuleListPr
       {data.map((item, index) => (
         <li
           key={getKey(item)}
-          className={`px-4 py-3 ${index % 2 === 0 ? 'bg-white' : 'bg-lightBlue'}`}
+          className={`px-4 py-3 ${index % 2 === 0 ? 'bg-white' : 'bg-lightBlue'} hover:bg-gray-100`}
         >
           {/* La fonction "renderItem" permet de personnaliser l'affichage de chaque élément */}
           {renderItem(item, index)}

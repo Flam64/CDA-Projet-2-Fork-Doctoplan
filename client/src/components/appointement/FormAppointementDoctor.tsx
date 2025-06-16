@@ -7,12 +7,14 @@ import DateTimeSection from '@/components/appointement/DateTimeSection';
 import { generateTimeOptions } from '@/utils/generatedTimeOptions';
 import { getDisabledTimes } from '@/utils/getAppointementTimeStartDisabled';
 import { Patient } from '@/types/patient.type';
+import { useAuth } from '@/hooks/useAuth';
 
 type FormAppointementDoctorProps = {
   selectedPatient: Patient | null;
   setSelectedPatient: (patient: Patient | null) => void;
   appointmentTypes: { key: string; value: string }[];
   appointments: { start_time: string; duration: number }[];
+  onAppointmentCreated?: () => void;
 };
 
 export default function FormAppointementDoctor({
@@ -20,6 +22,7 @@ export default function FormAppointementDoctor({
   setSelectedPatient,
   appointmentTypes,
   appointments,
+  onAppointmentCreated,
 }: FormAppointementDoctorProps) {
   const navigate = useNavigate();
   const {
@@ -29,6 +32,9 @@ export default function FormAppointementDoctor({
     selectedDay,
     handleTypeChange,
   } = useAppointmentContext();
+
+  const { user } = useAuth();
+  const isDoctor = user?.role === 'doctor';
 
   const disabledTimes = getDisabledTimes(selectedDay, appointments, generateTimeOptions());
 
@@ -43,7 +49,17 @@ export default function FormAppointementDoctor({
 
     try {
       await handleSubmitAppointment();
-      navigate('/secretary');
+
+      // Refetch
+      if (onAppointmentCreated) {
+        await onAppointmentCreated();
+      }
+
+      if (isDoctor) {
+        navigate('/doctor/appointment/create');
+      } else {
+        navigate('/secretary');
+      }
     } catch (error) {
       console.error('Erreur lors de la création du rendez-vous :', error);
     }
