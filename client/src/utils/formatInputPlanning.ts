@@ -1,8 +1,8 @@
-import { Planning } from "@/pages/CreateUser";
+import { Planning } from '@/pages/CreateUser';
 
 export const formatInputPlanning = (userPlanning: Planning, isDoctor: boolean) => {
   if (!isDoctor) {
-    return {} 
+    return {};
   }
   return Object.keys(userPlanning.period.days).reduce(
     (acc, day) => {
@@ -19,4 +19,4 @@ export const formatInputPlanning = (userPlanning: Planning, isDoctor: boolean) =
     },
     {} as Record<string, string | null>,
   );
-}
+};
