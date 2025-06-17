@@ -31,10 +31,32 @@ export const GET_USER_BY_ID = gql`
       role
       firstname
       lastname
-      profession
+      tel
+      gender
+      status
+      activationDate
       departement {
         id
         label
+      }
+      plannings {
+        id
+        start
+        end
+        monday_start
+        monday_end
+        tuesday_start
+        tuesday_end
+        wednesday_start
+        wednesday_end
+        thursday_start
+        thursday_end
+        friday_start
+        friday_end
+        saturday_start
+        saturday_end
+        sunday_start
+        sunday_end
       }
     }
   }
@@ -43,6 +65,12 @@ export const GET_USER_BY_ID = gql`
 export const CREATE_USER = gql`
   mutation CreateUser($input: CreateUserInput!) {
     createUser(input: $input)
+  }
+`;
+
+export const UPDATE_USER = gql`
+  mutation UpdateUser($input: CreateUserInput!, $updateUserId: String!) {
+    updateUser(input: $input, id: $updateUserId)
   }
 `;
 

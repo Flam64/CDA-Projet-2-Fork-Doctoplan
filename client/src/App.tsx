@@ -55,6 +55,10 @@ const router = createBrowserRouter([
             element: <CreateUser />,
           },
           {
+            path: '/admin/users/:id/update',
+            element: <CreateUser />,
+          },
+          {
             path: '/admin/logs',
             element: <Logs />,
           },
