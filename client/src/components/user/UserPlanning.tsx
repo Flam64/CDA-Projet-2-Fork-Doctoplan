@@ -31,7 +31,6 @@ export default function UserPlanning({
   setIsDisable,
   id,
 }: UserPlanningProps) {
-  console.log(userPlanning);
   const timeOptions = useMemo(() => {
     return Array.from({ length: 48 }, (_, i) => {
       const hours = Math.floor(i / 2);
