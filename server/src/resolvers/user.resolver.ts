@@ -55,7 +55,7 @@ export class UserResolver {
       throw new GraphQLError(`L'utilisateur avec l'id ${id} n'existe pas`, {
         extensions: {
           code: 'USER_NOT_FOUND',
-          originalError: 'Aucun utilisateur trouvéee',
+          originalError: 'Aucun utilisateur trouvé',
         },
       });
     }
