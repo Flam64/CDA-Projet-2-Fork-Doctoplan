@@ -2,6 +2,7 @@ import DateDisplayInput from '@/components/appointement/DateDisplayInput';
 import TimeDisplayInputEnd from '@/components/appointement/TimeDisplayInputEnd';
 import TimeSelectStart from '@/components/appointement/TimeSelectStart';
 import DoctorSelect from '@/components/form/DoctorSelect';
+import DoctorSlots from '@/components/doctor/DoctorSlots';
 import AppointmentTypesSelect from '@/components/form/AppointmentTypesSelect';
 import { useAppointmentContext } from '@/hooks/useAppointment';
 import { useNavigate } from 'react-router-dom';
@@ -30,6 +31,7 @@ export default function FormAppointmentPatient({ patient_id }: FormAppointmentPa
     <>
       <form onSubmit={handleSubmitInfo}>
         <section className="flex flex-col gap-4">
+          <DoctorSlots />
           <DoctorSelect />
           <AppointmentTypesSelect />
           <section className="flex flex-col gap-2">

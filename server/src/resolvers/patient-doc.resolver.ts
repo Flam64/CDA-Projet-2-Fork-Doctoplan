@@ -26,7 +26,7 @@ export class PatientDocResolver {
       patientDoc.name = docInput.name;
       patientDoc.url = docInput.url;
       const PatientInfo = await Patient.findOneOrFail({
-        where: { id: docInput.patientId },
+        where: { id: docInput.id },
       });
       patientDoc.patient = PatientInfo;
       const docTypeInfo = await DocType.findOneOrFail({

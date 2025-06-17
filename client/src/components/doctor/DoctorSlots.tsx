@@ -54,12 +54,13 @@ export default function DoctorSlots() {
         <div className="flex justify-center md:justify-end w-full">
           <div className="w-full max-w-xs">
             <button
-              className="w-full bg-blue text-white rounded-md px-4 py-2 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              type="button"
+              className="w-full bg-blue text-white rounded-md px-4 py-2 hover:bg-blue-600 mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               onClick={() => {
                 checkDoctorAvailability();
               }}
             >
-              Prochains rendez-vous disponibles
+              Prochains créneaux
             </button>
           </div>
         </div>
@@ -85,22 +86,28 @@ export default function DoctorSlots() {
                 {} as Record<string, typeof slots>,
               ),
             ).map(([name, slotsForPerson]) => (
-              <div key={name}>
+              <article
+                key={name}
+                className="border-1 border-solid border-blue bg-white rounded-md w-full p-2"
+              >
                 <h4 className="font-medium">{name}</h4>
-                <ul className="list-disc pl-6">
+                <ul className="list-disc pl-1">
                   {slotsForPerson.map(slot => (
                     <button
                       key={slot.id}
                       type="button"
                       onClick={() => handleSlotClick(slot)}
-                      className="inline-block bg-white text-black text-sm px-3 py-1 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 m-2 p-2"
+                      className="inline-block bg-blue text-white text-sm px-3 py-1 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 m-2 p-2"
                       aria-label={`Sélectionner le créneau de ${slot.debut_libre} à ${slot.fin_libre}`}
                     >
-                      {slot.debut_libre} - {slot.fin_libre}
+                      <div className="flex flex-col">
+                        <span>{slot.debut_libre.slice(0, 5)}</span>
+                        <span>{slot.fin_libre.slice(0, 5)}</span>
+                      </div>
                     </button>
                   ))}
                 </ul>
-              </div>
+              </article>
             ))}
           </div>
         </section>

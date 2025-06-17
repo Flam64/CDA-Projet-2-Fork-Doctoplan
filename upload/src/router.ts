@@ -5,7 +5,11 @@ import { authMiddleware } from './middlewares/auth.middleware';
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'public/patient/');
+    let folder = 'public/patient/';
+    if (req.originalUrl === '/upload/appointment-sec-file') {
+      folder = 'public/appointmentSecretary/';
+    }
+    cb(null, folder);
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + Math.round(Math.random() * 1e9);
@@ -20,7 +24,14 @@ router.post(
   '/upload/patient-file',
   authMiddleware(['secretary']),
   upload.single('myfile'),
-  PatientFile.upload,
+  PatientFile.upload('patient-file'),
+);
+
+router.post(
+  '/upload/appointment-sec-file',
+  authMiddleware(['secretary']),
+  upload.single('myfile'),
+  PatientFile.upload('appointment-sec-file'),
 );
 
 export default router;

@@ -1,4 +1,5 @@
 import { ReactNode, useEffect, useRef } from 'react';
+import searchIcon from '@/assets/search-icon.svg';
 
 export type SearchSource<T> = {
   name: string;
@@ -64,7 +65,7 @@ export default function SearchBar<T>({
         className="w-full rounded-full border border-borderColor bg-white pl-4 pr-10 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
       <img
-        src="/search-icon.svg"
+        src={searchIcon}
         alt="Rechercher"
         className="absolute right-3 top-1/2 transform -translate-y-1/2 w-8 h-8 pointer-events-none"
       />

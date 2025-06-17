@@ -1,0 +1,19 @@
+
+POST http://localhost:7000/mail/appointment/create
+Content-Type: application/json
+
+{
+  "email": "test@mail.com",
+  "doctor": "Who",
+  "date": "2025-06-13",
+  "hour": "14:00"
+}
+
+###
+POST http://localhost:7000/mail/login/init
+Content-Type: application/json
+
+{
+  "email": "utilisateur@example.com",
+  "url": "https://doctoplan.fr/reset-password/token"
+}

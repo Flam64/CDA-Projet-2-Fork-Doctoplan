@@ -3,6 +3,7 @@ import StatusModal from '@/components/StatusModal';
 import { useChangeStatusStatusMutation, useGetAllUsersQuery } from '@/types/graphql-generated';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import searchIcon from '@/assets/search-icon.svg';
 
 export default function User() {
   const [showStatusModal, setShowStatusModal] = useState<boolean>(false);
@@ -57,7 +58,7 @@ export default function User() {
             placeholder="Chercher un utilistateur"
           />
           <img
-            src="/public/search-icon.svg"
+            src={searchIcon}
             alt="search icon"
             className="absolute right-3 top-1/2 -translate-y-1/2"
           />

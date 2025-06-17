@@ -1,6 +1,7 @@
 import ModuleList from '../ModuleList';
 import inputPersonnal from '@/types/numPatient.type';
 import { useGetDoctorByPatientQuery } from '@/types/graphql-generated';
+import { Link } from 'react-router-dom';
 
 type DoctorByPatient = {
   doctor: {
@@ -31,12 +32,12 @@ export default function FollowBy({ patientNum }: inputPersonnal) {
         data={dataDoctor}
         getKey={item => item.doctor.id}
         renderItem={item => (
-          <>
+          <Link to={`/secretary/doctor/${item.doctor.id}/agenda`}>
             <span className="font-bold text-gray-800">
               {item.doctor.firstname} {item.doctor.lastname}
             </span>
             <span className="text-gray-600">- {item.doctor.departement.label} - </span>
-          </>
+          </Link>
         )}
       />
     </article>

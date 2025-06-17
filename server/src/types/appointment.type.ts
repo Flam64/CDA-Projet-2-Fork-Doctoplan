@@ -1,5 +1,5 @@
 import { Field, InputType } from 'type-graphql';
-import { Matches, IsNumber, IsUUID } from 'class-validator';
+import { Matches, IsNumber, IsUUID, Length } from 'class-validator';
 import { AppointmentStatus } from '../entities/appointment.entity';
 
 @InputType()
@@ -29,12 +29,6 @@ export class AppointmentCreateInput {
 
   @Field()
   @Matches(/^[0-9]{1,10}$/, {
-    message: "L'ID doit être un nombre valide.",
-  })
-  created_by: string;
-
-  @Field()
-  @Matches(/^[0-9]{1,10}$/, {
     message: 'Le type de rendez-vous doit être un nombre valide.',
   })
   appointmentType: string;
@@ -44,4 +38,22 @@ export class AppointmentCreateInput {
     message: "L'ID du service doit être un nombre valide.",
   })
   departement: string;
+}
+
+@InputType()
+export class AppointmentSecDocInput {
+  @Field()
+  @Length(1, 255)
+  name: string;
+
+  @Field()
+  @Length(1, 255)
+  url: string;
+
+  @Field()
+  id: string;
+
+  @Field()
+  @IsNumber()
+  docTypeId: number;
 }

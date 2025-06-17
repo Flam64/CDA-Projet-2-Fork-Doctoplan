@@ -1,143 +1,108 @@
-import { screen, fireEvent, waitFor } from '@testing-library/react';
+// 🧪 Importation des outils de test
+import { screen, fireEvent, waitFor, render } from '@testing-library/react';
+// 📦 Composant à tester
 import SearchBar from '../components/form/SearchBar';
-import { SearchPatientsDocument, SearchDoctorsDocument } from '@/types/graphql-generated';
+// 🔍 Fonctions utilitaires pour structurer les tests avec Vitest
 import { describe, expect, it } from 'vitest';
-import { createMockUser } from './utils/createMockUser';
-import { renderWithProviders } from './utils/renderWithProviders';
 
+// 📄 Typage des objets Patient qu’on utilise dans la simulation
+type Patient = {
+  id: string;
+  firstname: string;
+  lastname: string;
+  social_number: string;
+};
+
+// 📦 Groupe de tests pour le composant SearchBar
 describe('SearchBar', () => {
-  const mockUser = createMockUser({
-    role: 'SECRETARY',
-    status: 'ACTIVE',
-  });
+  // 🎯 Cas de test : la barre de recherche affiche les patients après saisie
+  it('affiche les patients quand une recherche valide est tapée', async () => {
+    // 🔁 Variables d’état simulées (comme dans un useState, mais manuelles ici)
+    let searchQuery = '';
+    let isOpen = false;
 
-  it("affiche les patients lorsqu'on tape une recherche valide", async () => {
-    const mocks = [
-      {
-        request: {
-          query: SearchPatientsDocument,
-          variables: { query: 'jo' },
-        },
-        result: {
-          data: {
-            searchPatients: [
-              {
-                id: '1',
-                firstname: 'John',
-                lastname: 'Doe',
-                social_number: '1234567890',
-              },
-            ],
-          },
-        },
-      },
-      {
-        request: {
-          query: SearchDoctorsDocument,
-          variables: { query: 'jo' },
-        },
-        result: {
-          data: {
-            searchDoctors: [],
-          },
-        },
-      },
+    // 👤 Liste de patients fictifs pour le test
+    const patients: Patient[] = [
+      { id: '1', firstname: 'John', lastname: 'Doe', social_number: '1234567890' },
     ];
 
-    renderWithProviders(<SearchBar />, {
-      mocks,
-      user: mockUser,
-    });
+    // 🔄 Fausse fonction pour simuler la mise à jour du texte recherché
+    const setSearchQuery = (value: string) => {
+      searchQuery = value;
+      isOpen = true; // Ouvre la dropdown automatiquement
+      rerenderSearchBar(); // On force le composant à se mettre à jour
+    };
 
+    // 🔄 Fausse fonction pour simuler l’ouverture/fermeture de la dropdown
+    const setIsOpen = (value: boolean) => {
+      isOpen = value;
+      rerenderSearchBar(); // Re-render du composant avec la nouvelle valeur
+    };
+
+    // 🧪 Premier rendu du composant SearchBar (avec searchQuery vide, donc pas de résultat encore)
+    const renderResult = render(
+      <SearchBar
+        placeholder="Rechercher un patient"
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        sources={[
+          // Liste de sources (ici : Patients)
+          {
+            name: 'Patients',
+            items: [], // Aucun résultat au départ
+            loading: false,
+            getKey: item => item.id,
+          },
+        ]}
+      >
+        {/* 🔍 Format d’affichage d’un résultat */}
+        {(item: Patient) => (
+          <div>
+            {item.firstname} {item.lastname} - {item.social_number}
+          </div>
+        )}
+      </SearchBar>,
+    );
+
+    // 🔁 Fonction appelée chaque fois qu’on modifie une variable d’état
+    const rerenderSearchBar = () => {
+      renderResult.rerender(
+        <SearchBar
+          placeholder="Rechercher un patient"
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          isOpen={isOpen}
+          setIsOpen={setIsOpen}
+          sources={[
+            {
+              name: 'Patients',
+              // Affiche les patients si le texte tapé est "jo"
+              items: searchQuery === 'jo' ? patients : [],
+              loading: false,
+              getKey: item => item.id,
+            },
+          ]}
+        >
+          {(item: Patient) => (
+            <div>
+              {item.firstname} {item.lastname} - {item.social_number}
+            </div>
+          )}
+        </SearchBar>,
+      );
+    };
+
+    // 🧑‍💻 Simulation de l’utilisateur qui tape "jo" dans la barre de recherche
     const input = await screen.findByRole('textbox');
     fireEvent.change(input, { target: { value: 'jo' } });
 
-    expect(screen.getByText(/chargement/i)).toBeInTheDocument();
-
+    // ⏳ Attente que les résultats apparaissent
     await waitFor(() => {
+      // ✅ Vérifie que le nom du patient apparaît dans le DOM
       expect(screen.getByText(/John Doe/)).toBeInTheDocument();
       expect(screen.getByText(/1234567890/)).toBeInTheDocument();
-    });
-  });
-
-  it('affiche les médecins si la recherche les retourne', async () => {
-    const mocks = [
-      {
-        request: {
-          query: SearchPatientsDocument,
-          variables: { query: 'jo' },
-        },
-        result: {
-          data: {
-            searchPatients: [],
-          },
-        },
-      },
-      {
-        request: {
-          query: SearchDoctorsDocument,
-          variables: { query: 'jo' },
-        },
-        result: {
-          data: {
-            searchDoctors: [
-              {
-                id: '2',
-                firstname: 'Joe',
-                lastname: 'Smith',
-                profession: 'Généraliste',
-                departement: {
-                  label: 'Paris',
-                },
-              },
-            ],
-          },
-        },
-      },
-    ];
-
-    renderWithProviders(<SearchBar />, {
-      mocks,
-      user: mockUser,
-    });
-
-    const input = await screen.findByRole('textbox');
-    fireEvent.change(input, { target: { value: 'jo' } });
-
-    await waitFor(() => {
-      expect(screen.getByText(/Joe Smith/)).toBeInTheDocument();
-      expect(screen.getByText(/Généraliste Paris/)).toBeInTheDocument();
-    });
-  });
-
-  it("affiche un message d'erreur en cas d'échec de la requête", async () => {
-    const mocks = [
-      {
-        request: {
-          query: SearchPatientsDocument,
-          variables: { query: 'jo' },
-        },
-        error: new Error('Erreur réseau'),
-      },
-      {
-        request: {
-          query: SearchDoctorsDocument,
-          variables: { query: 'jo' },
-        },
-        error: new Error('Erreur réseau'),
-      },
-    ];
-
-    renderWithProviders(<SearchBar />, {
-      mocks,
-      user: mockUser,
-    });
-
-    const input = await screen.findByRole('textbox');
-    fireEvent.change(input, { target: { value: 'jo' } });
-
-    await waitFor(() => {
-      expect(screen.getByText(/erreur lors de la recherche/i)).toBeInTheDocument();
     });
   });
 });

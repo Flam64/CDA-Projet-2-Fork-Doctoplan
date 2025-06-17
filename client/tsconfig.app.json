@@ -34,11 +34,13 @@
     "exactOptionalPropertyTypes": true,
     "forceConsistentCasingInFileNames": true,
 
+    "types": ["vitest/globals", "@testing-library/jest-dom"],
+
     /* Path alias */
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "src/vitest.setup.ts"]
 }

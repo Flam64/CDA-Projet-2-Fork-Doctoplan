@@ -5,7 +5,6 @@ import Login from '@/pages/Login';
 import PageNotFound from '@/pages/PageNotFound';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Department from '@/pages/Department';
-
 import PatientFileSecretary from '@/pages/PatientFileSecretary';
 import SecretaryDashboard from '@/pages/secretaryDashboard/SecretaryDashboard';
 import ForgotPassword from '@/pages/ForgotPassword';
@@ -14,8 +13,10 @@ import Logs from '@/pages/Logs';
 import CreateUser from '@/pages/CreateUser';
 import NewAppointementByDoctor from './pages/NewAppointementByDoctor';
 import NewAppointementByPatient from './pages/NewAppointementByPatient';
+import UpdateAppointement from './pages/UpdateAppointement';
 import Agent from '@/pages/Agent';
 import ResetPassword from './pages/ResetPassword';
+import DoctorAgendaPage from './pages/DoctorAgendaPage';
 
 const router = createBrowserRouter([
   {
@@ -78,12 +79,28 @@ const router = createBrowserRouter([
             element: <NewAppointementByDoctor />,
           },
           {
+            path: '/secretary/doctor/:id/agenda',
+            element: <DoctorAgendaPage />,
+          },
+          {
+            path: '/secretary/appointment/:id/update',
+            element: <UpdateAppointement />,
+          },
+          {
             path: '/secretary/patient/:id/appointment/create',
             element: <NewAppointementByPatient />,
           },
           {
             path: '/agent',
             element: <Agent />,
+          },
+          {
+            path: '/doctor',
+            element: <DoctorAgendaPage />,
+          },
+          {
+            path: '/doctor/appointment/create',
+            element: <NewAppointementByDoctor />,
           },
         ],
       },

@@ -2,6 +2,7 @@ import { BaseEntity, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColum
 import { Field, ID, ObjectType } from 'type-graphql';
 import { Planning } from './planning.entity';
 import { Departement } from './departement.entity';
+import { Note } from './note.entity';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -86,4 +87,8 @@ export class User extends BaseEntity {
   @Field()
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
+
+  @Field(() => [Note], { nullable: true })
+  @OneToMany(() => Note, (note) => note.user)
+  notes: Note[];
 }

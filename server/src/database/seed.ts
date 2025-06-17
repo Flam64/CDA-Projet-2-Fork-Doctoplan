@@ -98,6 +98,36 @@ async function seedDatabase() {
       console.info('👤 Agent user already exists, skipping creation');
     }
 
+    const existingDevDoctor = await User.findOne({
+      where: { email: 'doctor@doctoplan.com' },
+    });
+
+    if (!existingDevDoctor) {
+      console.info('👤 Dev doctor not found, creating...');
+
+      const hashedDoctorPassword = await argon2.hash(
+        process.env.DEV_DOCTOR_PASSWORD || 'doctor123',
+      );
+
+      const doctorUser = new User();
+      doctorUser.email = 'doctor@doctoplan.com';
+      doctorUser.password = hashedDoctorPassword;
+      doctorUser.role = UserRole.DOCTOR;
+      doctorUser.firstname = 'Dev';
+      doctorUser.lastname = 'Doctor';
+      doctorUser.departement = existingDepartement; // Département par défaut (Administration)
+      doctorUser.profession = 'Pédiatre';
+      doctorUser.gender = 'F';
+      doctorUser.tel = '0707070707';
+      doctorUser.status = UserStatus.ACTIVE;
+
+      await doctorUser.save();
+
+      console.info('✅ Dev doctor user created successfully');
+    } else {
+      console.info('👤 Dev doctor already exists, skipping creation');
+    }
+
     try {
       await seedDoctors();
     } catch (error) {
