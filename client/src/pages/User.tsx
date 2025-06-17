@@ -73,7 +73,7 @@ export default function User() {
             </p>
             <div>
               <Link
-                to={`create/${id}`}
+                to={`${id}/update`}
                 className={`text-white mr-3 px-5 py-2 rounded text-sm bg-bgEdit w-28`}
               >
                 Modifier

@@ -50,7 +50,11 @@ const router = createBrowserRouter([
             element: <User />,
           },
           {
-            path: '/admin/users/create/:id?',
+            path: '/admin/users/create',
+            element: <CreateUser />,
+          },
+          {
+            path: '/admin/users/:id/update',
             element: <CreateUser />,
           },
           {
