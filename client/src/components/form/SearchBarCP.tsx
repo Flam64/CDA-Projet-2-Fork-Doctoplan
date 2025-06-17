@@ -1,5 +1,6 @@
 import { ChangeEvent, useState, KeyboardEvent } from 'react';
 import { useGetCityByCpQuery } from '@/types/graphql-generated';
+import searchIcon from '@/assets/search-icon.svg';
 
 type inputFormProps = {
   cpdefault: string;
@@ -56,7 +57,7 @@ function SearchBarCP({ cpdefault, handle }: inputFormProps) {
             onChange={handleChangeCP}
           />
           <img
-            src="/public/search-icon.svg"
+            src={searchIcon}
             alt="search icon"
             className="absolute right-3 top-1/2 -translate-y-1/2"
           />

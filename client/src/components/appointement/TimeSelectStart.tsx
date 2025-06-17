@@ -1,5 +1,6 @@
 import { generateTimeOptions } from '@/utils/generatedTimeOptions';
 import { useAppointmentContext } from '@/hooks/useAppointment';
+import alarmClockOn from '@/assets/alarm-clock-on.svg';
 
 type TimeSelectStartProps = {
   disabledOptions?: string[];
@@ -16,7 +17,7 @@ export default function TimeSelectStart({ disabledOptions }: TimeSelectStartProp
       </label>
       <div className="relative w-[134px] h-[60px]">
         <img
-          src="/alarm-clock-on.svg"
+          src={alarmClockOn}
           alt="Icône début"
           className="absolute left-2 top-1/2 transform -translate-y-1/2 w-5 h-5"
         />

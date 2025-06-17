@@ -1,4 +1,5 @@
 import { useAppointmentContext } from '@/hooks/useAppointment';
+import alarmClockOff from '@/assets/alarm-clock-off.svg';
 
 export default function TimeDisplayInputEnd() {
   const { SaveAppointment } = useAppointmentContext();
@@ -10,7 +11,7 @@ export default function TimeDisplayInputEnd() {
       </label>
       <div className="relative w-[136px] h-[60px]">
         <img
-          src="/alarm-clock-off.svg"
+          src={alarmClockOff}
           alt="Icône fin"
           className="absolute left-2 top-1/2 transform -translate-y-1/2 w-5 h-5"
         />

@@ -17,6 +17,7 @@ import NewAppointementByPatient from './pages/NewAppointementByPatient';
 import UpdateAppointement from './pages/UpdateAppointement';
 import Agent from '@/pages/Agent';
 import ResetPassword from './pages/ResetPassword';
+import DoctorAgendaPage from './pages/DoctorAgendaPage';
 
 const router = createBrowserRouter([
   {
@@ -75,6 +76,10 @@ const router = createBrowserRouter([
             element: <NewAppointementByDoctor />,
           },
           {
+            path: '/secretary/doctor/:id/agenda',
+            element: <DoctorAgendaPage />,
+          },
+          {
             path: '/secretary/appointment/:id/update',
             element: <UpdateAppointement />,
           },
@@ -85,6 +90,14 @@ const router = createBrowserRouter([
           {
             path: '/agent',
             element: <Agent />,
+          },
+          {
+            path: '/doctor',
+            element: <DoctorAgendaPage />,
+          },
+          {
+            path: '/doctor/appointment/create',
+            element: <NewAppointementByDoctor />,
           },
         ],
       },
