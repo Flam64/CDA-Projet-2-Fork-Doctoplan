@@ -31,7 +31,7 @@ export default function CreateUploadModal({
   route,
   typedoc,
 }: UploadModalProps) {
-  const [saveUpload, setPersonnalInfo] = useState<Upload | null>({
+  const [saveUpload, setsaveUpload] = useState<Upload | null>({
     id: '',
     name: '',
     file: new File([], ''),
@@ -63,7 +63,7 @@ export default function CreateUploadModal({
       axiosclient
         .post(route, formData)
         .then(async datafetch => {
-          setPersonnalInfo({ id: '', name: '', file: new File([], ''), type: '' });
+          setsaveUpload({ id: '', name: '', file: new File([], ''), type: '' });
           if (datafetch.data.error) {
             console.error(datafetch.data.error);
           } else {
@@ -79,7 +79,7 @@ export default function CreateUploadModal({
     e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement>,
   ) => {
     if (saveUpload) {
-      setPersonnalInfo(() => ({ ...saveUpload, [e.target.name]: e.target.value }));
+      setsaveUpload(() => ({ ...saveUpload, [e.target.name]: e.target.value }));
     }
   };
   return (
