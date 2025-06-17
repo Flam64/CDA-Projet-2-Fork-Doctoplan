@@ -33,25 +33,7 @@ export class UserResolver {
     });
     return { users, total };
   }
-  @Query(() => User)
-  @Authorized([UserRole.ADMIN, UserRole.SECRETARY])
-  async getFullUserInfo(@Arg('id') id: string): Promise<User> {
-    const user = await User.findOne({
-      where: { id: +id },
-      relations: ['departement', 'plannings'],
-    });
 
-    if (!user) {
-      throw new GraphQLError(`L'utilisateur avec l'id ${id} n'existe pas`, {
-        extensions: {
-          code: 'USER_NOT_FOUND',
-          originalError: 'Aucun utilisateur trouvéaaaa',
-        },
-      });
-    }
-
-    return user;
-  }
   @Query(() => User)
   @Authorized([UserRole.ADMIN, UserRole.SECRETARY])
   async getUserById(@Arg('id') id: string, @Ctx() context: { user: User }): Promise<User> {
@@ -63,8 +45,9 @@ export class UserResolver {
         role: UserRole.DOCTOR,
       });
     } else {
-      user = await User.findOneBy({
-        id: +id,
+      user = await User.findOne({
+        where: { id: +id },
+        relations: ['departement', 'plannings'],
       });
     }
 

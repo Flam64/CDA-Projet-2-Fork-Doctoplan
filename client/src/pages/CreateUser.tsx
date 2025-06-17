@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   useCreateUserMutation,
-  useGetFullUserInfoLazyQuery,
+  useGetUserByIdLazyQuery,
   useUpdateUserMutation,
 } from '@/types/graphql-generated';
 import { ApolloError } from '@apollo/client';
@@ -84,13 +84,13 @@ export default function CreateUser() {
   const [formData, setFormData] = useState<FormDataType>(initialFormData);
   const [userPlanning, setUserPlanning] = useState<Planning>(initialPlanning);
   const navigate = useNavigate();
-  const [getFullUserInfo, { data: fullUserInfoData, refetch }] = useGetFullUserInfoLazyQuery();
+  const [getFullUserInfo, { data: fullUserInfoData, refetch }] = useGetUserByIdLazyQuery();
   useEffect(() => {
     if (id) {
       const getUserInfo = async () => {
         await getFullUserInfo({
           variables: {
-            getFullUserInfoId: id,
+            id,
           },
         });
       };
@@ -99,7 +99,7 @@ export default function CreateUser() {
   }, [id, getFullUserInfo]);
 
   useEffect(() => {
-    const user = fullUserInfoData?.getFullUserInfo;
+    const user = fullUserInfoData?.getUserById;
     if (user) {
       setFormData({
         lastname: user.lastname,

@@ -31,23 +31,6 @@ export const GET_USER_BY_ID = gql`
       role
       firstname
       lastname
-      profession
-      departement {
-        id
-        label
-      }
-    }
-  }
-`;
-
-export const GET_FULL_USER_INFO_BY_ID = gql`
-  query GetFullUserInfo($getFullUserInfoId: String!) {
-    getFullUserInfo(id: $getFullUserInfoId) {
-      id
-      email
-      role
-      firstname
-      lastname
       tel
       gender
       status
