@@ -14,7 +14,7 @@ type AgendaCalendarProps = {
     avatar: string;
     speciality: string;
   }[];
-  onEventClick: (args: { e: { data: Appointment } }) => void;
+  onEventClick: (args: { e: { data: DayPilot.EventData } }) => void;
   onTimeRangeSelected: (args: {
     start: DayPilot.Date;
     end: DayPilot.Date;

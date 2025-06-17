@@ -1,5 +1,4 @@
 import { DayPilot } from '@daypilot/daypilot-lite-react';
-import type { Appointment } from '@/types/CalendarEvent.type';
 
 type UseAgendaEventHandlersParams = {
   onModalOpen: (modal: { title: string; message: string; onConfirm: () => void }) => void;
@@ -13,13 +12,13 @@ export default function useAgendaEventHandlers({
   navigate,
   limitDate,
 }: UseAgendaEventHandlersParams) {
-  function handleEventClick(args: { e: { data: Appointment } }) {
+  function handleEventClick(args: { e: { data: DayPilot.EventData } }) {
     const event = args.e.data;
 
     onModalOpen({
       title: 'Modifier le rendez-vous',
-      message: `Voulez-vous modifier le rendez-vous de ${event.patient_name} ?`,
-      onConfirm: () => navigate('/secretary'),
+      message: `Voulez-vous modifier le rendez-vous de ${event.text} ?`,
+      onConfirm: () => navigate('/secretary/appointment/' + event.id + '/update'),
     });
   }
 
