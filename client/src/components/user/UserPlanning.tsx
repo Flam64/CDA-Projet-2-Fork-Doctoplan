@@ -19,6 +19,7 @@ type UserPlanningProps = {
   isDisable: boolean;
   setError: (error: string) => void;
   setIsDisable: (isDisable: boolean) => void;
+  id?: string;
 };
 
 export default function UserPlanning({
@@ -28,7 +29,9 @@ export default function UserPlanning({
   setError,
   isDisable,
   setIsDisable,
+  id,
 }: UserPlanningProps) {
+  console.log(userPlanning);
   const timeOptions = useMemo(() => {
     return Array.from({ length: 48 }, (_, i) => {
       const hours = Math.floor(i / 2);
@@ -94,7 +97,9 @@ export default function UserPlanning({
   };
   return (
     <section className="bg-white items-center p-12 mb-4">
-      <h3 className="text-blue font-semibold mb-6">Planning du nouvel utilisateur</h3>
+      <h3 className="text-blue font-semibold mb-6">
+        {id ? 'Planning du médecin' : 'Planning du nouvel médecin'}
+      </h3>
       {error && (
         <div className="p-3 mb-4 text-sm text-red-700 bg-red-100 rounded-lg" role="alert">
           {error}
@@ -110,6 +115,7 @@ export default function UserPlanning({
                 value={userPlanning[en].start}
                 onChange={e => handleChange(en, 'start', e.target.value)}
                 className="border border-gray-300 rounded p-1"
+                disabled={id ? true : false}
               >
                 <option value="">-</option>
                 {timeOptions.map(time => (
@@ -125,6 +131,7 @@ export default function UserPlanning({
                 value={userPlanning[en].end}
                 onChange={e => handleChange(en, 'end', e.target.value)}
                 className="border border-gray-300 rounded p-1"
+                disabled={id ? true : false}
               >
                 <option value="">-</option>
                 {timeOptions.map(time => (

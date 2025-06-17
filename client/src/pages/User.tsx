@@ -47,7 +47,7 @@ export default function User() {
           Nouvel utilistateur
         </Link>
       </header>
-      <section className="bg-bgBodyColor items-center mb-4 h-full overflow-y-auto">
+      <section className="bg-bgBodyColor items-center mb-4 h-full">
         <div className="bg-white m-4 w-2/5 relative border border-borderColor rounded-full">
           <input
             type="text"
@@ -71,17 +71,25 @@ export default function User() {
             <p className="mt-auto mb-auto">
               {firstname} {lastname} - {email} - {departement.label}
             </p>
-            <button
-              onClick={() => {
-                setShowStatusModal(true);
-                setUserId(id);
-              }}
-              className={`text-white px-5 py-2 rounded text-sm w-28 ${
-                status === 'active' ? 'bg-bgActiveStatus' : 'bg-bgInActiveStatus'
-              }`}
-            >
-              {status}
-            </button>
+            <div>
+              <Link
+                to={`create/${id}`}
+                className={`text-white mr-3 px-5 py-2 rounded text-sm bg-bgEdit w-28`}
+              >
+                Modifier
+              </Link>
+              <button
+                onClick={() => {
+                  setShowStatusModal(true);
+                  setUserId(id);
+                }}
+                className={`text-white px-5 py-2 rounded text-sm w-28 ${
+                  status === 'active' ? 'bg-bgActiveStatus' : 'bg-bgInActiveStatus'
+                }`}
+              >
+                {status}
+              </button>
+            </div>
             {userId === id && showStatusModal && (
               <StatusModal
                 data={{
