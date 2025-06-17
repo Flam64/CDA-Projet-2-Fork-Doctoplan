@@ -7,6 +7,7 @@ import useResources from '@/hooks/useResources';
 import DepartmentSelect from '@/components/form/DepartmentSelect';
 import CreatePatient from '@/components/patientFile/CreatePatient';
 import SearchBar from '@/components/form/SearchBar';
+import NoteList from '@/components/note/NoteList';
 import type { Appointment } from '@/types/CalendarEvent.type';
 import { roundStartToNextHalfHour } from '@/utils/roundStartToNextHalfHour';
 import { Link, useNavigate } from 'react-router-dom';
@@ -108,7 +109,7 @@ export default function AgendaWithNavigator() {
 
     setModalContent({
       title: 'Modifier le rendez-vous',
-      message: `Voulez-vous modifier le rendez-vous de ${event.patient_name} ?`,
+      message: `Voulez-vous modifier le rendez-vous de ${event.text} ?`,
       onConfirm: () => navigate('/secretary'), // TODO: navigate to update rdv event.id
     });
 
@@ -232,7 +233,7 @@ export default function AgendaWithNavigator() {
       <section className="flex flex-col lg:flex-row gap-10 mt-6">
         <aside
           aria-label="Navigateur de date"
-          className="flex justify-center lg:justify-start bg-white border-1 p-7 rounded-md border-gray-300"
+          className="flex flex-col justify-center lg:justify-start bg-white border-1 p-7 rounded-md border-gray-300"
         >
           <DayPilotNavigator
             selectMode="Day"
@@ -242,6 +243,7 @@ export default function AgendaWithNavigator() {
             selectionDay={startDate}
             onTimeRangeSelected={args => setStartDate(args.day)}
           />
+          <NoteList dateNote={startDate} />
         </aside>
 
         <section className="lg:hidden" role="navigation" aria-label="Pagination mobile">
