@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import inputPersonnal from '@/types/numPatient.type';
-import CreateUploadModal from '@/components/patientFile/CreateUploadModal';
+import CreateUploadModal from '@/components/modals/CreateUploadModal';
 import { useGetDocumentByIdQuery } from '@/types/graphql-generated';
 import { Link } from 'react-router-dom';
 
@@ -26,11 +26,13 @@ export default function AdminDocs({ patientNum }: inputPersonnal) {
       {showAddDocPatientModal && (
         <div className="fixed inset-0 z-50 flex justify-center  items-center bg-bgModalColor backdrop-blur-xs">
           <CreateUploadModal
-            patientNum={patientNum}
+            id={patientNum}
             onClose={() => {
               setshowAddDocPatientModal(false);
             }}
             GetDocumentByIdQuery={GetDocumentByIdQuery}
+            route={'/upload/patient-file'}
+            typedoc={'patient'}
           />
         </div>
       )}

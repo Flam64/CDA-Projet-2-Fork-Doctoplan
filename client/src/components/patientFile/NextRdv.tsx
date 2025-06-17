@@ -3,6 +3,7 @@ import { useGetNextAppointmentsByPatientQuery } from '@/types/graphql-generated'
 import ModuleList from '../ModuleList';
 import inputPersonnal from '@/types/numPatient.type';
 import { Rdv } from '@/types/appointement.type';
+import { useEffect } from 'react';
 
 let dataNextRdv: Rdv[] = [];
 
@@ -11,6 +12,10 @@ export default function NextRdv({ patientNum }: inputPersonnal) {
     variables: { patientId: patientNum },
   });
   const navigate = useNavigate();
+
+  useEffect(() => {
+    GetNextAppointmentsByPatient.refetch();
+  }, [GetNextAppointmentsByPatient]);
 
   if (GetNextAppointmentsByPatient.loading) return <p>Loading...</p>;
   if (GetNextAppointmentsByPatient.error) return <p>Error</p>;
