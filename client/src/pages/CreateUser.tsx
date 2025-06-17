@@ -10,6 +10,7 @@ import UserProfessionalForm from '@/components/user/UserProfessionalForm';
 import UserPlanning from '@/components/user/UserPlanning';
 import { useNavigate, useParams } from 'react-router-dom';
 import UserButtons from '@/components/user/UserButtons';
+import { formatInputPlanning } from '@/utils/formatInputPlanning';
 
 type FormDataType = {
   lastname: string;
@@ -24,10 +25,16 @@ type FormDataType = {
 };
 
 export type Planning = {
-  [day: string]: {
+  period: {
     start: string;
     end: string;
-    off: boolean;
+    days: {
+      [day: string]: {
+        start: string;
+        end: string;
+        off: boolean;
+      };
+    };
   };
 };
 
@@ -53,10 +60,19 @@ const days = [
   { fr: 'Dimanche', en: 'Sunday' },
 ];
 
-const initialPlanning: Planning = days.reduce((acc, day) => {
-  acc[day.en] = { start: '', end: '', off: false };
-  return acc;
-}, {} as Planning);
+const initialPlanning: Planning = days.reduce(
+  (acc, day) => {
+    acc.period.days[day.en] = { start: '', end: '', off: false };
+    return acc;
+  },
+  {
+    period: {
+      start: '',
+      end: '',
+      days: {},
+    },
+  } as Planning,
+);
 
 export default function CreateUser() {
   const { id } = useParams();
@@ -99,25 +115,31 @@ export default function CreateUser() {
       if (user.role === 'doctor') {
         setIsDoctor(true);
         const planning = user.plannings?.[0];
+        setUserPlanning(prev => ({
+          period: {
+            start:
+              planning && planning.start
+                ? new Date(planning.start).toLocaleDateString('fr-FR')
+                : '',
+            end: planning && planning.end ? new Date(planning.end).toLocaleDateString('fr-FR') : '',
+            days: Object.fromEntries(
+              Object.keys(prev.period.days).map(day => {
+                const lowerDay = day.toLowerCase();
+                const startKey = `${lowerDay}_start` as keyof typeof planning;
+                const endKey = `${lowerDay}_end` as keyof typeof planning;
 
-        setUserPlanning(prev => {
-          return Object.fromEntries(
-            Object.entries(prev).map(([day, dayData]) => {
-              const lowerDay = day.toLowerCase();
-              const startKey = `${lowerDay}_start` as keyof typeof planning;
-              const endKey = `${lowerDay}_end` as keyof typeof planning;
-
-              return [
-                day,
-                {
-                  start: formatTime(planning?.[startKey] || ''),
-                  end: formatTime(planning?.[endKey] || ''),
-                  off: false,
-                },
-              ];
-            }),
-          );
-        });
+                return [
+                  day,
+                  {
+                    start: formatTime(planning?.[startKey] || ''),
+                    end: formatTime(planning?.[endKey] || ''),
+                    off: false,
+                  },
+                ];
+              }),
+            ),
+          },
+        }));
       }
     }
   }, [fullUserInfoData]);
@@ -144,7 +166,9 @@ export default function CreateUser() {
     setError('');
     if (
       isDoctor &&
-      !Object.values(userPlanning).some(day => (day.start !== '' && day.end !== '') || day.off)
+      !Object.values(userPlanning.period.days).some(
+        day => (day.start !== '' && day.end !== '') || day.off,
+      )
     ) {
       setError('Au moins un jour doit être rempli.');
       return;
@@ -153,34 +177,20 @@ export default function CreateUser() {
       setIsDisable(true);
     }
     try {
-      let planningInput: Record<string, string | null> = {};
-      if (isDoctor) {
-        planningInput = Object.keys(userPlanning).reduce(
-          (acc, day) => {
-            const dayLower = day.toLowerCase();
-            acc[`${dayLower}_start`] =
-              (userPlanning[day].off || userPlanning[day].start) === ''
-                ? null
-                : userPlanning[day].start;
-            acc[`${dayLower}_end`] =
-              userPlanning[day].off || userPlanning[day].end === '' ? null : userPlanning[day].end;
-            return acc;
-          },
-          {} as Record<string, string | null>,
-        );
-      }
+      const planningInput = formatInputPlanning(userPlanning, isDoctor);
       const variables = {
         input: {
           ...formData,
           departementId: +formData.departementId,
-          ...(isDoctor && {
-            plannings: [
-              {
-                start: formData.activationDate ?? new Date().toDateString(),
-                ...planningInput,
-              },
-            ],
-          }),
+          ...(isDoctor &&
+            !id && {
+              plannings: [
+                {
+                  start: formData.activationDate ?? new Date().toDateString(),
+                  ...planningInput,
+                },
+              ],
+            }),
         },
       };
       if (!id) {
@@ -196,7 +206,7 @@ export default function CreateUser() {
         });
       }
       await refetch();
-      // navigate('/admin/users');
+      navigate('/admin/users');
     } catch (err) {
       setError(
         err instanceof ApolloError

@@ -253,39 +253,37 @@ export class UserResolver {
     }
   }
 
-  formatTimeForPostgres(timeStr: string | null): string | null {
-    if (!timeStr) {
-      return null;
-    }
-    return `${timeStr.replace('h', ':')}:00`;
-  }
-
-  createPlanning(
-    input: CreatePeriodOfPlanningInput,
-    planning: Planning = new Planning(),
-  ): Planning {
-    if (Object.values(planning).length === 0) {
-      throw new GraphQLError('Au moins un jour doit être rempli.');
-    }
+  createPlanning(input: CreatePeriodOfPlanningInput): Planning {
+    const planning = new Planning();
     const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
     Object.assign(planning, this.createPeriodOfPlanning(planning, input));
-    console.info(planning);
+
     days.forEach((day: string) => {
       const startKey = `${day}_start` as keyof CreatePlanningInput;
       const endKey = `${day}_end` as keyof CreatePlanningInput;
       planning[startKey] = this.formatTimeForPostgres(input[startKey]);
       planning[endKey] = this.formatTimeForPostgres(input[endKey]);
     });
+    if (Object.values(planning).length === 0) {
+      throw new GraphQLError('Au moins un jour doit être rempli.');
+    }
     return planning;
   }
 
-  createPeriodOfPlanning(plan: Planning, input: CreatePeriodOfPlanningInput) {
+  createPeriodOfPlanning(planning: Planning, input: CreatePeriodOfPlanningInput) {
     const startDate = input.start ? new Date(input.start) : new Date();
-    plan.start = startDate.toISOString();
+    planning.start = startDate.toISOString();
     const endDate = new Date(startDate.setMonth(startDate.getMonth() + 3));
     endDate.setDate(endDate.getDate() - 1);
-    plan.end = endDate.toISOString();
-    return plan;
+    planning.end = endDate.toISOString();
+    return planning;
+  }
+
+  formatTimeForPostgres(timeStr: string | null): string | null {
+    if (!timeStr) {
+      return null;
+    }
+    return `${timeStr.replace('h', ':')}:00`;
   }
 
   @Mutation(() => Boolean)
@@ -308,21 +306,13 @@ export class UserResolver {
       });
     }
     try {
-      await dataSource.transaction(async (transactionalEntityManager) => {
-        const updateUser = await this.setUserData(user, input);
-        await transactionalEntityManager.save(updateUser);
-        if (user.role === UserRole.DOCTOR && input.plannings) {
-          console.info(input.plannings);
-          const newPlanning = this.createPlanning(input.plannings[0], user.plannings[0]);
-          await transactionalEntityManager.save(newPlanning);
-        }
-
-        await log('User update', {
-          userId: updateUser.id,
-          email: updateUser.email,
-          role: updateUser.role,
-          createdBy: context.user.id,
-        });
+      const updateUser = await this.setUserData(user, input);
+      await updateUser.save();
+      await log('User update', {
+        userId: updateUser.id,
+        email: updateUser.email,
+        role: updateUser.role,
+        updatedBy: context.user.id,
       });
     } catch (error) {
       throw new GraphQLError(`Échec de la mise à jour de l'utilisateur`, {
