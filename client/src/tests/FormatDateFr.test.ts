@@ -27,8 +27,9 @@ describe('formatDate', () => {
   });
 
   it('should correctly return the current date', () => {
-    const dateNow = new Date().toLocaleDateString();
+    const dateNow = Date(); // 👉 for exemple: Tue Jun 17 2025 17:08:58 GMT+0200 (heure d’été d’Europe centrale)'
     const result = formatDate(dateNow);
-    expect(result).toBe('17/06/2025');
+    const dateNowToTest = new Date().toLocaleDateString('fr'); // 👉 for exemple: 17/06/2025
+    expect(result).toBe(dateNowToTest);
   });
 });
