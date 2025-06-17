@@ -1,4 +1,5 @@
-import { Arg, Query, Resolver, Authorized, Mutation, Ctx } from 'type-graphql';
+import { Arg, Query, Resolver, Authorized, Mutation, Ctx, UseMiddleware } from 'type-graphql';
+import { AuthMiddleware } from '../middlewares/auth.middleware';
 import { GraphQLError } from 'graphql';
 import { Note } from '../entities/note.entity';
 import { NoteInput } from '../types/note.type';
@@ -7,6 +8,7 @@ import { User, UserRole } from '../entities/user.entity';
 @Resolver()
 export class NoteResolver {
   @Query(() => [Note])
+  @UseMiddleware(AuthMiddleware)
   @Authorized([UserRole.SECRETARY, UserRole.DOCTOR])
   async getNoteByIDAndDate(
     @Arg('dateNote') dateNote: string,
