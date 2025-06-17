@@ -1,5 +1,6 @@
 import { DayPilotNavigator, DayPilot } from '@daypilot/daypilot-lite-react';
 import type { RefObject } from 'react';
+import NoteList from '@/components/note/NoteList';
 
 type AgendaDateNavigatorProps = {
   navigatorRef: RefObject<DayPilotNavigator | null>;
@@ -15,7 +16,7 @@ export default function AgendaDateNavigator({
   return (
     <aside
       aria-label="Navigateur de date"
-      className="flex justify-center lg:justify-start bg-white border-1 p-7 rounded-md border-gray-300"
+      className="flex flex-col justify-center lg:justify-start bg-white border-1 p-7 rounded-md border-gray-300"
     >
       <DayPilotNavigator
         ref={navigatorRef}
@@ -43,6 +44,7 @@ export default function AgendaDateNavigator({
           }
         }}
       />
+      <NoteList dateNote={startDate} />
     </aside>
   );
 }
