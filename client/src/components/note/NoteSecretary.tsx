@@ -68,14 +68,14 @@ export default function NoteSecretary({ id, dateNote, onClose, Noterefetch }: No
       : await CreateNoteMutation({ variables: { noteData: saveNote } });
 
     if (datasave) {
-      toast.success('Note ' + isUpdate ? 'modifié' : 'créée' + ' avec succès ! 🚀');
+      toast.success('Note ' + (isUpdate ? 'modifié' : 'créée') + ' avec succès ! 🚀');
       onClose();
       await Noterefetch({ dateNote: dateNote.toString().slice(0, 10) });
     }
     if (errorssave) {
-      toast.error('Erreur lors de la ' + isUpdate ? 'modification' : 'création' + ' de la note.');
+      toast.error('Erreur lors de la ' + (isUpdate ? 'modification' : 'création') + ' de la note.');
       throw new Error(
-        'Erreur lors de la ' + isUpdate ? 'modification' : 'création' + ' de la note',
+        'Erreur lors de la ' + (isUpdate ? 'modification' : 'création') + ' de la note',
       );
     }
   };
