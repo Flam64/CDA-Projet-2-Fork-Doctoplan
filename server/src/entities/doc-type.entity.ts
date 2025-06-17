@@ -5,6 +5,7 @@ import { PatientDoc } from './patient-doc.entity';
 export enum DocumentType {
   PATIENT = 'patient',
   APPOINTMENT = 'appointment',
+  APPOINTMENTDOCTOR = 'appointmentDoctor',
 }
 
 @ObjectType()

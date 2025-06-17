@@ -139,6 +139,11 @@ export class Data1746023848449 implements MigrationInterface {
       INSERT INTO doc_type VALUES (4,'Carte vitale','patient');
       INSERT INTO doc_type VALUES (5,'Notes','patient');
     `);
+
+    await queryRunner.query(`
+      INSERT INTO doc_type VALUES (6,'Odronnance','appointment');
+      INSERT INTO doc_type VALUES (7,'Autre','appointment');
+    `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

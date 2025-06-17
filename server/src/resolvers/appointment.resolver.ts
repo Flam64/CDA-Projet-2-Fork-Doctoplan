@@ -1,5 +1,6 @@
-import { Resolver, Query, Arg, Authorized, Mutation } from 'type-graphql';
+import { Resolver, Query, Arg, Ctx, Authorized, Mutation, UseMiddleware } from 'type-graphql';
 import { GraphQLError } from 'graphql';
+import { AuthMiddleware } from '../middlewares/auth.middleware';
 import log from '../utils/log';
 import { Appointment, AppointmentStatus } from '../entities/appointment.entity';
 import { Between, Equal, MoreThan, LessThan } from 'typeorm';
@@ -24,6 +25,26 @@ export class AppointmentResolver {
       },
       order: { start_time: 'ASC' },
     });
+  }
+
+  @Query(() => Appointment)
+  @Authorized([UserRole.SECRETARY])
+  async getAppointmentsById(@Arg('Id') Id: number): Promise<Appointment> {
+    try {
+      const myAppointment = Appointment.findOneOrFail({
+        where: {
+          id: Equal(Id),
+        },
+        order: { start_time: 'ASC' },
+      });
+      return myAppointment;
+    } catch {
+      throw new GraphQLError('Rendez-vous incorrect', {
+        extensions: {
+          code: 'APPOINTMENT_FAIL',
+        },
+      });
+    }
   }
 
   @Query(() => [Appointment])
@@ -128,11 +149,16 @@ export class AppointmentResolver {
   }
 
   @Mutation(() => Appointment)
+  @UseMiddleware(AuthMiddleware)
   @Authorized([UserRole.SECRETARY])
   async createAppointment(
+    @Ctx() context: { user: User },
     @Arg('appointmentInput') appointmentInput: AppointmentCreateInput,
   ): Promise<Appointment> {
-    const checkDoctor = await User.findOneBy({ id: +appointmentInput.user_id });
+    const checkDoctor = await User.findOneBy({
+      id: +appointmentInput.user_id,
+      role: UserRole.DOCTOR,
+    });
     if (!checkDoctor) {
       throw new GraphQLError('Docteur non trouvé', {
         extensions: {
@@ -141,7 +167,7 @@ export class AppointmentResolver {
       });
     }
 
-    const checkSecretary = await User.findOneBy({ id: +appointmentInput.created_by });
+    const checkSecretary = await User.findOneBy({ id: +context.user.id, role: UserRole.SECRETARY });
     if (!checkSecretary) {
       throw new GraphQLError('Secretaire non trouvé', {
         extensions: {
@@ -224,6 +250,102 @@ export class AppointmentResolver {
       }
     } else {
       throw new GraphQLError(`Échec de la création de du rendez-vous`, {
+        extensions: {
+          code: 'APPOINTMENT_CREATION_FAILED',
+        },
+      });
+    }
+  }
+
+  @Mutation(() => Appointment)
+  @UseMiddleware(AuthMiddleware)
+  @Authorized([UserRole.SECRETARY])
+  async updateAppointment(
+    @Ctx() context: { user: User },
+    @Arg('appointmentInput') appointmentInput: AppointmentCreateInput,
+    @Arg('id') id: string,
+  ): Promise<Appointment> {
+    const checkAppointment = await Appointment.findOneBy({ id: +id });
+    if (!checkAppointment) {
+      throw new GraphQLError('rendez-vous non trouvé', {
+        extensions: {
+          code: 'APPOINTMENT_NOT_FOUND',
+        },
+      });
+    }
+
+    const checkDoctor = await User.findOneBy({ id: +appointmentInput.user_id });
+    if (!checkDoctor) {
+      throw new GraphQLError('Docteur non trouvé', {
+        extensions: {
+          code: 'DOCTOR_NOT_FOUND',
+        },
+      });
+    }
+
+    const checkSecretary = await User.findOneBy({ id: +context.user.id });
+    if (!checkSecretary) {
+      throw new GraphQLError('Secretaire non trouvé', {
+        extensions: {
+          code: 'SECRETARY_NOT_FOUND',
+        },
+      });
+    }
+
+    const checkPatient = await Patient.findOneBy({ id: appointmentInput.patient_id });
+    if (!checkPatient) {
+      throw new GraphQLError('Patient non trouvé', {
+        extensions: {
+          code: 'PATIENT_NOT_FOUND',
+        },
+      });
+    }
+
+    const checkAppointmentType = await AppointmentType.findOneBy({
+      id: +appointmentInput.appointmentType,
+    });
+    if (!checkAppointmentType) {
+      throw new GraphQLError('Rendez-vous non trouvé', {
+        extensions: {
+          code: 'APPOINTMENT_TYPE_NOT_FOUND',
+        },
+      });
+    }
+    const start_date_input = new Date(appointmentInput.start_time);
+    const now = new Date();
+    const threeMonthsLater = new Date();
+    threeMonthsLater.setMonth(threeMonthsLater.getMonth() + 3);
+    if (start_date_input >= now && start_date_input < threeMonthsLater) {
+      try {
+        checkAppointment.start_time = start_date_input;
+        checkAppointment.duration = appointmentInput.duration;
+        checkAppointment.status = appointmentInput.status || AppointmentStatus.CONFIRMED;
+        checkAppointment.doctor = checkDoctor; // Docteur
+        checkAppointment.patient = checkPatient; // Patient
+        checkAppointment.created_by = checkSecretary; // Secretaire
+        checkAppointment.status = AppointmentStatus.CONFIRMED;
+        checkAppointment.departement = checkDoctor.departement; // Docteur service
+        checkAppointment.appointmentType = checkAppointmentType; // Rendez-vous type
+        const appointmentreturn = await checkAppointment.save();
+
+        await log('Modification rendez-vous', {
+          updated_by: checkSecretary.id,
+          appointment: appointmentreturn.id,
+          patient: checkPatient.id,
+          doctor: checkDoctor.id,
+        });
+
+        return appointmentreturn;
+      } catch (error) {
+        throw new GraphQLError(`Échec de la modification du rendez-vous`, {
+          extensions: {
+            code: 'APPOINTMENT_CREATION_FAILED',
+            originalError: error.message,
+          },
+        });
+      }
+    } else {
+      throw new GraphQLError(`Échec de la modification du rendez-vous`, {
         extensions: {
           code: 'APPOINTMENT_CREATION_FAILED',
         },
