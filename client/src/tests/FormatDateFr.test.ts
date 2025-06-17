@@ -3,8 +3,8 @@ import { formatDate } from '@/utils/formatDateFr';
 
 describe('formatDate', () => {
   it('the conversion from yyyy-mm-dd to dd-mm-yyyy format is correct', () => {
-    //const inputDate = '2025-06-17';
-    const result = formatDate('2025-06-17');
+    const dateConversion = '2025-06-17';
+    const result = formatDate(dateConversion);
     expect(result).toBe('17/06/2025');
   });
 
