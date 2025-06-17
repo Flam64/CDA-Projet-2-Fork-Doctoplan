@@ -2,7 +2,11 @@ import InputForm from '@/components/form/InputForm';
 import { useState } from 'react';
 import FileForm from '@/components/form/FileForm';
 import SelectForm from '@/components/form/SelectForm';
-import { GetDocumentByIdQueryHookResult, useGetAllDocTypeQuery } from '@/types/graphql-generated';
+import {
+  GetDocumentByIdQueryHookResult,
+  useGetAllDocTypeQuery,
+  GetDocumentByIdAppSecQueryHookResult,
+} from '@/types/graphql-generated';
 import axiosclient from '@/services/axios';
 
 type Upload = {
@@ -13,15 +17,19 @@ type Upload = {
 };
 
 type UploadModalProps = {
-  patientNum: string;
+  id: string;
   onClose: () => void;
-  GetDocumentByIdQuery: GetDocumentByIdQueryHookResult;
+  GetDocumentByIdQuery: GetDocumentByIdQueryHookResult | GetDocumentByIdAppSecQueryHookResult;
+  route: string;
+  typedoc: string;
 };
 
 export default function CreateUploadModal({
-  patientNum,
+  id,
   onClose,
   GetDocumentByIdQuery,
+  route,
+  typedoc,
 }: UploadModalProps) {
   const [saveUpload, setPersonnalInfo] = useState<Upload | null>({
     id: '',
@@ -30,7 +38,7 @@ export default function CreateUploadModal({
     type: '',
   });
   const getAllDocTypeQuery = useGetAllDocTypeQuery({
-    variables: { typeDoc: 'patient' },
+    variables: { typeDoc: typedoc },
   });
 
   if (getAllDocTypeQuery.loading || !getAllDocTypeQuery.data?.getAllDocType) return null;
@@ -51,9 +59,9 @@ export default function CreateUploadModal({
       formData.append('myfile', file);
       formData.append('name', saveUpload?.name || '');
       formData.append('type', saveUpload?.type || '');
-      formData.append('patientId', patientNum.toString());
+      formData.append('id', id.toString());
       axiosclient
-        .post('/upload/patient-file', formData)
+        .post(route, formData)
         .then(async datafetch => {
           setPersonnalInfo({ id: '', name: '', file: new File([], ''), type: '' });
           if (datafetch.data.error) {

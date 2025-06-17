@@ -39,8 +39,8 @@
       "npm --prefix mail run format:file"
     ],
     "upload/**/*.{js,ts}": [
-      "npm --prefix mail run lint:file",
-      "npm --prefix mail run format:file"
+      "npm --prefix upload run lint:file",
+      "npm --prefix upload run format:file"
     ]
   },
   "devDependencies": {
