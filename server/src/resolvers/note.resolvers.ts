@@ -26,6 +26,7 @@ export class NoteResolver {
   }
 
   @Query(() => Note)
+  @UseMiddleware(AuthMiddleware)
   @Authorized([UserRole.SECRETARY, UserRole.DOCTOR])
   async getNoteByID(@Arg('id') id: string, @Ctx() context: { user: User }): Promise<Note | null> {
     return await Note.findOne({
@@ -40,6 +41,7 @@ export class NoteResolver {
   }
 
   @Mutation(() => Note)
+  @UseMiddleware(AuthMiddleware)
   @Authorized([UserRole.SECRETARY, UserRole.DOCTOR])
   async createNote(
     @Arg('noteData') noteData: NoteInput,
@@ -77,6 +79,7 @@ export class NoteResolver {
   }
 
   @Mutation(() => Boolean)
+  @UseMiddleware(AuthMiddleware)
   @Authorized([UserRole.SECRETARY, UserRole.DOCTOR])
   async updateNote(
     @Arg('noteData') noteData: NoteInput,
