@@ -28,7 +28,7 @@ export class AppointmentResolver {
   }
 
   @Query(() => Appointment)
-  @Authorized([UserRole.SECRETARY])
+  @Authorized([UserRole.SECRETARY, UserRole.DOCTOR])
   async getAppointmentsById(@Arg('Id') Id: number): Promise<Appointment> {
     try {
       const myAppointment = Appointment.findOneOrFail({
