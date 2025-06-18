@@ -147,6 +147,15 @@ export default function DoctorAgendaPage() {
               user?.role === 'doctor' ? 'Chercher un patient' : 'Chercher un patient ou un médecin'
             }
             userRole="doctor"
+            renderActionButton={
+              <button
+                type="button"
+                className="standard-button whitespace-nowrap text-base"
+                onClick={() => navigate('/doctor')}
+              >
+                Gérer mes congés
+              </button>
+            }
           />
         </div>
       </div>
