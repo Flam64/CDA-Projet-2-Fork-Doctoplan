@@ -107,6 +107,10 @@ const router = createBrowserRouter([
             path: '/doctor/appointment/:id/update',
             element: <UpdateAppointementDoctor />,
           },
+          {
+            path: '/doctor/patient/:id',
+            element: <PatientFileSecretary />,
+          },
         ],
       },
     ],

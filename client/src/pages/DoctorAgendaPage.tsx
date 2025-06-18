@@ -77,6 +77,7 @@ export default function DoctorAgendaPage() {
     },
     navigate,
     limitDate: DayPilot.Date.today().addMonths(3),
+    userRole: 'doctor',
   });
 
   const weekDays = useMemo(() => {
@@ -114,7 +115,7 @@ export default function DoctorAgendaPage() {
             className="standard-button text-base whitespace-nowrap"
             onClick={() =>
               navigate(appointmentCreateUrl, {
-                state: { from: '/doctor/agenda' },
+                state: { from: '/doctor' },
               })
             }
           >
@@ -144,6 +145,16 @@ export default function DoctorAgendaPage() {
             searchSources={searchSources}
             placeholder={
               user?.role === 'doctor' ? 'Chercher un patient' : 'Chercher un patient ou un médecin'
+            }
+            userRole="doctor"
+            renderActionButton={
+              <button
+                type="button"
+                className="standard-button whitespace-nowrap text-base"
+                onClick={() => navigate('/doctor')}
+              >
+                Gérer mes congés
+              </button>
             }
           />
         </div>
@@ -198,11 +209,10 @@ export default function DoctorAgendaPage() {
           onConfirm={() => {
             setModalOpen(false);
             modalContent.onConfirm();
-            navigate(user?.role === 'doctor' ? '/doctor' : `/secretary/doctor/${doctorId}/agenda`);
           }}
           onCancel={() => {
             setModalOpen(false);
-            navigate(user?.role === 'doctor' ? '/doctor' : `/secretary/doctor/${doctorId}/agenda`);
+            navigate(`/doctor`);
           }}
         />
       </section>
