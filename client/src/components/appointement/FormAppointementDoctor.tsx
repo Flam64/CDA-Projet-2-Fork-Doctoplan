@@ -1,5 +1,5 @@
 import { FormEvent, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAppointmentContext } from '@/hooks/useAppointment';
 import PatientSearch from '@/components/appointement/PatientSearch';
 import SelectForm from '@/components/form/SelectForm';
@@ -83,6 +83,9 @@ export default function FormAppointementDoctor({
         <button type="submit" className="standard-button mt-4 transition">
           Créer le rendez-vous
         </button>
+        <Link to="/doctor" className="standard-button-red transition text-center">
+          Annuler
+        </Link>
       </form>
     </div>
   );
