@@ -7,7 +7,7 @@ import AppointmentTypesSelect from '@/components/form/AppointmentTypesSelect';
 import { Patient } from '@/types/patient.type';
 import { PatientAppointment } from '@/types/appointement.type';
 import { useAppointmentContext } from '@/hooks/useAppointment';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 
 type FormAppointmentUpdateProps = {
@@ -69,9 +69,14 @@ export default function FormAppointmentUpdate({
               <TimeDisplayInputEnd />
             </div>
           </section>
-          <button type="submit" className="cta mx-auto">
-            Modifier
-          </button>
+          <div className="flex flex-col mt-4">
+            <button type="submit" className="standard-button">
+              Modifier
+            </button>
+            <Link to="/secretary" className="standard-button-red text-center mt-4">
+              Annuler
+            </Link>
+          </div>
         </section>
       </form>
     </>
