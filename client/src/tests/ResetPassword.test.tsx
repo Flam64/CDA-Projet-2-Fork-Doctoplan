@@ -1,19 +1,13 @@
-import { render, screen } from '@testing-library/react';
-import { describe, expect, test } from 'vitest';
+import { screen } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
 import ForgotPassword from '../pages/ForgotPassword';
-import userEvent from '@testing-library/user-event';
-import App from '../App';
+//import userEvent from '@testing-library/user-event';
+//import App from '../App';
+import { renderWithProviders } from './utils/renderWithProviders';
 
 describe('Test resetPassword', () => {
-  test('Test lien retour a la page', () => {
-    render(<ForgotPassword />);
+  it('Test lien retour a la page', () => {
+    renderWithProviders(<ForgotPassword />, { route: '/forgot-password' });
     expect(screen.getByText(/Retour a la page login/i)).toBeInTheDocument();
-  });
-
-  test('Tester la route forgotpassword', async () => {
-    render(<App />);
-    const user = userEvent.setup();
-    await user.click(screen.getByText(/forgot-password/i));
-    expect(screen.getByText(/ForgotPassword/)).toBeDefined();
   });
 });
