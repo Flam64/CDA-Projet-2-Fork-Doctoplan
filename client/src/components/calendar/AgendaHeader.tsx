@@ -25,6 +25,7 @@ type AgendaHeaderProps = {
   setIsOpen: (open: boolean) => void;
   searchSources: SearchSource<Patient | Doctor>[];
   placeholder?: string;
+  userRole: string;
 };
 
 export default function AgendaHeader({
@@ -40,6 +41,7 @@ export default function AgendaHeader({
   setIsOpen,
   searchSources,
   placeholder,
+  userRole,
 }: AgendaHeaderProps) {
   const [showAddPatientModal, setShowAddPatientModal] = useState(false);
 
@@ -93,7 +95,7 @@ export default function AgendaHeader({
                 const patient = item as Patient;
                 return (
                   <Link
-                    to={`/secretary/patient/${patient.id}`}
+                    to={`/${userRole}/patient/${patient.id}`}
                     className="block p-2 border-b last:border-b-0 hover:bg-gray-100"
                     onClick={onSelect}
                   >
