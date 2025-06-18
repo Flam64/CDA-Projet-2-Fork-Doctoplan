@@ -83,7 +83,10 @@ export default function FormAppointementDoctor({
         <button type="submit" className="standard-button mt-4 transition">
           Créer le rendez-vous
         </button>
-        <Link to="/doctor" className="standard-button-red transition text-center">
+        <Link
+          to={isDoctor ? '/doctor' : '/secretary'}
+          className="standard-button-red transition text-center"
+        >
           Annuler
         </Link>
       </form>
