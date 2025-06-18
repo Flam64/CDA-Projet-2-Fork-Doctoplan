@@ -25,7 +25,7 @@ type AgendaHeaderProps = {
   setIsOpen: (open: boolean) => void;
   searchSources: SearchSource<Patient | Doctor>[];
   placeholder?: string;
-  userRole: string;
+  userRole: 'secretary' | 'doctor';
 };
 
 export default function AgendaHeader({
