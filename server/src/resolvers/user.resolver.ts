@@ -10,7 +10,7 @@ import { AuthMiddleware } from '../middlewares/auth.middleware';
 import jwt from 'jsonwebtoken';
 import { ResetPasswordInput, sendEmailInput } from '../types/user.type';
 import { Planning } from '../entities/planning.entity';
-import { CreatePlanningInput } from '../types/planning.type';
+import { CreatePlanningInput, CreatePeriodOfPlanningInput } from '../types/planning.type';
 import { dataSource } from '../database/client';
 
 @Resolver()
@@ -45,8 +45,9 @@ export class UserResolver {
         role: UserRole.DOCTOR,
       });
     } else {
-      user = await User.findOneBy({
-        id: +id,
+      user = await User.findOne({
+        where: { id: +id },
+        relations: ['departement', 'plannings'],
       });
     }
 
@@ -186,13 +187,10 @@ export class UserResolver {
     });
   }
 
-  @Mutation(() => User)
+  @Mutation(() => Boolean)
   @Authorized([UserRole.ADMIN])
   @UseMiddleware(AuthMiddleware)
-  async createUser(
-    @Ctx() context: { user: User },
-    @Arg('input') input: CreateUserInput,
-  ): Promise<User> {
+  async createUser(@Ctx() context: { user: User }, @Arg('input') input: CreateUserInput) {
     const userExist = await User.findOneBy({ email: input.email });
     if (userExist) {
       throw new GraphQLError('User with this email already exists', {
@@ -203,22 +201,9 @@ export class UserResolver {
       });
     }
 
-    const departement = await Departement.findOneBy({ id: +input.departementId });
-    if (!departement) {
-      throw new GraphQLError('Department not found');
-    }
     try {
-      const newUser = new User();
       await dataSource.transaction(async (transactionalEntityManager) => {
-        newUser.email = input.email;
-        newUser.firstname = input.firstname;
-        newUser.lastname = input.lastname;
-        newUser.role = input.role as UserRole;
-        newUser.gender = input.gender;
-        newUser.tel = input.tel;
-        newUser.activationDate = input.activationDate ?? new Date().toDateString();
-        newUser.status = input.status as UserStatus;
-        newUser.departement = departement;
+        const newUser = await this.setUserData(new User(), input);
         await transactionalEntityManager.save(newUser);
         await log('User created', {
           userId: newUser.id,
@@ -228,8 +213,7 @@ export class UserResolver {
         });
 
         if (input.role === UserRole.DOCTOR && input.plannings) {
-          const planning = input.plannings[0];
-          const newPlanning = this.createPlanning(planning);
+          const newPlanning = this.createPlanning(input.plannings[0]);
           newPlanning.user = newUser;
           await transactionalEntityManager.save(newPlanning);
           await log('User planning created', {
@@ -240,7 +224,7 @@ export class UserResolver {
           });
         }
       });
-      return newUser;
+      return true;
     } catch (error) {
       console.error(error);
       throw new GraphQLError(`Échec de la création de l'utilisateur`, {
@@ -252,6 +236,32 @@ export class UserResolver {
     }
   }
 
+  createPlanning(input: CreatePeriodOfPlanningInput): Planning {
+    const planning = new Planning();
+    const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+    Object.assign(planning, this.createPeriodOfPlanning(planning, input));
+
+    days.forEach((day: string) => {
+      const startKey = `${day}_start` as keyof CreatePlanningInput;
+      const endKey = `${day}_end` as keyof CreatePlanningInput;
+      planning[startKey] = this.formatTimeForPostgres(input[startKey]);
+      planning[endKey] = this.formatTimeForPostgres(input[endKey]);
+    });
+    if (Object.values(planning).length === 0) {
+      throw new GraphQLError('Au moins un jour doit être rempli.');
+    }
+    return planning;
+  }
+
+  createPeriodOfPlanning(planning: Planning, input: CreatePeriodOfPlanningInput) {
+    const startDate = input.start ? new Date(input.start) : new Date();
+    planning.start = startDate.toISOString();
+    const endDate = new Date(startDate.setMonth(startDate.getMonth() + 3));
+    endDate.setDate(endDate.getDate() - 1);
+    planning.end = endDate.toISOString();
+    return planning;
+  }
+
   formatTimeForPostgres(timeStr: string | null): string | null {
     if (!timeStr) {
       return null;
@@ -259,30 +269,43 @@ export class UserResolver {
     return `${timeStr.replace('h', ':')}:00`;
   }
 
-  createPlanning(input: Planning) {
-    const newPlanning = new Planning();
-    const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-
-    days.forEach((day: string) => {
-      const startKey = `${day}_start` as keyof CreatePlanningInput;
-      const endKey = `${day}_end` as keyof CreatePlanningInput;
-
-      const formattedStart = this.formatTimeForPostgres(input[startKey] as string);
-      if (formattedStart) {
-        newPlanning[startKey] = formattedStart;
-      }
-
-      const formattedEnd = this.formatTimeForPostgres(input[endKey] as string);
-      if (formattedEnd) {
-        newPlanning[endKey] = formattedEnd;
-      }
+  @Mutation(() => Boolean)
+  @Authorized([UserRole.ADMIN])
+  @UseMiddleware(AuthMiddleware)
+  async updateUser(
+    @Ctx() context: { user: User },
+    @Arg('id') id: string,
+    @Arg('input') input: CreateUserInput,
+  ) {
+    const user = await User.findOne({
+      where: { id: +id },
+      relations: ['departement', 'plannings'],
     });
-
-    if (Object.values(newPlanning).length === 0) {
-      throw new GraphQLError('Au moins un jour doit être rempli.');
+    if (!user) {
+      throw new GraphQLError('User non trouvé', {
+        extensions: {
+          code: 'User_NOT_FOUND',
+        },
+      });
     }
-    newPlanning.start = input.start ?? new Date().toISOString();
-    return newPlanning;
+    try {
+      const updateUser = await this.setUserData(user, input);
+      await updateUser.save();
+      await log('User update', {
+        userId: updateUser.id,
+        email: updateUser.email,
+        role: updateUser.role,
+        updatedBy: context.user.id,
+      });
+    } catch (error) {
+      throw new GraphQLError(`Échec de la mise à jour de l'utilisateur`, {
+        extensions: {
+          code: 'USER_UPDATE_FAILED',
+          originalError: error.message,
+        },
+      });
+    }
+    return true;
   }
 
   @Mutation(() => Boolean)
@@ -301,5 +324,24 @@ export class UserResolver {
 
     await User.update({ id: user.id }, { ...user });
     return true;
+  }
+
+  async setUserData(user: User, input: CreateUserInput) {
+    const departement = await Departement.findOneBy({ id: +input.departementId });
+    if (!departement) {
+      throw new GraphQLError('Department not found');
+    }
+    if (user.email !== input.email) {
+      user.email = input.email;
+    }
+    user.firstname = input.firstname;
+    user.lastname = input.lastname;
+    user.role = input.role as UserRole;
+    user.gender = input.gender;
+    user.tel = input.tel;
+    user.activationDate = input.activationDate ?? new Date().toDateString();
+    user.status = input.status as UserStatus;
+    user.departement = departement;
+    return user;
   }
 }

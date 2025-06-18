@@ -1,9 +1,11 @@
-import { Arg, Query, Resolver } from 'type-graphql';
+import { Arg, Query, Resolver, Authorized } from 'type-graphql';
 import { DoctorAppointmentSlot } from '../entities/doctorAppointmentSlot.entity';
 import redisClient from '../database/redis';
+import { UserRole } from '../entities/user.entity';
 
 @Resolver()
 export class doctorAppointmentSlotResolver {
+  @Authorized([UserRole.SECRETARY])
   @Query(() => [DoctorAppointmentSlot])
   async getDoctorSlotByID(
     @Arg('doctorId') doctorId: number,
@@ -25,6 +27,7 @@ export class doctorAppointmentSlotResolver {
     return doctorAppointment;
   }
 
+  @Authorized([UserRole.SECRETARY, UserRole.ADMIN])
   @Query(() => [DoctorAppointmentSlot])
   async getDoctorSlotByDepartement(
     @Arg('departement_id') departement_id: number,

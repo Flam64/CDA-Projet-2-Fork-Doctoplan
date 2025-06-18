@@ -1,5 +1,45 @@
 import { gql } from '@apollo/client';
 
+export const GET_APPOINTEMENTS_BY_ID = gql`
+  query GetAppointmentsById($id: Float!) {
+    getAppointmentsById(Id: $id) {
+      appointmentType {
+        id
+      }
+      departement {
+        id
+        label
+      }
+      doctor {
+        id
+      }
+      duration
+      patient {
+        id
+        social_number
+        firstname
+        lastname
+      }
+      start_time
+      status
+    }
+  }
+`;
+
+export const GET_APPOINTEMENTS_DOC_SECRETARY = gql`
+  query GetDocumentByIDAppSec($appointmentId: String!) {
+    getDocumentByIDAppSec(appointmentId: $appointmentId) {
+      docType {
+        id
+        name
+      }
+      id
+      name
+      url
+    }
+  }
+`;
+
 export const GET_LAST_APPOINTEMENTS = gql`
   query GetLastAppointmentsByPatient($patientId: String!) {
     getLastAppointmentsByPatient(patientId: $patientId) {
@@ -93,6 +133,27 @@ export const GET_DOCTOR_SLOT_BY_DPT = gql`
 export const MUTATION_CREATE_APPOINTMENT = gql`
   mutation createAppointment($appointmentInput: AppointmentCreateInput!) {
     createAppointment(appointmentInput: $appointmentInput) {
+      id
+      start_time
+      patient {
+        email
+        firstname
+        lastname
+      }
+      doctor {
+        firstname
+        lastname
+      }
+    }
+  }
+`;
+
+export const MUTATION_UPDATE_APPOINTMENT = gql`
+  mutation UpdateAppointment(
+    $updateAppointmentId: String!
+    $appointmentInput: AppointmentCreateInput!
+  ) {
+    updateAppointment(id: $updateAppointmentId, appointmentInput: $appointmentInput) {
       id
     }
   }

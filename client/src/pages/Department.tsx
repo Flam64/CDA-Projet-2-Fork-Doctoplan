@@ -6,6 +6,7 @@ import { useState } from 'react';
 import CreateDepartmentModal from '../components/department/CreateDepartmentModal';
 import StatusModal from '@/components/StatusModal';
 import Pagination from '@/components/logs/Pagination';
+import searchIcon from '@/assets/search-icon.svg';
 
 export default function Department() {
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -77,7 +78,7 @@ export default function Department() {
                 aria-label="Chercher un service"
               />
               <img
-                src="/public/search-icon.svg"
+                src={searchIcon}
                 alt=""
                 role="presentation"
                 className="absolute right-3 top-1/2 -translate-y-1/2"

@@ -60,3 +60,11 @@ export const PATIENT_UPDATE_MUTATION = gql`
     }
   }
 `;
+
+export const PATIENT_CREATE_MUTATION = gql`
+  mutation createPatient($patientData: PatientInput!) {
+    createPatient(patientData: $patientData) {
+      id
+    }
+  }
+`;

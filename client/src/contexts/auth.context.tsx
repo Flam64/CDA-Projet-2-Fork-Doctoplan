@@ -50,6 +50,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [loginMutation, setUser, setIsLoading, setError],
   );
 
+  const logout = useCallback(() => {
+    setUser(null);
+    // Then i will remove the token from the backend in a other PR too not make to much 🦉
+  }, [setUser]);
+
   const contextValue = useMemo<AuthContextType>(
     () => ({
       user,
@@ -57,8 +62,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading,
       error,
       login,
+      logout,
     }),
-    [user, isLoading, error, login],
+    [user, isLoading, error, login, logout],
   );
 
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;

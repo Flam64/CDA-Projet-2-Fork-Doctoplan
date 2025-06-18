@@ -1,9 +1,8 @@
 import { Arg, Query, Resolver, Int, Authorized } from 'type-graphql';
-import { ILike } from 'typeorm';
 
-import { Log } from '../entities/log.entity';
-import { LogsResponse } from '../types/log.type';
+import { Log, LogsResponse } from '../types/log.type';
 import { UserRole } from '../entities/user.entity';
+import { grpcClient } from '../utils/grpcClient';
 
 @Resolver()
 export class LogResolver {
@@ -15,21 +14,34 @@ export class LogResolver {
     @Arg('search', { nullable: true }) search?: string,
   ): Promise<LogsResponse> {
     try {
-      const whereClause = search ? { titre: ILike(`%${search}%`) } : {};
+      const response = await grpcClient.getLogs();
 
-      const [logs, total] = await Log.findAndCount({
-        where: whereClause,
-        order: { createAt: 'DESC' },
-        take: limit,
-        skip: offset,
-      });
+      let logs = response.logs.map((log) => ({
+        id: log.id,
+        titre: log.titre,
+        metadata: JSON.stringify(log.metadata),
+        createAt: log.create_at,
+      }));
+
+      if (search) {
+        logs = logs.filter((log) => log.titre.toLowerCase().includes(search.toLowerCase()));
+      }
+
+      const total = logs.length;
+
+      if (offset !== undefined) {
+        logs = logs.slice(offset);
+      }
+      if (limit !== undefined) {
+        logs = logs.slice(0, limit);
+      }
 
       return {
         logs,
         total,
       };
     } catch (error) {
-      console.error('Error fetching logs:', error);
+      console.error('Error fetching logs via gRPC:', error);
       throw new Error('Failed to fetch logs');
     }
   }
@@ -38,9 +50,21 @@ export class LogResolver {
   @Query(() => Log, { nullable: true })
   async getLogById(@Arg('id') id: string): Promise<Log | null> {
     try {
-      return await Log.findOne({ where: { id } });
+      const response = await grpcClient.getLogs();
+      const log = response.logs.find((l) => l.id === id);
+
+      if (!log) {
+        return null;
+      }
+
+      return {
+        id: log.id,
+        titre: log.titre,
+        metadata: JSON.stringify(log.metadata),
+        createAt: log.create_at,
+      };
     } catch (error) {
-      console.error('Error fetching log by ID:', error);
+      console.error('Error fetching log by ID via gRPC:', error);
       throw new Error('Failed to fetch log');
     }
   }

@@ -22,6 +22,8 @@ export default function LoginPage() {
         navigate('/secretary');
       } else if (role === 'agent') {
         navigate('/agent');
+      } else if (role === 'doctor') {
+        navigate('/doctor');
       } else {
         console.error('role not supported for redirection: ', role);
       }

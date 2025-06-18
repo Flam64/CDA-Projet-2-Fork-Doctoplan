@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Confirmation de rendez-vous</title>
+  <%- include('./includes/header.ejs') %>
+</head>
+
+<body>
+  <div class="header">
+    <h1>DoctoPlan</h1>
+    <p>Confirmation de votre rendez-vous</p>
+  </div>
+
+  <div class="content">
+    <h2>Bonjour !</h2>
+    <p>Votre rendez-vous a été confirmé avec le Dr. <strong><%= dataTemplate.doctor %></strong>.</p>
+    <p>Voici les détails :</p>
+    <ul>
+      <li>Date : <strong><%= dataTemplate.date %></strong></li>
+      <li>Heure : <strong><%= dataTemplate.hour %></strong></li>
+    </ul>
+    <p>Merci et à bientôt !</p>
+
+    <%- include('./includes/footer.ejs') %>
+  </div>
+</body>
+
+</html>

@@ -2,7 +2,7 @@ import AdminDocs from '../components/patientFile/AdminDocs';
 import FollowBy from '../components/patientFile/FollowBy';
 import LastRdv from '../components/patientFile/LastRdv';
 import NextRdv from '../components/patientFile/NextRdv';
-import PersonnalInformation from '../components/patientFile/PersonnalInformation';
+import UpdatePatient from '../components/patientFile/UpdatePatient';
 import { useParams } from 'react-router-dom';
 
 export default function PatientFileSecretary() {
@@ -15,7 +15,7 @@ export default function PatientFileSecretary() {
       {/* Colonne 1 */}
       <section className="p-4 md:row-span-2">
         <div className="bg-white rounded-2xl p-4">
-          <PersonnalInformation patientNum={id} />
+          <UpdatePatient patientNum={id} />
         </div>{' '}
         {/* TODO: make a PatientInformations component instead of this div */}
       </section>

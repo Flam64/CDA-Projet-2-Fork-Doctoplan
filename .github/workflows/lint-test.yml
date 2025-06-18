@@ -68,6 +68,26 @@ jobs:
       - name: Run ESLint
         run: npm run lint:mail
 
+  lint-upload:
+    name: Lint Upload
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm run install:upload
+
+      - name: Run ESLint
+        run: npm run lint:upload
 
   format-check:
     name: Format Check
@@ -88,6 +108,7 @@ jobs:
           npm run install:client
           npm run install:server
           npm run install:mail
+          npm run install:upload
 
       - name: Check Client Formatting
         run: npm run format:client
@@ -97,3 +118,6 @@ jobs:
 
       - name: Check Mail Formatting
         run: npm run format:mail
+
+      - name: Check Upload Formatting
+        run: npm run format:upload
