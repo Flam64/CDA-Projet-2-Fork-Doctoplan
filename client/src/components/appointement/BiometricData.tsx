@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -29,7 +29,7 @@ interface BiometricDataset {
 
 type BiometricType = 'arterial' | 'temperature' | 'respiratory' | 'imc';
 
-const BiometricDataComponent: React.FC = () => {
+export default function BiometricDataComponent() {
   const [activeTab, setActiveTab] = useState<BiometricType>('arterial');
 
   const biometricData: Record<BiometricType, BiometricDataset[]> = {
@@ -275,6 +275,4 @@ const BiometricDataComponent: React.FC = () => {
       </div>
     </motion.div>
   );
-};
-
-export default BiometricDataComponent;
+}
