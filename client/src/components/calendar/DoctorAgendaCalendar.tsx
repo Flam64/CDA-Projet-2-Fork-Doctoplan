@@ -8,7 +8,7 @@ type DoctorAgendaCalendarProps = {
   startDate: DayPilot.Date;
   visibleDays: DayPilot.Date[];
   appointments: Appointment[];
-  onEventClick: (args: { e: { data: Appointment } }) => void;
+  onEventClick: (args: { e: { data: DayPilot.EventData } }) => void;
   onTimeRangeSelected: (args: {
     start: DayPilot.Date;
     end: DayPilot.Date;

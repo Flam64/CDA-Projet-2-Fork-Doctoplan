@@ -60,6 +60,7 @@ export default function AgendaWithNavigator() {
     onModalOpen: setModalContentAndOpen,
     navigate,
     limitDate: DayPilot.Date.today().addMonths(3),
+    userRole: 'secretary',
   });
 
   function setModalContentAndOpen(content: {
@@ -88,6 +89,7 @@ export default function AgendaWithNavigator() {
         isOpen={isOpen}
         setIsOpen={setIsOpen}
         searchSources={searchSources}
+        userRole="secretary"
       />
 
       {/* DESKTOP PAGINATION CONTROLS */}
