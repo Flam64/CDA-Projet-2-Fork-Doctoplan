@@ -8,6 +8,8 @@ const storage = multer.diskStorage({
     let folder = 'public/patient/';
     if (req.originalUrl === '/upload/appointment-sec-file') {
       folder = 'public/appointmentSecretary/';
+    } else if (req.originalUrl === '/upload/appointment-doctor-file') {
+      folder = 'public/appointmentDoctor/';
     }
     cb(null, folder);
   },
@@ -32,6 +34,13 @@ router.post(
   authMiddleware(['secretary']),
   upload.single('myfile'),
   PatientFile.upload('appointment-sec-file'),
+);
+
+router.post(
+  '/upload/appointment-doctor-file',
+  authMiddleware(['doctor']),
+  upload.single('myfile'),
+  PatientFile.upload('appointment-doctor-file'),
 );
 
 export default router;

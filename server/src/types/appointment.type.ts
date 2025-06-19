@@ -76,7 +76,6 @@ export class AppointmentDocInput {
 @InputType()
 export class AppointmentNoteInput {
   @Field()
-  @Length(1, 255)
   description: string;
 
   @Field(() => [AppointmentDocInput], { nullable: true })
