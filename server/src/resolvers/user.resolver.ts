@@ -236,7 +236,6 @@ export class UserResolver {
         }
       });
       const email = input.email;
-
       const url = `${process.env.FRONTEND_URL}/login`;
 
       await fetch(`${process.env.SERVER_SEND_MAIL}/mail/user/create`, {
@@ -246,6 +245,7 @@ export class UserResolver {
         },
         body: JSON.stringify({ email, url, generatedPassword, departementLabel, role }),
       });
+
       return true;
     } catch (error) {
       console.error(error);
