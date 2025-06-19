@@ -1,7 +1,10 @@
 import { gql } from '@apollo/client';
 
 export const CREATE_PLANNING = gql`
-  mutation createDoctorPlanning($createDoctorPlanningId: String!, $input: CreatePlanningInput!) {
+  mutation createDoctorPlanning(
+    $createDoctorPlanningId: String!
+    $input: CreatePeriodOfPlanningInput!
+  ) {
     createDoctorPlanning(id: $createDoctorPlanningId, input: $input) {
       start
       end

@@ -256,9 +256,6 @@ export class UserResolver {
   createPeriodOfPlanning(planning: Planning, input: CreatePeriodOfPlanningInput) {
     const startDate = input.start ? new Date(input.start) : new Date();
     planning.start = startDate.toISOString();
-    const endDate = new Date(startDate.setMonth(startDate.getMonth() + 3));
-    endDate.setDate(endDate.getDate() - 1);
-    planning.end = endDate.toISOString();
     return planning;
   }
 
