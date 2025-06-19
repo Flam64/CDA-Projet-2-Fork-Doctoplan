@@ -19,7 +19,7 @@ export default function DoctorSelect() {
   });
 
   return (
-    <div className="mb-4 max-w-xs">
+    <div className="mb-4">
       <SelectForm
         name="user_id"
         value={SaveAppointment.user_id || ''}

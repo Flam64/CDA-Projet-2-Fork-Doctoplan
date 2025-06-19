@@ -44,9 +44,10 @@ export default function FormAppointmentUpdate({
   return (
     <>
       <form onSubmit={handleSubmitInfo}>
-        <section className="flex flex-col gap-4">
+        <section className="flex flex-col gap-4 w-full max-w-[600px] mx-auto">
+          {/* User Info */}
           <div className="w-full min-h-[5rem] flex items-center transition-all duration-300 mt-4">
-            <div className="animate-fadeInSlideIn w-full" key={selectedPatient.id}>
+            <div className="animate-fadeInSlideIn w-full max-w-md mx-auto">
               <UserItem<Patient> user={selectedPatient}>
                 {p => (
                   <p>
@@ -59,17 +60,32 @@ export default function FormAppointmentUpdate({
               </UserItem>
             </div>
           </div>
-          <DoctorSelect />
-          <AppointmentTypesSelect />
-          <section className="flex flex-col gap-2">
-            {/* Ligne des champs : Jour, Début, Fin */}
-            <div className="flex gap-4 items-end whitespace-nowrap">
+
+          {/* Doctor Select */}
+          <div className="w-full max-w-md mx-auto">
+            <DoctorSelect />
+          </div>
+
+          {/* Appointment Type Select */}
+          <div className="w-full max-w-md mx-auto">
+            <AppointmentTypesSelect />
+          </div>
+
+          {/* Date and Time Selection (adjust width) */}
+          <section className="flex gap-4 items-end whitespace-nowrap w-full max-w-md mx-auto">
+            <div className="w-full max-w-[150px]">
               <DateDisplayInput />
+            </div>
+            <div className="w-full max-w-[150px]">
               <TimeSelectStart />
+            </div>
+            <div className="w-full max-w-[150px]">
               <TimeDisplayInputEnd />
             </div>
           </section>
-          <div className="flex flex-col mt-4">
+
+          {/* Action Buttons */}
+          <div className="flex flex-col mt-4 w-full max-w-md mx-auto">
             <button type="submit" className="standard-button">
               Modifier
             </button>

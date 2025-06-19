@@ -6,6 +6,7 @@ import DocSecretaryAppointment from '@/components/appointement/DocSecretaryAppoi
 import { useGetAppointmentsByIdQuery } from '@/types/graphql-generated';
 import { Patient } from '@/types/patient.type';
 import { PatientAppointment } from '@/types/appointement.type';
+import calendarClock from '@/assets/calendar-clock.svg';
 
 export default function UpdateAppointement() {
   const { id } = useParams();
@@ -51,27 +52,35 @@ export default function UpdateAppointement() {
   return (
     <>
       <CreateAppointmentContext>
-        <div className="flex flex-col w-3/4 mb-2">
+        <div className="flex flex-col w-full xl:w-3/4 mb-2 px-4 xl:px-0">
           <section className="flex flex-col gap-4 self-start">
-            <div className="flex gap-4">
-              <img src="/calendar-clock.svg" alt="icone de creation de rendez-vous" />
-              <h2>Modifier un rendez-vous</h2>
+            <div className="flex gap-4 items-center">
+              <img src={calendarClock} alt="icone de creation de rendez-vous" className="w-6 h-6" />
+              <h2 className="text-lg xl:text-xl font-semibold">Modifier un rendez-vous</h2>
             </div>
           </section>
         </div>
-        <section className="bg-bgBodyColor sm:w-full md:w-3/4 p-4 sm:p-6 md:p-12 lg:p-24 rounded-sm shadow-md border-borderColor flex flex-col md:flex-row justify-center gap-10 md:gap-45">
-          <div className="flex gap-4 flex-col">
-            <aside className="bg-white border-1 p-7 rounded-md border-gray-300 max-h-80 flex flex-col">
+
+        <section className="bg-bgBodyColor w-full xl:w-3/4 p-4 sm:p-6 md:p-12 lg:p-16 rounded-sm shadow-md border border-borderColor flex flex-col xl:flex-row justify-center gap-8 xl:gap-12 mx-4 xl:mx-auto">
+          {/* Agenda + Notes */}
+          <div className="flex flex-col gap-4 w-full xl:w-auto flex-none items-center xl:items-start">
+            <aside className="bg-white border p-6 rounded-md border-gray-300 flex items-center justify-center w-[300px] h-[300px]">
               <Calendar />
             </aside>
-            <DocSecretaryAppointment idAppointment={id || ''} />
+            <div className="bg-white border p-2 rounded-md border-gray-300 w-[300px]">
+              <DocSecretaryAppointment idAppointment={id || ''} />
+            </div>
           </div>
-          <FormAppointmentUpdate
-            idAppointment={id || ''}
-            selectedPatient={selectedPatient}
-            selectedAppointment={selectedAppointment}
-            selectedDepartment={dataAppointment?.getAppointmentsById.departement.id}
-          />
+
+          {/* Formulaire */}
+          <div className="w-full xl:w-2/3">
+            <FormAppointmentUpdate
+              idAppointment={id || ''}
+              selectedPatient={selectedPatient}
+              selectedAppointment={selectedAppointment}
+              selectedDepartment={dataAppointment?.getAppointmentsById.departement.id}
+            />
+          </div>
         </section>
       </CreateAppointmentContext>
     </>
