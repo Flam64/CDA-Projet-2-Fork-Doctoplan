@@ -1,22 +1,22 @@
 import axios from './axios';
 
-export interface Log {
+export type Log = {
   id: string;
   titre: string;
   metadata: string;
   createAt: string;
-}
+};
 
-export interface LogsResponse {
+export type LogsResponse = {
   logs: Log[];
   total: number;
-}
+};
 
-export interface LogsQueryParams {
+export type LogsQueryParams = {
   limit?: number;
   offset?: number;
   search?: string | undefined;
-}
+};
 
 export const logsService = {
   async getLogs(params: LogsQueryParams = {}): Promise<LogsResponse> {
