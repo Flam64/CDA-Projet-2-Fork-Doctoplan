@@ -1,3 +1,6 @@
+ALTER DATABASE doctoplan
+SET TIMEZONE TO 'Europe/Paris';
+
 CREATE TABLE mytable(
   id INTEGER NOT NULL,
    description                  VARCHAR(255) NOT NULL
