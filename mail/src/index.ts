@@ -18,7 +18,7 @@ app.get('/mail', (req, res) => {
   res.send('Welcome to the server (email sending management).');
 });
 
-const port = process.env.SERVER_PORT_MAIL || '3030';
+const port = process.env.SERVER_PORT_MAIL;
 
 // 📋 checking that the SMTP server is working properly
 transporter.verify((error, success) => {
