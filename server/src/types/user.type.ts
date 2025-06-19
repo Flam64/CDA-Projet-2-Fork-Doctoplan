@@ -2,7 +2,7 @@ import { Field, InputType, Int, ObjectType } from 'type-graphql';
 import { User, UserRole, UserStatus } from '../entities/user.entity';
 import { IsEmail, Matches } from 'class-validator';
 import { Planning } from '../entities/planning.entity';
-import { CreatePlanningInput } from './planning.type';
+import { CreatePeriodOfPlanningInput } from './planning.type';
 
 @InputType()
 export class CreateUserInput {
@@ -34,7 +34,7 @@ export class CreateUserInput {
   @Field(() => String, { nullable: true })
   status?: UserStatus;
 
-  @Field(() => [CreatePlanningInput], { nullable: true })
+  @Field(() => [CreatePeriodOfPlanningInput], { nullable: true })
   plannings?: Planning[];
 }
 

@@ -25,6 +25,7 @@ type AgendaHeaderProps = {
   setIsOpen: (open: boolean) => void;
   searchSources: SearchSource<Patient | Doctor>[];
   placeholder?: string;
+  userRole: 'secretary' | 'doctor';
 };
 
 export default function AgendaHeader({
@@ -40,6 +41,7 @@ export default function AgendaHeader({
   setIsOpen,
   searchSources,
   placeholder,
+  userRole,
 }: AgendaHeaderProps) {
   const [showAddPatientModal, setShowAddPatientModal] = useState(false);
 
@@ -59,13 +61,18 @@ export default function AgendaHeader({
 
         {enableCreatePatient && (
           <>
-            <button
-              type="button"
-              className="standard-button w-auto whitespace-nowrap text-base"
-              onClick={() => setShowAddPatientModal(true)}
-            >
-              Créer un patient
-            </button>
+            <div className="flex gap-2 flex-wrap">
+              <button
+                type="button"
+                className="standard-button w-auto whitespace-nowrap text-base"
+                onClick={() => setShowAddPatientModal(true)}
+              >
+                Créer un patient
+              </button>
+
+              {renderActionButton && <div className="flex-shrink-0">{renderActionButton}</div>}
+            </div>
+
             {showAddPatientModal && (
               <div className="fixed inset-0 z-50 flex justify-center items-center bg-bgModalColor backdrop-blur-xs">
                 <CreatePatient onClose={() => setShowAddPatientModal(false)} />
@@ -74,7 +81,9 @@ export default function AgendaHeader({
           </>
         )}
 
-        {renderActionButton && <div className="flex-shrink-0">{renderActionButton}</div>}
+        {!enableCreatePatient && renderActionButton && (
+          <div className="flex-shrink-0">{renderActionButton}</div>
+        )}
       </div>
 
       {/* Right: Search bar */}
@@ -93,7 +102,7 @@ export default function AgendaHeader({
                 const patient = item as Patient;
                 return (
                   <Link
-                    to={`/secretary/patient/${patient.id}`}
+                    to={`/${userRole}/patient/${patient.id}`}
                     className="block p-2 border-b last:border-b-0 hover:bg-gray-100"
                     onClick={onSelect}
                   >

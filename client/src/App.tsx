@@ -20,7 +20,6 @@ import ResetPassword from './pages/ResetPassword';
 import DoctorAgendaPage from './pages/DoctorAgendaPage';
 import DoctorPlanning from './pages/DoctorPlanning';
 import CreatePlanning from './pages/CreatePlanning';
-import AppointementDoctorAllNote from './pages/AppointementDoctorAllNote';
 
 const router = createBrowserRouter([
   {
@@ -117,14 +116,6 @@ const router = createBrowserRouter([
           {
             path: '/doctor/appointment/:id/update',
             element: <UpdateAppointementDoctor />,
-          },
-          {
-            path: '/doctor/appointment/:id/AllNotes',
-            element: <AppointementDoctorAllNote />,
-          },
-          {
-            path: '/doctor/patient/:id',
-            element: <PatientFileSecretary />,
           },
         ],
       },

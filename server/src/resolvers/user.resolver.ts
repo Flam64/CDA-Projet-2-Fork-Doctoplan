@@ -10,7 +10,7 @@ import { AuthMiddleware } from '../middlewares/auth.middleware';
 import jwt from 'jsonwebtoken';
 import { ResetPasswordInput, sendEmailInput } from '../types/user.type';
 import { Planning } from '../entities/planning.entity';
-import { CreatePlanningInput } from '../types/planning.type';
+import { CreatePlanningInput, CreatePeriodOfPlanningInput } from '../types/planning.type';
 import { dataSource } from '../database/client';
 
 @Resolver()
@@ -45,8 +45,9 @@ export class UserResolver {
         role: UserRole.DOCTOR,
       });
     } else {
-      user = await User.findOneBy({
-        id: +id,
+      user = await User.findOne({
+        where: { id: +id },
+        relations: ['departement', 'plannings'],
       });
     }
 
@@ -200,13 +201,9 @@ export class UserResolver {
       });
     }
 
-    const departement = await Departement.findOneBy({ id: +input.departementId });
-    if (!departement) {
-      throw new GraphQLError('Department not found');
-    }
     try {
       await dataSource.transaction(async (transactionalEntityManager) => {
-        const newUser = this.setUserData(new User(), input, departement);
+        const newUser = await this.setUserData(new User(), input);
         await transactionalEntityManager.save(newUser);
         await log('User created', {
           userId: newUser.id,
@@ -216,7 +213,7 @@ export class UserResolver {
         });
 
         if (input.role === UserRole.DOCTOR && input.plannings) {
-          const newPlanning = this.createPlanning(new Planning(), input.plannings[0]);
+          const newPlanning = this.createPlanning(input.plannings[0]);
           newPlanning.user = newUser;
           await transactionalEntityManager.save(newPlanning);
           await log('User planning created', {
@@ -239,36 +236,34 @@ export class UserResolver {
     }
   }
 
+  createPlanning(input: CreatePeriodOfPlanningInput): Planning {
+    const planning = new Planning();
+    const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+    Object.assign(planning, this.createPeriodOfPlanning(planning, input));
+
+    days.forEach((day: string) => {
+      const startKey = `${day}_start` as keyof CreatePlanningInput;
+      const endKey = `${day}_end` as keyof CreatePlanningInput;
+      planning[startKey] = this.formatTimeForPostgres(input[startKey]);
+      planning[endKey] = this.formatTimeForPostgres(input[endKey]);
+    });
+    if (Object.values(planning).length === 0) {
+      throw new GraphQLError('Au moins un jour doit être rempli.');
+    }
+    return planning;
+  }
+
+  createPeriodOfPlanning(planning: Planning, input: CreatePeriodOfPlanningInput) {
+    const startDate = input.start ? new Date(input.start) : new Date();
+    planning.start = startDate.toISOString();
+    return planning;
+  }
+
   formatTimeForPostgres(timeStr: string | null): string | null {
     if (!timeStr) {
       return null;
     }
     return `${timeStr.replace('h', ':')}:00`;
-  }
-
-  createPlanning(newPlanning: Planning, input: CreatePlanningInput) {
-    const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-
-    days.forEach((day: string) => {
-      const startKey = `${day}_start` as keyof CreatePlanningInput;
-      const endKey = `${day}_end` as keyof CreatePlanningInput;
-
-      const formattedStart = this.formatTimeForPostgres(input[startKey] as string);
-      if (formattedStart) {
-        newPlanning[startKey] = formattedStart;
-      }
-
-      const formattedEnd = this.formatTimeForPostgres(input[endKey] as string);
-      if (formattedEnd) {
-        newPlanning[endKey] = formattedEnd;
-      }
-    });
-
-    if (Object.values(newPlanning).length === 0) {
-      throw new GraphQLError('Au moins un jour doit être rempli.');
-    }
-    newPlanning.start = input.start ?? new Date().toISOString();
-    return newPlanning;
   }
 
   @Mutation(() => Boolean)
@@ -291,20 +286,13 @@ export class UserResolver {
       });
     }
     try {
-      await dataSource.transaction(async (transactionalEntityManager) => {
-        const updateUser = this.setUserData(user, input, user.departement);
-        await transactionalEntityManager.save(updateUser);
-        if (user.role === UserRole.DOCTOR && input.plannings) {
-          const newPlanning = this.createPlanning(user.plannings[0], input.plannings[0]);
-          await transactionalEntityManager.save(newPlanning);
-        }
-
-        await log('User update', {
-          userId: updateUser.id,
-          email: updateUser.email,
-          role: updateUser.role,
-          createdBy: context.user.id,
-        });
+      const updateUser = await this.setUserData(user, input);
+      await updateUser.save();
+      await log('User update', {
+        userId: updateUser.id,
+        email: updateUser.email,
+        role: updateUser.role,
+        updatedBy: context.user.id,
       });
     } catch (error) {
       throw new GraphQLError(`Échec de la mise à jour de l'utilisateur`, {
@@ -335,7 +323,11 @@ export class UserResolver {
     return true;
   }
 
-  setUserData(user: User, input: CreateUserInput, departement: Departement) {
+  async setUserData(user: User, input: CreateUserInput) {
+    const departement = await Departement.findOneBy({ id: +input.departementId });
+    if (!departement) {
+      throw new GraphQLError('Department not found');
+    }
     if (user.email !== input.email) {
       user.email = input.email;
     }
