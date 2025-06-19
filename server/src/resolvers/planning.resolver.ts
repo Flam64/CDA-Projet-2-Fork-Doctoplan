@@ -3,7 +3,7 @@ import { User, UserRole } from '../entities/user.entity';
 import { GraphQLError } from 'graphql';
 import log from '../utils/log';
 import { Planning } from '../entities/planning.entity';
-import { CreatePlanningInput } from '../types/planning.type';
+import { CreatePeriodOfPlanningInput, CreatePlanningInput } from '../types/planning.type';
 import { AuthMiddleware } from '../middlewares/auth.middleware';
 
 @Resolver()
@@ -27,13 +27,17 @@ export class PlanningResolver {
   @UseMiddleware(AuthMiddleware)
   async createDoctorPlanning(
     @Ctx() context: { user: User },
-    @Arg('input') input: CreatePlanningInput,
+    @Arg('input') input: CreatePeriodOfPlanningInput,
     @Arg('id') id: string,
   ): Promise<Planning> {
-    const user = await User.findOneBy({ id: +id, role: UserRole.DOCTOR });
+    const user = await User.findOne({
+      where: { id: +id, role: UserRole.DOCTOR },
+      relations: ['plannings'],
+    });
     if (!user) {
       throw new GraphQLError('Doctor non trouvé');
     }
+
     function formatTimeForPostgres(timeStr: string | null): string | null {
       if (!timeStr) {
         return null;
@@ -59,6 +63,14 @@ export class PlanningResolver {
         }
       });
       newPlanning.start = input.start ?? new Date().toISOString();
+      const planningToUpdate = user.plannings.find((plan) => plan.end === null);
+      if (planningToUpdate) {
+        const endDate = new Date(newPlanning.start);
+        endDate.setDate(endDate.getDate() - 1);
+        planningToUpdate.end = endDate.toISOString();
+        planningToUpdate.save();
+      }
+
       newPlanning.user = user;
       await newPlanning.save();
       await log('User planning created', {

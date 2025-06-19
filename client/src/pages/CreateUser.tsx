@@ -245,9 +245,9 @@ export default function CreateUser() {
               }}
             />
           </article>
-          {!isDoctor && <UserButtons id={id ?? null} isDisable={isDisable} />}
+          {(!isDoctor || id) && <UserButtons id={id ?? null} isDisable={isDisable} />}
         </section>
-        {isDoctor && (
+        {isDoctor && !id && (
           <UserPlanning
             userPlanning={userPlanning}
             setUserPlanning={setUserPlanning}
