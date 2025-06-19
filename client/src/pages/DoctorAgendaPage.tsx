@@ -3,18 +3,19 @@ import { useMemo, useState } from 'react';
 import { DayPilot } from '@daypilot/daypilot-lite-react';
 
 import { useAuth } from '@/hooks/useAuth';
-import useAppointmentsData from '@/hooks/useAppointmentsData';
 import useResponsiveAgendaPageSize from '@/hooks/useResponsiveAgendaPageSize';
 import useSyncAgendaWithLegalLimit from '@/hooks/useSyncAgendaWithLegalLimit';
 import useAgendaEventHandlers from '@/hooks/useAgendaEventHandlers';
 import useSearchSources from '@/hooks/useSearchSources';
+import { useGetUserByIdQuery } from '@/types/graphql-generated';
+
+import useDoctorWeekAppointments from '@/hooks/useDoctorWeekAppointments';
 
 import AgendaHeader from '@/components/calendar/AgendaHeader';
 import AgendaPagination from '@/components/calendar/AgendaPagination';
 import DoctorAgendaCalendar from '@/components/calendar/DoctorAgendaCalendar';
 import AgendaDateNavigator from '@/components/calendar/AgendaDateNavigator';
 import ConfirmationModal from '@/components/modals/ConfirmationModal';
-import { useGetUserByIdQuery } from '@/types/graphql-generated';
 
 export default function DoctorAgendaPage() {
   const { id } = useParams();
@@ -65,21 +66,6 @@ export default function DoctorAgendaPage() {
     return monday;
   }, [startDate]);
 
-  const { appointments } = useAppointmentsData(
-    doctorId !== undefined ? [Number(doctorId)] : [],
-    selectedDate,
-  );
-
-  const { handleEventClick, handleTimeRangeSelected } = useAgendaEventHandlers({
-    onModalOpen: content => {
-      setModalContent(content);
-      setModalOpen(true);
-    },
-    navigate,
-    limitDate: DayPilot.Date.today().addMonths(3),
-    userRole: 'doctor',
-  });
-
   const weekDays = useMemo(() => {
     const monday = new Date(selectedDate);
     monday.setDate(monday.getDate() - monday.getDay() + 1);
@@ -92,9 +78,30 @@ export default function DoctorAgendaPage() {
 
   const pageSize = useResponsiveAgendaPageSize();
   const [currentPage, setCurrentPage] = useState(0);
-  const visibleDays = weekDays.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
+  const visibleDays = useMemo(
+    () => weekDays.slice(currentPage * pageSize, (currentPage + 1) * pageSize),
+    [weekDays, currentPage, pageSize],
+  );
+
+  const appointmentDays = useMemo(() => visibleDays.map(day => day.toDate()), [visibleDays]);
+
+  const { appointments } = useDoctorWeekAppointments(
+    doctorId !== undefined ? Number(doctorId) : undefined,
+    appointmentDays,
+  );
+
+  const { handleEventClick, handleTimeRangeSelected } = useAgendaEventHandlers({
+    onModalOpen: content => {
+      setModalContent(content);
+      setModalOpen(true);
+    },
+    navigate,
+    limitDate: DayPilot.Date.today().addMonths(3),
+    userRole: 'doctor',
+  });
 
   if (doctorLoading) return null;
+
   return (
     <section
       className="py-6 px-6 md:px-24 mb-6 animate-fadeInSlideIn"
@@ -105,7 +112,6 @@ export default function DoctorAgendaPage() {
         role="group"
         aria-label="Contrôles principaux"
       >
-        {/* Left: bouton + titre */}
         <div
           className="flex items-center gap-4 flex-wrap min-h-[42px]"
           role="group"
@@ -113,11 +119,7 @@ export default function DoctorAgendaPage() {
         >
           <button
             className="standard-button text-base whitespace-nowrap"
-            onClick={() =>
-              navigate(appointmentCreateUrl, {
-                state: { from: '/doctor' },
-              })
-            }
+            onClick={() => navigate(appointmentCreateUrl, { state: { from: '/doctor' } })}
           >
             Créer un rendez-vous
           </button>
@@ -134,7 +136,6 @@ export default function DoctorAgendaPage() {
           </h1>
         </div>
 
-        {/* Right: barre de recherche */}
         <div className="w-full lg:w-auto" role="group" aria-label="Recherche">
           <AgendaHeader
             showDepartmentSelector={false}
@@ -160,7 +161,6 @@ export default function DoctorAgendaPage() {
         </div>
       </div>
 
-      {/* Pagination desktop */}
       <section
         className="hidden lg:flex justify-end items-center gap-4 mb-4"
         role="navigation"
@@ -182,7 +182,6 @@ export default function DoctorAgendaPage() {
           onDateSelect={handleDateSelectionWithLimit}
         />
 
-        {/* Pagination mobile */}
         <section className="lg:hidden mb-4" role="navigation" aria-label="Pagination mobile">
           <AgendaPagination
             currentPage={currentPage}
