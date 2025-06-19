@@ -6,6 +6,7 @@ import DocSecretaryAppointment from '@/components/appointement/DocSecretaryAppoi
 import { useGetAppointmentsByIdQuery } from '@/types/graphql-generated';
 import { Patient } from '@/types/patient.type';
 import { PatientAppointment } from '@/types/appointement.type';
+import calendarClock from '@/assets/calendar-clock.svg';
 
 export default function UpdateAppointement() {
   const { id } = useParams();
@@ -54,7 +55,7 @@ export default function UpdateAppointement() {
         <div className="flex flex-col w-3/4 mb-2">
           <section className="flex flex-col gap-4 self-start">
             <div className="flex gap-4">
-              <img src="/calendar-clock.svg" alt="icone de creation de rendez-vous" />
+              <img src={calendarClock} alt="icone de modification de rendez-vous" />
               <h2>Modifier un rendez-vous</h2>
             </div>
           </section>
