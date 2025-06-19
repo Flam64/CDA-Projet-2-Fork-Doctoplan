@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hôpital DoctoPlan</title>
+  <!-- 💡 adding the file that makes up the header -->
+  <%- include('./includes/header.ejs') %>
+</head>
+
+<body>
+  <div class="header">
+    <h1>DoctoPlan</h1>
+    <p>Mail de confirmation</p>
+  </div>
+
+  <div class="content">
+    <h2>Bonjour !</h2>
+    <p>Le service informatique vient de vous créer un droits d’accès au logiciel DPI en tant que <%= dataTemplate.role %>, du service <%= dataTemplate.departementLabel %>
+    </p>
+    <p>Voici vos informations de connexion : <%= dataTemplate.generatedPassword %> </p>
+
+    <%- include('./includes/footer.ejs') %>
+</body>
+
+</html>
