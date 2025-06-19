@@ -10,6 +10,7 @@ import (
 	grpc "logs-server/internal/grpc"
 	"logs-server/internal/handlers"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	grpc_go "google.golang.org/grpc"
@@ -41,7 +42,18 @@ func main() {
 	go startGrpcServer(grpcPort)
 
 	server := gin.Default()
+
+	server.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173", "http://127.0.0.1:5173"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
+
 	server.GET("/", handlers.GetLogs)
+	server.GET("/logs", handlers.GetLogs)
+	server.GET("/logs/:id", handlers.GetLogById)
 	server.Run(":" + port)
 }
 
