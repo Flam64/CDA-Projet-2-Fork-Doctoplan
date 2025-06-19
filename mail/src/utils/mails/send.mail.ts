@@ -5,7 +5,15 @@ type EmailOptions = {
   email: string;
   subject: string;
   emailTemplate: string; // 💡 represents file that represents the body of the email to be sent (.ejs file)
-  dataTemplate: { url?: string; doctor?: string; date?: string; hour?: string, departementLabel?: string, generatedPassword?: string, role?: string };
+  dataTemplate: {
+    url?: string;
+    doctor?: string;
+    date?: string;
+    hour?: string;
+    departementLabel?: string;
+    generatedPassword?: string;
+    role?: string;
+  };
 };
 export const sendEmailByTemplate = async ({
   email,
