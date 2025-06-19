@@ -82,8 +82,8 @@ export default function NoteSecretary({ id, dateNote, onClose, Noterefetch }: No
 
   return (
     <>
-      <section className="container mx-auto p-4 gap-4 h-screen w-2/5">
-        <article className="bg-white mx-auto p-4 border border-borderColor rounded-sm h-100 overflow-auto">
+      <section className="w-full max-w-[90%] sm:max-w-[600px] md:max-w-[700px] lg:w-2/5 mx-auto p-4 h-screen flex items-center justify-center">
+        <article className="bg-white w-full p-4 border border-borderColor rounded-md max-h-[90vh] overflow-auto">
           <h2 className="text-xl font-semibold mb-4">Nouvelle Note {id}</h2>
           <form onSubmit={handleSubmitInfo} autoComplete="off">
             <TextareaForm
@@ -102,11 +102,11 @@ export default function NoteSecretary({ id, dateNote, onClose, Noterefetch }: No
               required={true}
               value={(saveNote && saveNote.dateNote) || ''}
             />
-            <div className="flex items-center">
-              <button type="button" className="cta-red mx-auto" onClick={onClose}>
+            <div className="flex items-center gap-4 justify-center mt-4">
+              <button type="button" className="cta-red" onClick={onClose}>
                 Annuler
               </button>
-              <button type="submit" className="cta mx-auto">
+              <button type="submit" className="cta">
                 Valider
               </button>
             </div>
