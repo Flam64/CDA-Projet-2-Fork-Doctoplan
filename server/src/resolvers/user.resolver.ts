@@ -202,8 +202,19 @@ export class UserResolver {
     }
 
     try {
+      let departementLabel = '';
+      let role = '';
+      const generatedPassword =
+        Array.from(crypto.getRandomValues(new Uint32Array(4)))
+          .map((n) => n.toString(36))
+          .join('')
+          .slice(0, 12) + Math.random().toString(36).slice(2, 4).toUpperCase();
+
       await dataSource.transaction(async (transactionalEntityManager) => {
         const newUser = await this.setUserData(new User(), input);
+        newUser.password = await argon2.hash(generatedPassword);
+        departementLabel = newUser.departement.label;
+        role = newUser.role;
         await transactionalEntityManager.save(newUser);
         await log('User created', {
           userId: newUser.id,
@@ -224,6 +235,17 @@ export class UserResolver {
           });
         }
       });
+      const email = input.email;
+      const url = `${process.env.FRONTEND_URL}/login`;
+
+      await fetch(`${process.env.SERVER_SEND_MAIL}/mail/user/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, url, generatedPassword, departementLabel, role }),
+      });
+
       return true;
     } catch (error) {
       console.error(error);
