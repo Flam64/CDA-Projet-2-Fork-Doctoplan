@@ -6,6 +6,7 @@ import { renderWithProviders } from './utils/renderWithProviders';
 
 describe('ForgotPassword', () => {
   it('should display the link back to the login page', () => {
+    // 📦 custom function call (renderWithProviders) to simulate the router
     renderWithProviders(<ForgotPassword />, { route: '/forgot-password' });
     expect(screen.getByRole('link', { name: 'Retour a la page login' })).toBeInTheDocument();
   });
@@ -29,6 +30,7 @@ describe('ForgotPassword', () => {
     const emailInput = screen.getByRole('textbox', { name: /email/i });
     const submitButton = screen.getByText('Continuer', { selector: 'button' });
 
+    //simulation of clicking on the “Continuer” button with an invalid email in the email field
     fireEvent.change(emailInput, { target: { value: 'doctor@example' } });
     fireEvent.click(submitButton);
 
@@ -42,6 +44,7 @@ describe('ForgotPassword', () => {
     const emailInput = screen.getByRole('textbox', { name: /email/i });
     const submitButton = screen.getByText('Continuer', { selector: 'button' });
 
+    // simulation of clicking the “Continuer” button on an empty email field
     fireEvent.change(emailInput, { target: { value: ' ' } });
     fireEvent.click(submitButton);
 
