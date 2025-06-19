@@ -13,6 +13,7 @@ import { Patient } from './patient.entity';
 import { AppointmentType } from './appointment-type.entity';
 import { appointmentDocSecretary } from './appointmentDocSecretary.entity';
 import { Departement } from './departement.entity';
+import { appointmentNote } from './appointmentNote.entity';
 
 export enum AppointmentStatus {
   CONFIRMED = 'confirmed',
@@ -78,4 +79,8 @@ export class Appointment extends BaseEntity {
   @Field(() => [appointmentDocSecretary])
   @OneToMany(() => appointmentDocSecretary, (administrativeDoc) => administrativeDoc.appointmentDoc)
   administrativeDoc: appointmentDocSecretary[];
+
+  @Field(() => [appointmentNote])
+  @OneToMany(() => appointmentNote, (doctorNote) => doctorNote.appointmentNote)
+  doctorNote: appointmentNote[];
 }
