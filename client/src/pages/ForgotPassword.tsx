@@ -72,6 +72,7 @@ export default function ForgotPassword() {
             Email
           </label>
           <input
+            id="email"
             type="email"
             {...register('email', {
               required: "⚠️ L'email est obligatoire",
@@ -80,7 +81,6 @@ export default function ForgotPassword() {
                 message: "⚠️ L'email n'est pas valide",
               },
             })}
-            id="email"
             placeholder="example@email.com"
             className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
