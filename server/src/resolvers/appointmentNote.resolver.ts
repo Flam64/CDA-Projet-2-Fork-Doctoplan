@@ -22,6 +22,16 @@ export class appointmentNoteResolver {
     });
   }
 
+  @Query(() => appointmentNote)
+  @Authorized([UserRole.DOCTOR])
+  async getSingleNoteByID(@Arg('noteId') noteId: string): Promise<appointmentNote | null> {
+    return await appointmentNote.findOneOrFail({
+      where: { id: +noteId },
+      relations: ['appointmentNote', 'appointmentDocDocteur', 'appointmentDocDocteur.docType'],
+      order: { id: 'DESC' },
+    });
+  }
+
   @Mutation(() => appointmentNote)
   @UseMiddleware(AuthMiddleware)
   @Authorized([UserRole.DOCTOR])
