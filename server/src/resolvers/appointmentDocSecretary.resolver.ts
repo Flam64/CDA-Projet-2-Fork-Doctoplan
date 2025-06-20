@@ -9,7 +9,7 @@ import { UserRole } from '../entities/user.entity';
 @Resolver()
 export class appointmentDocSecretaryResolver {
   @Query(() => [appointmentDocSecretary])
-  @Authorized([UserRole.SECRETARY])
+  @Authorized([UserRole.SECRETARY, UserRole.DOCTOR])
   async getDocumentByIDAppSec(
     @Arg('appointmentId') appointmentId: string,
   ): Promise<appointmentDocSecretary[] | null> {

@@ -150,7 +150,7 @@ export class AppointmentResolver {
 
   @Mutation(() => Appointment)
   @UseMiddleware(AuthMiddleware)
-  @Authorized([UserRole.SECRETARY])
+  @Authorized([UserRole.SECRETARY, UserRole.DOCTOR])
   async createAppointment(
     @Ctx() context: { user: User },
     @Arg('appointmentInput') appointmentInput: AppointmentCreateInput,
