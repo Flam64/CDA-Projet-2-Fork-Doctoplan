@@ -56,16 +56,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
 
     try {
-      // Appeler la mutation logout côté serveur
       await logoutMutation();
 
-      // Effacer l'état utilisateur côté client
       setUser(null);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : 'Une erreur est survenue lors de la déconnexion',
       );
-      // Même en cas d'erreur, on efface l'état utilisateur côté client
       setUser(null);
     } finally {
       setIsLoading(false);
