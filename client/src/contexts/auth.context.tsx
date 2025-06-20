@@ -1,5 +1,5 @@
 import { useState, ReactNode, useEffect, useMemo, useCallback } from 'react';
-import { useLoginMutation, useMeQuery, User } from '@/types/graphql-generated';
+import { useLoginMutation, useMeQuery, User, useLogoutMutation } from '@/types/graphql-generated';
 import { AuthContext, AuthContextType } from './AuthContext';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -8,6 +8,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   const [loginMutation] = useLoginMutation();
+  const [logoutMutation] = useLogoutMutation();
   const { data: meData } = useMeQuery();
 
   useEffect(() => {
@@ -50,10 +51,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [loginMutation, setUser, setIsLoading, setError],
   );
 
-  const logout = useCallback(() => {
-    setUser(null);
-    // Then i will remove the token from the backend in a other PR too not make to much 🦉
-  }, [setUser]);
+  const logout = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Appeler la mutation logout côté serveur
+      await logoutMutation();
+
+      // Effacer l'état utilisateur côté client
+      setUser(null);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Une erreur est survenue lors de la déconnexion',
+      );
+      // Même en cas d'erreur, on efface l'état utilisateur côté client
+      setUser(null);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [logoutMutation, setUser, setIsLoading, setError]);
 
   const contextValue = useMemo<AuthContextType>(
     () => ({
