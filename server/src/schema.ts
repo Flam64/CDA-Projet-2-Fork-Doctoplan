@@ -19,6 +19,7 @@ import { NoteResolver } from './resolvers/note.resolvers';
 import { appointmentDocSecretaryResolver } from './resolvers/appointmentDocSecretary.resolver';
 import { appointmentDocDoctorResolver } from './resolvers/appointmentDocDoctor.resolver';
 import { appointmentNoteResolver } from './resolvers/appointmentNote.resolver';
+import { VacationResolver } from './resolvers/vacation.resolver';
 
 export default async function createSchema() {
   return await buildSchema({
@@ -40,6 +41,7 @@ export default async function createSchema() {
       appointmentDocSecretaryResolver,
       appointmentDocDoctorResolver,
       appointmentNoteResolver,
+      VacationResolver,
     ],
     validate: true,
     authChecker: async ({ context }, roles) => {
