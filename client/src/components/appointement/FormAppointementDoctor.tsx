@@ -15,6 +15,7 @@ type FormAppointementDoctorProps = {
   appointmentTypes: { key: string; value: string }[];
   appointments: { start_time: string; duration: number }[];
   onAppointmentCreated?: () => void;
+  doctorId: number;
 };
 
 export default function FormAppointementDoctor({
@@ -23,6 +24,7 @@ export default function FormAppointementDoctor({
   appointmentTypes,
   appointments,
   onAppointmentCreated,
+  doctorId,
 }: FormAppointementDoctorProps) {
   const navigate = useNavigate();
   const {
@@ -84,7 +86,7 @@ export default function FormAppointementDoctor({
           Créer le rendez-vous
         </button>
         <Link
-          to={isDoctor ? '/doctor' : '/secretary'}
+          to={isDoctor ? '/doctor' : `/secretary/doctor/${doctorId}/agenda`}
           className="standard-button-red transition text-center"
         >
           Annuler
