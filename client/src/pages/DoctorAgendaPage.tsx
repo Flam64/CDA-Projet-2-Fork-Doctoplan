@@ -207,11 +207,19 @@ export default function DoctorAgendaPage() {
           message={modalContent.message}
           onConfirm={() => {
             setModalOpen(false);
-            modalContent.onConfirm();
+            if (user?.role === 'doctor') {
+              navigate('/doctor/appointment/create');
+            } else {
+              navigate(`/secretary/doctor/${doctorId}/appointment/create`);
+            }
           }}
           onCancel={() => {
             setModalOpen(false);
-            navigate(`/doctor`);
+            if (user?.role === 'doctor') {
+              navigate('/doctor');
+            } else {
+              navigate(`/secretary/doctor/${doctorId}/agenda`);
+            }
           }}
         />
       </section>
