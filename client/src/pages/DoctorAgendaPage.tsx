@@ -41,6 +41,7 @@ export default function DoctorAgendaPage() {
     title: '',
     message: '',
     onConfirm: () => {},
+    onCancel: () => {},
   });
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -53,7 +54,14 @@ export default function DoctorAgendaPage() {
     agendaCalendarRef: calendarRef,
     agendaNavigatorRef: navigatorRef,
   } = useSyncAgendaWithLegalLimit((title, message, onConfirm) => {
-    setModalContent({ title, message, onConfirm });
+    setModalContent({
+      title,
+      message,
+      onConfirm,
+      onCancel: () => {
+        navigate(user?.role === 'doctor' ? '/doctor' : `/secretary/doctor/${doctorId}/agenda`);
+      },
+    });
     setModalOpen(true);
   });
 
@@ -90,16 +98,26 @@ export default function DoctorAgendaPage() {
     appointmentDays,
   );
 
+  function setModalContentAndOpen(content: {
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    onCancel: () => void;
+  }) {
+    setModalContent(content);
+    setModalOpen(true);
+  }
+
+  const parsedDoctorId = doctorId !== undefined ? Number(doctorId) : undefined;
+
   const { handleEventClick, handleTimeRangeSelected } = useAgendaEventHandlers({
-    onModalOpen: content => {
-      setModalContent(content);
-      setModalOpen(true);
-    },
+    onModalOpen: setModalContentAndOpen,
     navigate,
     limitDate: DayPilot.Date.today().addMonths(3),
-    userRole: 'doctor',
+    userRole: user?.role as 'doctor' | 'secretary',
+    doctorId: parsedDoctorId,
+    fromPage: 'doctor',
   });
-
   if (doctorLoading) return null;
 
   return (
@@ -207,19 +225,11 @@ export default function DoctorAgendaPage() {
           message={modalContent.message}
           onConfirm={() => {
             setModalOpen(false);
-            if (user?.role === 'doctor') {
-              navigate('/doctor/appointment/create');
-            } else {
-              navigate(`/secretary/doctor/${doctorId}/appointment/create`);
-            }
+            modalContent.onConfirm();
           }}
           onCancel={() => {
             setModalOpen(false);
-            if (user?.role === 'doctor') {
-              navigate('/doctor');
-            } else {
-              navigate(`/secretary/doctor/${doctorId}/agenda`);
-            }
+            modalContent.onCancel();
           }}
         />
       </section>
