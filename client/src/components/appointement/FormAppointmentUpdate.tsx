@@ -7,8 +7,9 @@ import AppointmentTypesSelect from '@/components/form/AppointmentTypesSelect';
 import { Patient } from '@/types/patient.type';
 import { PatientAppointment } from '@/types/appointement.type';
 import { useAppointmentContext } from '@/hooks/useAppointment';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 
 type FormAppointmentUpdateProps = {
   selectedPatient: Patient;
@@ -24,13 +25,23 @@ export default function FormAppointmentUpdate({
   idAppointment,
 }: FormAppointmentUpdateProps) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { user } = useAuth();
+  const isDoctor = user?.role === 'doctor';
   const { handleUpdateAppointment, handleAppointmentChange, handleSelectedDepartment } =
     useAppointmentContext();
+
   const handleSubmitInfo = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       await handleUpdateAppointment(idAppointment);
-      navigate(`/secretary/`);
+      if (isDoctor) {
+        navigate('/doctor');
+      } else if (location.state?.from === '/secretary') {
+        navigate('/secretary');
+      } else {
+        navigate(`/secretary/doctor/${selectedAppointment.user_id}/agenda`);
+      }
     } catch (error) {
       console.error('Erreur lors de la soumission du formulaire :', error);
     }
@@ -40,6 +51,12 @@ export default function FormAppointmentUpdate({
     handleAppointmentChange(selectedAppointment);
     handleSelectedDepartment(selectedDepartment);
   }, [handleAppointmentChange, selectedAppointment, selectedDepartment, handleSelectedDepartment]);
+
+  const backUrl = isDoctor
+    ? '/doctor'
+    : location.state?.from === '/secretary'
+      ? '/secretary'
+      : `/secretary/doctor/${selectedAppointment.user_id}/agenda`;
 
   return (
     <>
@@ -89,7 +106,11 @@ export default function FormAppointmentUpdate({
             <button type="submit" className="standard-button">
               Modifier
             </button>
-            <Link to="/secretary" className="standard-button-red text-center mt-4">
+            <Link
+              to={backUrl}
+              state={location.state}
+              className="standard-button-red text-center mt-4"
+            >
               Annuler
             </Link>
           </div>
