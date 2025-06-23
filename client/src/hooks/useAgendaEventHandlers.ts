@@ -11,10 +11,10 @@ type OnModalOpenProps = {
 
 type UseAgendaEventHandlersParams = {
   onModalOpen: (modal: OnModalOpenProps) => void;
-  navigate: (path: string) => void;
+  navigate: (path: string, options?: { state?: Record<string, string> }) => void;
   limitDate: DayPilot.Date;
   userRole: UserRole;
-  doctorId?: number | undefined;
+  doctorId?: number;
   fromPage?: 'doctor' | 'secretary' | 'global'; // global : vue multi médecin
 };
 
@@ -59,6 +59,8 @@ export default function useAgendaEventHandlers({
   }) {
     const selectedDate = args.start;
 
+    const doctorIdForSecretary = fromPage === 'doctor' ? doctorId : args.resource;
+
     if (selectedDate > limitDate) {
       const cancelUrl =
         userRole === 'doctor'
@@ -69,9 +71,7 @@ export default function useAgendaEventHandlers({
 
       onModalOpen({
         title: 'Date non disponible',
-        message: `Les rendez-vous ne peuvent pas être créés après le ${limitDate.toString(
-          'dd/MM/yyyy',
-        )}.`,
+        message: `Les rendez-vous ne peuvent pas être créés après le ${limitDate.toString('dd/MM/yyyy')}.`,
         onConfirm: () => {
           navigate(userRole === 'doctor' ? '/doctor' : '/secretary');
         },
@@ -82,13 +82,12 @@ export default function useAgendaEventHandlers({
       return;
     }
 
-    const date = selectedDate.toString();
-    const doctorIdForSecretary = fromPage === 'doctor' ? doctorId : args.resource;
-
     if (userRole === 'secretary' && !doctorIdForSecretary) {
       console.warn('Aucun médecin sélectionné pour créer un rendez-vous.');
       return;
     }
+
+    const date = selectedDate.toString();
 
     const baseUrl =
       userRole === 'doctor'
@@ -105,7 +104,15 @@ export default function useAgendaEventHandlers({
     onModalOpen({
       title: 'Créer un rendez-vous',
       message: `Souhaitez-vous créer un rendez-vous le ${date.slice(0, 16).replace('T', ' à ')} ?`,
-      onConfirm: () => navigate(baseUrl),
+      onConfirm: () => {
+        const state: Record<string, string> | undefined =
+          userRole === 'secretary' && fromPage === 'global' ? { from: '/secretary' } : undefined;
+        if (state) {
+          navigate(baseUrl, { state });
+        } else {
+          navigate(baseUrl);
+        }
+      },
       onCancel: () => navigate(cancelUrl),
     });
   }

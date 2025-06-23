@@ -1,5 +1,5 @@
 import { FormEvent, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAppointmentContext } from '@/hooks/useAppointment';
 import PatientSearch from '@/components/appointement/PatientSearch';
 import SelectForm from '@/components/form/SelectForm';
@@ -27,6 +27,7 @@ export default function FormAppointementDoctor({
   doctorId,
 }: FormAppointementDoctorProps) {
   const navigate = useNavigate();
+  const location = useLocation();
   const {
     SaveAppointment,
     handleAppointment,
@@ -37,6 +38,12 @@ export default function FormAppointementDoctor({
 
   const { user } = useAuth();
   const isDoctor = user?.role === 'doctor';
+
+  const backUrl = (() => {
+    if (location.state?.from === '/secretary') return '/secretary';
+    if (isDoctor) return '/doctor';
+    return `/secretary/doctor/${doctorId}/agenda`;
+  })();
 
   const disabledTimes = getDisabledTimes(selectedDay, appointments, generateTimeOptions());
 
@@ -60,7 +67,12 @@ export default function FormAppointementDoctor({
       if (isDoctor) {
         navigate('/doctor/appointment/create');
       } else {
-        navigate('/secretary');
+        // Redirection cohérente après soumission
+        if (location.state?.from === '/secretary') {
+          navigate('/secretary');
+        } else {
+          navigate(`/secretary/doctor/${doctorId}/agenda`);
+        }
       }
     } catch (error) {
       console.error('Erreur lors de la création du rendez-vous :', error);
@@ -86,7 +98,8 @@ export default function FormAppointementDoctor({
           Créer le rendez-vous
         </button>
         <Link
-          to={isDoctor ? '/doctor' : `/secretary/doctor/${doctorId}/agenda`}
+          to={backUrl}
+          state={location.state} // 👈 préserve l'origine de navigation
           className="standard-button-red transition text-center"
         >
           Annuler
