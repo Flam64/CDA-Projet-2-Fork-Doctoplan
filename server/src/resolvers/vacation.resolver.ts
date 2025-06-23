@@ -1,5 +1,4 @@
 import { Query, Resolver, Authorized, Mutation, UseMiddleware, Arg } from 'type-graphql';
-// import { GraphQLError } from 'graphql';
 import { User, UserRole } from '../entities/user.entity';
 import { Vacation } from '../entities/docVacation.entity';
 import { VacationInput } from '../types/vacation.type';

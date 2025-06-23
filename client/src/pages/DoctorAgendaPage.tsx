@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useMemo, useState } from 'react';
 import { DayPilot } from '@daypilot/daypilot-lite-react';
 
@@ -148,13 +148,13 @@ export default function DoctorAgendaPage() {
             }
             userRole="doctor"
             renderActionButton={
-              <button
+              <Link
+                to={'/doctor/vacation'}
                 type="button"
                 className="standard-button whitespace-nowrap text-base"
-                onClick={() => navigate('/doctor')}
               >
                 Gérer mes congés
-              </button>
+              </Link>
             }
           />
         </div>
