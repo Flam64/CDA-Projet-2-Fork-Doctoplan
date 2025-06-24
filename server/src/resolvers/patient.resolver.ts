@@ -1,4 +1,5 @@
-import { Arg, Authorized, Mutation, Query, Resolver, Ctx } from 'type-graphql';
+import { Arg, Authorized, Mutation, Query, Resolver, Ctx, UseMiddleware } from 'type-graphql';
+import { AuthMiddleware } from '../middlewares/auth.middleware';
 import log from '../utils/log';
 import { GraphQLError } from 'graphql';
 import { Patient } from '../entities/patient.entity';
@@ -38,6 +39,7 @@ export class PatientResolver {
   }
 
   @Mutation(() => Patient)
+  @UseMiddleware(AuthMiddleware)
   @Authorized([UserRole.SECRETARY, UserRole.DOCTOR])
   async updatePatient(
     @Arg('patientData') patientData: PatientInput,

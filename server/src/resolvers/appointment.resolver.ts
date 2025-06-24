@@ -129,7 +129,7 @@ export class AppointmentResolver {
 
   // 📌 Appointments by Doctor and Day
   @Query(() => [Appointment])
-  @Authorized([UserRole.SECRETARY])
+  @Authorized([UserRole.SECRETARY, UserRole.DOCTOR])
   async getAppointmentsByDoctorAndDate(
     @Arg('doctorId') doctorId: number,
     @Arg('date') date: string, // format YYYY-MM-DD
