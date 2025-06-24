@@ -16,6 +16,7 @@ import { appointmentNote } from '../entities/appointmentNote.entity';
 import 'dotenv/config';
 import { Appointment } from '../entities/appointment.entity';
 import { AppointmentType } from '../entities/appointment-type.entity';
+import { Vacation } from '../entities/docVacation.entity';
 
 export const dataSource = new DataSource({
   type: 'postgres',
@@ -39,6 +40,7 @@ export const dataSource = new DataSource({
     appointmentDocSecretary,
     appointmentDocDoctor,
     appointmentNote,
+    Vacation,
   ],
   synchronize: true,
   migrations: ['src/database/migrations/*.ts'],
