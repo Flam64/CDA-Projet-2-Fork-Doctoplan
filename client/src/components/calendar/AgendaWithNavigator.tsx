@@ -27,6 +27,7 @@ export default function AgendaWithNavigator() {
     title: '',
     message: '',
     onConfirm: () => {},
+    onCancel: () => {},
   });
 
   const navigate = useNavigate();
@@ -37,7 +38,12 @@ export default function AgendaWithNavigator() {
     agendaCalendarRef: calendarRef,
     agendaNavigatorRef: navigatorRef,
   } = useSyncAgendaWithLegalLimit((title, message, onConfirm) => {
-    setModalContent({ title, message, onConfirm });
+    setModalContent({
+      title,
+      message,
+      onConfirm,
+      onCancel: () => navigate('/secretary'),
+    });
     setModalOpen(true);
   });
 
@@ -56,21 +62,22 @@ export default function AgendaWithNavigator() {
 
   const searchSources = useSearchSources(searchQuery);
 
+  function setModalContentAndOpen(content: {
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    onCancel: () => void;
+  }) {
+    setModalContent(content);
+    setModalOpen(true);
+  }
+
   const { handleEventClick, handleTimeRangeSelected } = useAgendaEventHandlers({
     onModalOpen: setModalContentAndOpen,
     navigate,
     limitDate: DayPilot.Date.today().addMonths(3),
     userRole: 'secretary',
   });
-
-  function setModalContentAndOpen(content: {
-    title: string;
-    message: string;
-    onConfirm: () => void;
-  }) {
-    setModalContent(content);
-    setModalOpen(true);
-  }
 
   return (
     <div
@@ -92,7 +99,6 @@ export default function AgendaWithNavigator() {
         userRole="secretary"
       />
 
-      {/* DESKTOP PAGINATION CONTROLS */}
       <section
         className="hidden lg:flex justify-end items-center gap-4 mb-4"
         role="navigation"
@@ -114,7 +120,6 @@ export default function AgendaWithNavigator() {
           onDateSelect={handleDateSelectionWithLimit}
         />
 
-        {/* MOBILE PAGINATION CONTROLS */}
         <section className="lg:hidden mb-4" role="navigation" aria-label="Pagination mobile">
           <AgendaPagination
             currentPage={currentPage}
@@ -144,7 +149,7 @@ export default function AgendaWithNavigator() {
           }}
           onCancel={() => {
             setModalOpen(false);
-            navigate('/secretary');
+            modalContent.onCancel();
           }}
         />
       </section>

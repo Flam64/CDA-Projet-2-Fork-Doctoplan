@@ -17,7 +17,7 @@ export default function AppointmentTypesSelect() {
   });
 
   return (
-    <div className="mb-4 max-w-xs">
+    <div className="mb-4">
       <SelectForm
         name="appointmentType"
         value={SaveAppointment.appointmentType || ''}
