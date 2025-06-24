@@ -45,7 +45,7 @@ export default function User() {
       <header className="flex items-center mb-4">
         <h2 className="text-xl mr-5 font-semibold text-gray-700">Tableau de bord administrateur</h2>
         <Link className="bg-blue text-white px-4 py-2 rounded-md" to={'create'}>
-          Ajouter un planning
+          Nouvel utilistateur
         </Link>
       </header>
       <section className="bg-bgBodyColor p-4">
