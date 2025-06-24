@@ -22,7 +22,7 @@ export default function DoctorPlanning() {
             Le planning de {user && user.firstname} {user && user.lastname}
           </h2>
           <Link className="bg-blue text-white px-4 py-2 rounded-md" to={'create'}>
-            Nouvel utilistateur
+            Ajouter un planning
           </Link>
         </header>
         <div className="w-full">
