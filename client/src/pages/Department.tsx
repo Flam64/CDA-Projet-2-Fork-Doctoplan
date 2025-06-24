@@ -7,6 +7,7 @@ import CreateDepartmentModal from '../components/department/CreateDepartmentModa
 import StatusModal from '@/components/StatusModal';
 import Pagination from '@/components/logs/Pagination';
 import searchIcon from '@/assets/search-icon.svg';
+import { FocusTrapModal } from '@/utils/modal';
 
 export default function Department() {
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -52,13 +53,15 @@ export default function Department() {
             </button>
             {showCreateModal && (
               <div className="fixed inset-0 z-50 flex justify-center  items-center bg-bgModalColor backdrop-blur-xs">
-                <CreateDepartmentModal
-                  id={departmentId}
-                  onClose={() => {
-                    setShowCreateModal(false);
-                    setDepartmentId(null);
-                  }}
-                />
+                <FocusTrapModal>
+                  <CreateDepartmentModal
+                    id={departmentId}
+                    onClose={() => {
+                      setShowCreateModal(false);
+                      setDepartmentId(null);
+                    }}
+                  />
+                </FocusTrapModal>
               </div>
             )}
           </>
