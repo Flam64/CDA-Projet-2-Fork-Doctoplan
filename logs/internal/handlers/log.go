@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"logs-server/internal/config"
 	"logs-server/internal/models"
@@ -84,12 +85,23 @@ func GetLogs(c *gin.Context) {
 
 func GetLogById(c *gin.Context) {
 	db := config.GetDB()
+	redisClient := config.GetRedisClient()
 	id := c.Param("id")
 
 	logID, err := strconv.ParseUint(id, 10, 64)
 	if err != nil {
 		c.JSON(400, gin.H{"error": "ID de log invalide"})
 		return
+	}
+
+	cacheKey := "log:" + id
+	cachedLog, err := redisClient.Get(context.Background(), cacheKey).Result()
+	if err == nil {
+		var response LogResponse
+		if err := json.Unmarshal([]byte(cachedLog), &response); err == nil {
+			c.JSON(200, response)
+			return
+		}
 	}
 
 	var log models.Log
@@ -115,6 +127,10 @@ func GetLogById(c *gin.Context) {
 		Titre:    log.Titre,
 		Metadata: metadataStr,
 		CreateAt: log.CreatedAt.Format(time.RFC3339),
+	}
+
+	if responseBytes, err := json.Marshal(response); err == nil {
+		redisClient.Set(context.Background(), cacheKey, string(responseBytes), time.Hour)
 	}
 
 	c.JSON(200, response)
