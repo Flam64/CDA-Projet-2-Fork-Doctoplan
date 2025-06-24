@@ -77,7 +77,7 @@ export default function Logs() {
           </main>
         )}
 
-        {data?.logs && !loading && (
+        {data?.logs && !loading ? (
           <>
             <LogTable logs={data.logs} onViewLog={setSelectedLogId} />
 
@@ -89,9 +89,17 @@ export default function Logs() {
               pageSize={pageSize}
             />
           </>
+        ) : (
+          <main className="p-8 text-center">
+            <FileText className="mx-auto text-gray-300 mb-4" size={48} />
+            <p className="text-gray-600">Aucun log disponible</p>
+            <p className="text-sm text-gray-400 mt-2">
+              Les logs apparaîtront ici une fois disponibles
+            </p>
+          </main>
         )}
 
-        {data?.logs.length === 0 && !loading && (
+        {data && data?.logs && data?.logs.length === 0 && !loading && (
           <main className="p-8 text-center">
             <FileText className="mx-auto text-gray-300 mb-4" size={48} />
             <p className="text-gray-600">Aucun log trouvé</p>
