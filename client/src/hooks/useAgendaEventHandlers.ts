@@ -14,8 +14,8 @@ type UseAgendaEventHandlersParams = {
   navigate: (path: string, options?: { state?: Record<string, string> }) => void;
   limitDate: DayPilot.Date;
   userRole: UserRole;
-  doctorId?: number | undefined;
-  fromPage?: 'doctor' | 'secretary' | 'global'; // global : vue multi médecin
+  doctorId?: number;
+  fromPage?: 'doctor' | 'secretary' | 'global';
 };
 
 export default function useAgendaEventHandlers({
@@ -27,10 +27,7 @@ export default function useAgendaEventHandlers({
   fromPage = 'global',
 }: UseAgendaEventHandlersParams) {
   function handleEventClick(args: { e: { data: DayPilot.EventData } }) {
-    const event = args.e.data as {
-      id: string | number;
-      text: string;
-    };
+    const event = args.e.data as { id: string | number; text: string };
 
     const updateUrl =
       userRole === 'doctor'
@@ -47,7 +44,13 @@ export default function useAgendaEventHandlers({
     onModalOpen({
       title: 'Modifier le rendez-vous',
       message: `Voulez-vous modifier le rendez-vous de ${event.text} ?`,
-      onConfirm: () => navigate(updateUrl),
+      onConfirm: () => {
+        if (userRole === 'secretary' && fromPage !== 'doctor') {
+          navigate(updateUrl, { state: { from: '/secretary' } });
+        } else {
+          navigate(updateUrl);
+        }
+      },
       onCancel: () => navigate(cancelUrl),
     });
   }
@@ -58,7 +61,6 @@ export default function useAgendaEventHandlers({
     resource?: string | number;
   }) {
     const selectedDate = args.start;
-
     const doctorIdForSecretary = fromPage === 'doctor' ? doctorId : args.resource;
 
     if (selectedDate > limitDate) {
@@ -75,10 +77,9 @@ export default function useAgendaEventHandlers({
         onConfirm: () => {
           navigate(userRole === 'doctor' ? '/doctor' : '/secretary');
         },
-        onCancel: () => {
-          navigate(cancelUrl);
-        },
+        onCancel: () => navigate(cancelUrl),
       });
+
       return;
     }
 
@@ -88,7 +89,6 @@ export default function useAgendaEventHandlers({
     }
 
     const date = selectedDate.toString();
-
     const baseUrl =
       userRole === 'doctor'
         ? `/doctor/appointment/create?date=${date}`
@@ -105,10 +105,8 @@ export default function useAgendaEventHandlers({
       title: 'Créer un rendez-vous',
       message: `Souhaitez-vous créer un rendez-vous le ${date.slice(0, 16).replace('T', ' à ')} ?`,
       onConfirm: () => {
-        const state: Record<string, string> | undefined =
-          userRole === 'secretary' && fromPage === 'global' ? { from: '/secretary' } : undefined;
-        if (state) {
-          navigate(baseUrl, { state });
+        if (userRole === 'secretary' && fromPage === 'global') {
+          navigate(baseUrl, { state: { from: '/secretary' } });
         } else {
           navigate(baseUrl);
         }
