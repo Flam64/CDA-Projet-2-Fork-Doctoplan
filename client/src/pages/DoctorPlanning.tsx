@@ -17,13 +17,15 @@ export default function DoctorPlanning() {
       {loading && <p className="px-2 text-sm text-gray-500">Chargement...</p>}
       {error && <p className="px-2 text-sm text-gray-500">error...</p>}
       <div className="w-[80%]">
-        <Link className="bg-blue text-white px-4 py-2 mb-6 rounded-md" to={`create`}>
-          Ajouter un planning
-        </Link>
-        <div className="w-full">
-          <p className="mt-2">
+        <header className="flex items-center mb-4">
+          <h2 className="text-xl mr-5 font-semibold text-gray-700">
             Le planning de {user && user.firstname} {user && user.lastname}
-          </p>
+          </h2>
+          <Link className="bg-blue text-white px-4 py-2 rounded-md" to={'create'}>
+            Nouvel utilistateur
+          </Link>
+        </header>
+        <div className="w-full">
           <ul className="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500">
             {userPlanning &&
               userPlanning.map((planning, index) => (
