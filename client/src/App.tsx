@@ -18,6 +18,9 @@ import UpdateAppointementDoctor from './pages/UpdateAppointementDoctor';
 import Agent from '@/pages/Agent';
 import ResetPassword from './pages/ResetPassword';
 import DoctorAgendaPage from './pages/DoctorAgendaPage';
+import DoctorPlanning from './pages/DoctorPlanning';
+import CreatePlanning from './pages/CreatePlanning';
+import AppointementDoctorAllNote from './pages/AppointementDoctorAllNote';
 
 const router = createBrowserRouter([
   {
@@ -58,6 +61,14 @@ const router = createBrowserRouter([
           {
             path: '/admin/users/:id/update',
             element: <CreateUser />,
+          },
+          {
+            path: '/admin/users/:id/planning',
+            element: <DoctorPlanning />,
+          },
+          {
+            path: '/admin/users/:id/planning/create',
+            element: <CreatePlanning />,
           },
           {
             path: '/admin/logs',
@@ -106,6 +117,10 @@ const router = createBrowserRouter([
           {
             path: '/doctor/appointment/:id/update',
             element: <UpdateAppointementDoctor />,
+          },
+          {
+            path: '/doctor/appointment/:id/AllNotes',
+            element: <AppointementDoctorAllNote />,
           },
           {
             path: '/doctor/patient/:id',

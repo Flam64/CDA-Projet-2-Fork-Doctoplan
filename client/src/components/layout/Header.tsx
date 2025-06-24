@@ -43,39 +43,45 @@ export default function Header() {
             </span>
           </p>
         </Link>
-
-        <nav
-          className="hidden md:flex items-center gap-6"
-          role="navigation"
-          aria-label="Menu principal"
-        >
-          <div className="flex items-center gap-3" role="menubar">
-            <LinkButton />
-            <button
-              onClick={logout}
-              className="border border-accent text-accent px-4 py-2 bg-white rounded-md hover:bg-accent hover:text-white transition-colors"
-              aria-label="Se déconnecter"
-              role="menuitem"
+        {user ? (
+          <>
+            <nav
+              className="hidden md:flex items-center gap-6"
+              role="navigation"
+              aria-label="Menu principal"
             >
-              Déconnexion
-            </button>
-          </div>
-        </nav>
+              <div className="flex items-center gap-3" role="menubar">
+                <LinkButton />
+                <button
+                  onClick={logout}
+                  className="border border-accent text-accent px-4 py-2 bg-white rounded-md hover:bg-accent hover:text-white transition-colors"
+                  aria-label="Se déconnecter"
+                  role="menuitem"
+                >
+                  Déconnexion
+                </button>
+              </div>
+            </nav>
 
-        <div className="md:hidden">
-          <motion.button
-            onClick={toggleMenu}
-            className="p-2 text-blue hover:text-accent transition-colors"
-            whileTap={{ scale: 0.95 }}
-            aria-label={isMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
-            aria-expanded={isMenuOpen}
-            aria-controls="mobile-menu"
-          >
-            <motion.div animate={{ rotate: isMenuOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </motion.div>
-          </motion.button>
-        </div>
+            <div className="md:hidden">
+              <motion.button
+                onClick={toggleMenu}
+                className="p-2 text-blue hover:text-accent transition-colors"
+                whileTap={{ scale: 0.95 }}
+                aria-label={isMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+                aria-expanded={isMenuOpen}
+                aria-controls="mobile-menu"
+              >
+                <motion.div
+                  animate={{ rotate: isMenuOpen ? 180 : 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                </motion.div>
+              </motion.button>
+            </div>
+          </>
+        ) : null}
       </div>
 
       <AnimatePresence>

@@ -13,11 +13,13 @@ export class DocTypeResolver {
         return await DocType.find({ where: { type: DocumentType.PATIENT } });
       case DocumentType.APPOINTMENT:
         return await DocType.find({ where: { type: DocumentType.APPOINTMENT } });
+      case DocumentType.APPOINTMENTDOCTOR:
+        return await DocType.find({ where: { type: DocumentType.APPOINTMENTDOCTOR } });
     }
     throw new GraphQLError('Document Type incorrect', {
       extensions: {
         code: 'GET_ALL_DOC_TYPE_FAILED',
-        originalError: 'Le type de coument demandé est incorrect',
+        originalError: 'Le type de document demandé est incorrect',
       },
     });
   }

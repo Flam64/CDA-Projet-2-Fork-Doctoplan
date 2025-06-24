@@ -13,6 +13,7 @@ services:
       - WDS_SOCKET_HOST=localhost
       - WATCHPACK_POLLING=true
       - VITE_APOLLO_SERVER=${VITE_APOLLO_SERVER}
+      - VITE_FRONTEND_URL=${FRONTEND_URL}
       - VITE_SERVER_API_MAIL=${VITE_SERVER_API_MAIL}
     depends_on:
       - codegen
@@ -168,7 +169,7 @@ services:
     ports:
       - "6379:6379"
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
       timeout: 5s
       retries: 5

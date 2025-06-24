@@ -10,10 +10,13 @@ import { DocType } from '../entities/doc-type.entity';
 import { DoctorAppointmentSlot } from '../entities/doctorAppointmentSlot.entity';
 import { Note } from '../entities/note.entity';
 import { appointmentDocSecretary } from '../entities/appointmentDocSecretary.entity';
+import { appointmentDocDoctor } from '../entities/appointmentDocDoctor.entity';
+import { appointmentNote } from '../entities/appointmentNote.entity';
 
 import 'dotenv/config';
 import { Appointment } from '../entities/appointment.entity';
 import { AppointmentType } from '../entities/appointment-type.entity';
+import { Vacation } from '../entities/docVacation.entity';
 
 export const dataSource = new DataSource({
   type: 'postgres',
@@ -35,6 +38,9 @@ export const dataSource = new DataSource({
     DoctorAppointmentSlot,
     Note,
     appointmentDocSecretary,
+    appointmentDocDoctor,
+    appointmentNote,
+    Vacation,
   ],
   synchronize: true,
   migrations: ['src/database/migrations/*.ts'],

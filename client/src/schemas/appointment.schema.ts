@@ -36,6 +36,7 @@ export const GET_APPOINTEMENTS_DOC_SECRETARY = gql`
       id
       name
       url
+      createdAt
     }
   }
 `;
@@ -155,6 +156,51 @@ export const MUTATION_UPDATE_APPOINTMENT = gql`
   ) {
     updateAppointment(id: $updateAppointmentId, appointmentInput: $appointmentInput) {
       id
+    }
+  }
+`;
+
+export const QUERY_APPOINTMENT_NOTE = gql`
+  query GetAppointmentNoteByID($appointmentId: String!) {
+    getAppointmentNoteByID(appointmentId: $appointmentId) {
+      description
+      id
+      createdAt
+      appointmentDocDocteur {
+        id
+        name
+        url
+        docType {
+          id
+          name
+        }
+      }
+    }
+  }
+`;
+
+export const MUTATION_APPOINTMENT_NOTE = gql`
+  mutation addNoteAppointment($appointmentId: Float!, $note: AppointmentNoteInput!) {
+    addNoteAppointment(appointmentId: $appointmentId, note: $note) {
+      id
+    }
+  }
+`;
+
+export const GET_SINGLE_NOTE = gql`
+  query GetSingleNoteByID($noteId: String!) {
+    getSingleNoteByID(noteId: $noteId) {
+      id
+      description
+      createdAt
+      appointmentDocDocteur {
+        id
+        name
+        url
+        docType {
+          name
+        }
+      }
     }
   }
 `;

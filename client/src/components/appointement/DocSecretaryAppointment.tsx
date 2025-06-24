@@ -2,6 +2,7 @@ import { useGetDocumentByIdAppSecQuery } from '@/types/graphql-generated';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import CreateUploadModal from '@/components/modals/CreateUploadModal';
+import { FocusTrapModal } from '@/utils/modal';
 
 type DocSecretaryAppointmentProps = {
   idAppointment: string;
@@ -27,15 +28,17 @@ export default function DocSecretaryAppointment({ idAppointment }: DocSecretaryA
         </button>
         {showAddDoc && (
           <div className="fixed inset-0 z-50 flex justify-center  items-center bg-bgModalColor backdrop-blur-xs">
-            <CreateUploadModal
-              id={idAppointment}
-              onClose={() => {
-                setshowAddDoc(false);
-              }}
-              GetDocumentByIdQuery={GetDocumentByIdQuery}
-              route={'/upload/appointment-sec-file'}
-              typedoc={'appointment'}
-            />
+            <FocusTrapModal>
+              <CreateUploadModal
+                id={idAppointment}
+                onClose={() => {
+                  setshowAddDoc(false);
+                }}
+                GetDocumentByIdQuery={GetDocumentByIdQuery}
+                route={'/upload/appointment-sec-file'}
+                typedoc={'appointment'}
+              />
+            </FocusTrapModal>
           </div>
         )}
         <ul className="space-y-2">

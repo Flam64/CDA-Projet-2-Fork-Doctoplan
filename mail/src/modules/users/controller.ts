@@ -18,4 +18,20 @@ const sendResetPassword: RequestHandler = async (req, res) => {
   }
 };
 
-export { sendResetPassword };
+const sendCreateUserConfirm: RequestHandler = async (req, res) => {
+  const { email, url, generatedPassword, departementLabel, role } = req.body;
+  try {
+    await sendEmailByTemplate({
+      email,
+      subject: '📧 Bienvenu, vos informations de connexion - DoctoPlan',
+      emailTemplate: 'confirmMail.ejs',
+      dataTemplate: { url, generatedPassword, departementLabel, role },
+    });
+    res.sendStatus(200);
+  } catch (error) {
+    console.error("Erreur lors de l'envoi de l'email:", error);
+    res.sendStatus(500);
+  }
+};
+
+export { sendResetPassword, sendCreateUserConfirm };

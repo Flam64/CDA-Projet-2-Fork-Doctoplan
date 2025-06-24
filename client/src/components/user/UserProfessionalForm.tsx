@@ -12,7 +12,7 @@ type UserFormProps = {
   formData: CreateUserInput;
 };
 
-export default function UserProfessionalForm({ handleInputChange, formData }: UserFormProps) {
+export default function UserProfessionalForm({ handleInputChange, formData, id }: UserFormProps) {
   const { data } = useGetDepartementsQuery();
   const userRole = [
     { key: 'admin', value: 'Admin' },
@@ -64,6 +64,7 @@ export default function UserProfessionalForm({ handleInputChange, formData }: Us
         option={[{ key: '', value: 'Sélectionner un role' }, ...userRole]}
         value={formData.role ?? ''}
         handle={e => handleInputChange(e, 'role')}
+        disabled={id ? true : false}
       />
     </section>
   );

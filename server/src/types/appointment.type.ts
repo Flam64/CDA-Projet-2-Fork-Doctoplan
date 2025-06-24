@@ -57,3 +57,27 @@ export class AppointmentSecDocInput {
   @IsNumber()
   docTypeId: number;
 }
+
+@InputType()
+export class AppointmentDocInput {
+  @Field()
+  @Length(1, 255)
+  url: string;
+
+  @Field()
+  @Length(1, 255)
+  name: string;
+
+  @Field()
+  @IsNumber()
+  docTypeId: number;
+}
+
+@InputType()
+export class AppointmentNoteInput {
+  @Field()
+  description: string;
+
+  @Field(() => [AppointmentDocInput], { nullable: true })
+  document: AppointmentDocInput[];
+}
