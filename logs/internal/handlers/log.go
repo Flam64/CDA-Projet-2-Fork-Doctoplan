@@ -94,11 +94,9 @@ func GetLogById(c *gin.Context) {
 		return
 	}
 
-	// Essayer de récupérer depuis Redis en premier
 	cacheKey := "log:" + id
 	cachedLog, err := redisClient.Get(context.Background(), cacheKey).Result()
 	if err == nil {
-		// Log trouvé dans le cache
 		var response LogResponse
 		if err := json.Unmarshal([]byte(cachedLog), &response); err == nil {
 			c.JSON(200, response)
@@ -106,7 +104,6 @@ func GetLogById(c *gin.Context) {
 		}
 	}
 
-	// Si pas dans le cache, chercher dans la base de données
 	var log models.Log
 	err = db.First(&log, logID).Error
 	if err != nil {
@@ -132,7 +129,6 @@ func GetLogById(c *gin.Context) {
 		CreateAt: log.CreatedAt.Format(time.RFC3339),
 	}
 
-	// Mettre en cache dans Redis pour 1 heure
 	if responseBytes, err := json.Marshal(response); err == nil {
 		redisClient.Set(context.Background(), cacheKey, string(responseBytes), time.Hour)
 	}
