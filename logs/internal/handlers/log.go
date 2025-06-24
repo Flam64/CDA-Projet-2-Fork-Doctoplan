@@ -47,7 +47,7 @@ func GetLogs(c *gin.Context) {
 	query := db.Model(&models.Log{})
 
 	if search != "" {
-		query = query.Where("titre ILIKE ?", "%"+search+"%")
+		query = query.Where("LOWER(titre) LIKE LOWER(?)", "%"+search+"%")
 	}
 
 	query.Count(&total)
