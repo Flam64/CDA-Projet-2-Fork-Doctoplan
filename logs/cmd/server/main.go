@@ -33,6 +33,7 @@ func main() {
 	}
 
 	config.InitDatabase()
+	config.InitRedis()
 
 	if grpcPort == "" {
 		log.Println("GRPC_PORT is not set, using default port 50051")
