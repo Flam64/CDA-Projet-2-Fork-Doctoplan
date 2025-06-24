@@ -159,6 +159,8 @@ services:
         condition: service_started
       mail:
         condition: service_started
+      upload:                    
+        condition: service_started
 
   redis:
     image: redis
