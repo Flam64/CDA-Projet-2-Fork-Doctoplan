@@ -18,7 +18,7 @@ export class AppointmentCreateInput {
   status?: AppointmentStatus;
 
   @Field()
-  @Matches(/^[0-9]{1,10}$/, {
+  @Matches(/^[0-9]{0,10}$/, {
     message: "L'ID du médecin doit être un nombre valide.",
   })
   user_id: string; // Doctor ID
