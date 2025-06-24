@@ -14,7 +14,7 @@ type UseAgendaEventHandlersParams = {
   navigate: (path: string, options?: { state?: Record<string, string> }) => void;
   limitDate: DayPilot.Date;
   userRole: UserRole;
-  doctorId?: number;
+  doctorId?: number | undefined;
   fromPage?: 'doctor' | 'secretary' | 'global'; // global : vue multi médecin
 };
 

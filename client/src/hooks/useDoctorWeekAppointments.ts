@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useGetAppointmentsByDoctorAndDateLazyQuery } from '@/types/graphql-generated';
 import type { Appointment as AppointmentType } from '@/types/CalendarEvent.type';
 
@@ -8,53 +8,52 @@ export default function useDoctorWeekAppointments(doctorId: number | undefined, 
   const [error, setError] = useState<Error | null>(null);
   const [fetchAppointments] = useGetAppointmentsByDoctorAndDateLazyQuery();
 
-  const formattedDates = useMemo(() => dates.map(d => d.toISOString().slice(0, 10)), [dates]);
-
-  const refetch = useCallback(async () => {
-    if (!doctorId || formattedDates.length === 0) {
+  useEffect(() => {
+    if (!doctorId || dates.length === 0) {
       setAppointments([]);
       return;
     }
 
-    setLoading(true);
-    try {
-      const results = await Promise.all(
-        formattedDates.map(async date => {
-          const res = await fetchAppointments({
-            variables: { doctorId, date },
-          });
-          return res.data?.getAppointmentsByDoctorAndDate ?? [];
-        }),
-      );
+    const fetchData = async () => {
+      setLoading(true);
 
-      const all = results.flat().map(appt => {
-        const start = new Date(appt.start_time);
-        const end = new Date(start.getTime() + appt.duration * 60 * 1000);
+      try {
+        const formattedDates = dates.map(d => d.toISOString().slice(0, 10));
+        const results = await Promise.all(
+          formattedDates.map(date =>
+            fetchAppointments({ variables: { doctorId, date } }).then(
+              res => res.data?.getAppointmentsByDoctorAndDate ?? [],
+            ),
+          ),
+        );
 
-        return {
-          id: String(appt.id),
-          patient_name: `${appt.patient.firstname} ${appt.patient.lastname}`,
-          start_time: start.toISOString(),
-          end_time: end.toISOString(),
-          statut: appt.status,
-          appointment_type: appt.appointmentType.reason,
-          doctor_id: String(appt.doctor.id),
-        };
-      });
+        const allAppointments = results.flat().map(appt => {
+          const start = new Date(appt.start_time);
+          const end = new Date(start.getTime() + appt.duration * 60 * 1000);
 
-      setAppointments(all);
-      setError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error('Unknown error'));
-      setAppointments([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [doctorId, formattedDates, fetchAppointments]);
+          return {
+            id: String(appt.id),
+            patient_name: `${appt.patient.firstname} ${appt.patient.lastname}`,
+            start_time: start.toISOString(),
+            end_time: end.toISOString(),
+            statut: appt.status,
+            appointment_type: appt.appointmentType.reason,
+            doctor_id: String(appt.doctor.id),
+          };
+        });
 
-  useEffect(() => {
-    refetch();
-  }, [refetch]);
+        setAppointments(allAppointments);
+        setError(null);
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error('Erreur inconnue'));
+        setAppointments([]);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  return { appointments, loading, error, refetch };
+    fetchData();
+  }, [doctorId, fetchAppointments, dates]);
+
+  return { appointments, loading, error };
 }
