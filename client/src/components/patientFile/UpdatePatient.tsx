@@ -38,7 +38,20 @@ export default function UpdatePatient({ patientNum }: inputPersonnal) {
     if (!patientByID) return;
     const fetchUser = async () => {
       setPersonnalInfo({
-        ...patientByID,
+        adress: patientByID.adress || '',
+        birth_city: patientByID.birth_city || '',
+        birth_date: patientByID.birth_date || '',
+        contact_person: patientByID.contact_person || '',
+        email: patientByID.email || '',
+        firstname: patientByID.firstname || '',
+        gender: patientByID.gender || '',
+        id: patientByID.id || '',
+        lastname: patientByID.lastname || '',
+        note: patientByID.note || '',
+        phone_number: patientByID.phone_number || '',
+        private_assurance: patientByID.private_assurance || '',
+        referring_physician: patientByID.referring_physician || '',
+        social_number: patientByID.social_number || '',
         zip_code: patientByID.city?.zip_code || '',
         city: patientByID.city?.city || '',
       });

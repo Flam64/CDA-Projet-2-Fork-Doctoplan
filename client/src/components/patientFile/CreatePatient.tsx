@@ -45,7 +45,6 @@ export default function CreatePatientProps({ onClose }: CreatePatientProps) {
   };
 
   const HandleCPVille = (cp: string, ville: string) => {
-    console.error(savePatient);
     if (savePatient) {
       setPersonnalInfo(() => ({
         ...savePatient,
