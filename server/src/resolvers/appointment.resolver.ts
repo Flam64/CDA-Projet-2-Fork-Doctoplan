@@ -48,7 +48,7 @@ export class AppointmentResolver {
   }
 
   @Query(() => [Appointment])
-  @Authorized([UserRole.SECRETARY])
+  @Authorized([UserRole.SECRETARY, UserRole.DOCTOR])
   async getDoctorByPatient(@Arg('patientId') patientId: string): Promise<Appointment[]> {
     return Appointment.find({
       where: {
