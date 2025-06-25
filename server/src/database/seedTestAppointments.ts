@@ -203,6 +203,18 @@ export async function seedTestAppointments() {
       },
     ];
 
+    const devDoctor = await User.findOne({ where: { email: 'doctor@doctoplan.com' } });
+    if (devDoctor) {
+      appointmentsData.push({
+        patient: createdPatients[0],
+        doctor: devDoctor,
+        department: devDoctor.departement,
+        appointmentType: createdAppointmentTypes[0],
+        start_time: new Date(now.getTime() + 90 * 60 * 1000),
+        duration: 30,
+      });
+    }
+
     for (const appointmentData of appointmentsData) {
       const existingAppointment = await Appointment.findOne({
         where: {
