@@ -4,6 +4,7 @@ import { User, UserRole, UserStatus } from '../entities/user.entity';
 import { Departement } from '../entities/departement.entity';
 import { seedDoctors } from './seed-fakeDoctors';
 import { seedTestAppointments } from './seedTestAppointments';
+import { Planning } from '../entities/planning.entity';
 import 'reflect-metadata';
 import 'dotenv/config';
 
@@ -115,15 +116,55 @@ async function seedDatabase() {
       doctorUser.role = UserRole.DOCTOR;
       doctorUser.firstname = 'Dev';
       doctorUser.lastname = 'Doctor';
-      doctorUser.departement = existingDepartement; // Département par défaut (Administration)
+      let pediatrieDepartement = await Departement.findOne({ where: { label: 'Pédiatrie' } });
+      if (!pediatrieDepartement) {
+        pediatrieDepartement = new Departement();
+        pediatrieDepartement.label = 'Pédiatrie';
+        pediatrieDepartement.building = 'B';
+        pediatrieDepartement.wing = 'gauche';
+        pediatrieDepartement.level = '1er';
+        await pediatrieDepartement.save();
+      }
+      doctorUser.departement = pediatrieDepartement;
       doctorUser.profession = 'Pédiatre';
       doctorUser.gender = 'F';
       doctorUser.tel = '0707070707';
       doctorUser.status = UserStatus.ACTIVE;
+      doctorUser.activationDate = new Date().toISOString().slice(0, 10); // ✅ Ajout date d'activation
 
       await doctorUser.save();
 
-      console.info('✅ Dev doctor user created successfully');
+      const planning = new Planning();
+      planning.user = doctorUser;
+      planning.start = new Date().toISOString().slice(0, 10); // date du jour
+
+      // Planning du lundi au vendredi de 09:00 à 17:00
+      planning.monday_start = '09:00';
+      planning.monday_end = '17:00';
+
+      planning.tuesday_start = '09:00';
+      planning.tuesday_end = '17:00';
+
+      planning.wednesday_start = '09:00';
+      planning.wednesday_end = '17:00';
+
+      planning.thursday_start = '09:00';
+      planning.thursday_end = '17:00';
+
+      planning.friday_start = '09:00';
+      planning.friday_end = '17:00';
+
+      // Week-end vide
+      planning.saturday_start = null;
+      planning.saturday_end = null;
+      planning.sunday_start = null;
+      planning.sunday_end = null;
+
+      await planning.save();
+
+      console.info('🗓️ Planning hebdomadaire (lun–ven 9h–17h) ajouté pour Dev Doctor');
+
+      console.info('✅ Dev doctor user and full weekly planning created successfully');
     } else {
       console.info('👤 Dev doctor already exists, skipping creation');
     }
