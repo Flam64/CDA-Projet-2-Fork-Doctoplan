@@ -62,7 +62,7 @@ export class AppointmentResolver {
 
   // 📌 Appointments by Doctor
   @Query(() => [Appointment])
-  @Authorized([UserRole.SECRETARY])
+  @Authorized([UserRole.SECRETARY, UserRole.DOCTOR])
   async getAppointmentsByDoctor(@Arg('doctorId') doctorId: number): Promise<Appointment[]> {
     return Appointment.find({
       where: {
@@ -76,7 +76,7 @@ export class AppointmentResolver {
 
   // 📌 Next Appointments by Patient
   @Query(() => [Appointment])
-  @Authorized([UserRole.SECRETARY])
+  @Authorized([UserRole.SECRETARY, UserRole.DOCTOR])
   async getNextAppointmentsByPatient(@Arg('patientId') patientId: string): Promise<Appointment[]> {
     return Appointment.find({
       where: {
@@ -92,7 +92,7 @@ export class AppointmentResolver {
 
   // 📌 Last Appointments by Patient
   @Query(() => [Appointment])
-  @Authorized([UserRole.SECRETARY])
+  @Authorized([UserRole.SECRETARY, UserRole.DOCTOR])
   async getLastAppointmentsByPatient(@Arg('patientId') patientId: string): Promise<Appointment[]> {
     return Appointment.find({
       where: {
@@ -109,7 +109,7 @@ export class AppointmentResolver {
 
   // 📌 Appointments by Day
   @Query(() => [Appointment])
-  @Authorized([UserRole.SECRETARY])
+  @Authorized([UserRole.SECRETARY, UserRole.DOCTOR])
   async getAppointmentsByDate(
     @Arg('date') date: string, // format YYYY-MM-DD
   ): Promise<Appointment[]> {
@@ -268,7 +268,7 @@ export class AppointmentResolver {
 
   @Mutation(() => Appointment)
   @UseMiddleware(AuthMiddleware)
-  @Authorized([UserRole.SECRETARY])
+  @Authorized([UserRole.SECRETARY, UserRole.DOCTOR])
   async updateAppointment(
     @Ctx() context: { user: User },
     @Arg('appointmentInput') appointmentInput: AppointmentCreateInput,
