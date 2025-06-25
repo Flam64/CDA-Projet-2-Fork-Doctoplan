@@ -59,21 +59,19 @@ export default function FormAppointementDoctor({
     try {
       await handleSubmitAppointment();
 
-      // Refetch
       if (onAppointmentCreated) {
         await onAppointmentCreated();
       }
 
-      if (isDoctor) {
-        navigate('/doctor/appointment/create');
-      } else {
-        // Redirection cohérente après soumission
-        if (location.state?.from === '/secretary') {
+      setTimeout(() => {
+        if (isDoctor) {
+          navigate('/doctor');
+        } else if (location.state?.from === '/secretary') {
           navigate('/secretary');
         } else {
           navigate(`/secretary/doctor/${doctorId}/agenda`);
         }
-      }
+      }, 2000); // délai pour laisser le toast visible
     } catch (error) {
       console.error('Erreur lors de la création du rendez-vous :', error);
     }
@@ -97,9 +95,10 @@ export default function FormAppointementDoctor({
         <button type="submit" className="standard-button mt-4 transition">
           Créer le rendez-vous
         </button>
+
         <Link
           to={backUrl}
-          state={location.state} // 👈 préserve l'origine de navigation
+          state={location.state}
           className="standard-button-red transition text-center"
         >
           Annuler
