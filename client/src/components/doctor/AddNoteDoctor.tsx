@@ -116,7 +116,7 @@ export default function AddNoteDoctor({ appointmentId, refetchNote }: AddNoteDoc
     <>
       <form onSubmit={handleSubmitInfo} autoComplete="off">
         <section className="grid grid-cols-4">
-          <article className="col-span-3 p-2">
+          <article className="col-span-4 p-2">
             <TextareaForm
               title="Note"
               name="description"
@@ -127,11 +127,11 @@ export default function AddNoteDoctor({ appointmentId, refetchNote }: AddNoteDoc
               handle={HandleInfoPersonnel}
             />
           </article>
-          <article className="col-span-1 p-2 flex flex-col items-center">
+          <article className="col-span-4 p-2 items-top justify-between">
             <button
               type="button"
               onClick={() => setAddfile(!addfile)}
-              className="px-2 w-full py-2 m-2 text-sm font-medium text-white focus:text-blue cta rounded-md hover:bg-blue/90 transition-colors duration-200"
+              className="px-2 py-2 m-2 xl:w-50 w-full text-sm font-medium text-white focus:text-blue cta rounded-md hover:bg-blue/90 transition-colors duration-200"
             >
               + Ajouter un Fichier
             </button>
