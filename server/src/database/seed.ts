@@ -15,7 +15,6 @@ async function seedDatabase() {
     await dataSource.initialize();
     console.info('📊 Database connection initialized');
 
-    // ✅ Execute migrations befor seed in order to have all the department to create new doctor user
     await dataSource.runMigrations();
     console.info('📦 Migrations executed successfully');
 
@@ -130,15 +129,14 @@ async function seedDatabase() {
       doctorUser.gender = 'F';
       doctorUser.tel = '0707070707';
       doctorUser.status = UserStatus.ACTIVE;
-      doctorUser.activationDate = new Date().toISOString().slice(0, 10); // ✅ Ajout date d'activation
+      doctorUser.activationDate = new Date().toISOString().slice(0, 10);
 
       await doctorUser.save();
 
       const planning = new Planning();
       planning.user = doctorUser;
-      planning.start = new Date().toISOString().slice(0, 10); // date du jour
+      planning.start = new Date().toISOString().slice(0, 10);
 
-      // Planning du lundi au vendredi de 09:00 à 17:00
       planning.monday_start = '09:00';
       planning.monday_end = '17:00';
 
@@ -154,7 +152,6 @@ async function seedDatabase() {
       planning.friday_start = '09:00';
       planning.friday_end = '17:00';
 
-      // Week-end vide
       planning.saturday_start = null;
       planning.saturday_end = null;
       planning.sunday_start = null;
