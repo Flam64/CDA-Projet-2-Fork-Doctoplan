@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import DetailNoteDoctor from '@/components/doctor/DetailNoteDoctor';
 import { cutStringNote } from '@/utils/cutStringNote';
+import { FocusTrapModal } from '@/utils/modal';
 
 type SeeNoteDoctorProps = {
   doctorNote: GetAppointmentNoteByIdQuery | undefined;
@@ -27,7 +28,9 @@ export default function SeeNoteDoctor({ doctorNote, nbNotes }: SeeNoteDoctorProp
       <section>
         {isModalOpen && (
           <div className="fixed inset-0 z-50 flex justify-center  items-center bg-bgModalColor backdrop-blur-xs">
-            <DetailNoteDoctor noteId={noteModalId} setIsModalOpen={setIsModalOpen} />
+            <FocusTrapModal>
+              <DetailNoteDoctor noteId={noteModalId} setIsModalOpen={setIsModalOpen} />
+            </FocusTrapModal>
           </div>
         )}
         <ul className="flex flex-wrap gap-4 w-full rounded-md divide-y divide-gray-100 mx-auto bg-white mt-2">
