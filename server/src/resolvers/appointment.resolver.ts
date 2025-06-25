@@ -129,7 +129,7 @@ export class AppointmentResolver {
 
   // 📌 Appointments by Doctor and Day
   @Query(() => [Appointment])
-  @Authorized([UserRole.SECRETARY])
+  @Authorized([UserRole.SECRETARY, UserRole.DOCTOR])
   async getAppointmentsByDoctorAndDate(
     @Arg('doctorId') doctorId: number,
     @Arg('date') date: string, // format YYYY-MM-DD
@@ -150,11 +150,15 @@ export class AppointmentResolver {
 
   @Mutation(() => Appointment)
   @UseMiddleware(AuthMiddleware)
-  @Authorized([UserRole.SECRETARY])
+  @Authorized([UserRole.SECRETARY, UserRole.DOCTOR])
   async createAppointment(
     @Ctx() context: { user: User },
     @Arg('appointmentInput') appointmentInput: AppointmentCreateInput,
   ): Promise<Appointment> {
+    if (context.user.role === UserRole.DOCTOR) {
+      appointmentInput.user_id = context.user.id.toString();
+    }
+
     const checkDoctor = await User.findOneBy({
       id: +appointmentInput.user_id,
       role: UserRole.DOCTOR,
@@ -167,7 +171,12 @@ export class AppointmentResolver {
       });
     }
 
-    const checkSecretary = await User.findOneBy({ id: +context.user.id, role: UserRole.SECRETARY });
+    const checkSecretary = await User.findOne({
+      where: [
+        { id: +context.user.id, role: UserRole.SECRETARY },
+        { id: +context.user.id, role: UserRole.DOCTOR },
+      ],
+    });
     if (!checkSecretary) {
       throw new GraphQLError('Secretaire non trouvé', {
         extensions: {

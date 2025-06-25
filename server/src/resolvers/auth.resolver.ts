@@ -41,6 +41,17 @@ export class AuthResolver {
     return { user: plainUser };
   }
 
+  @Mutation(() => Boolean)
+  @UseMiddleware(AuthMiddleware)
+  async logout(@Ctx() context: { res: Response }): Promise<boolean> {
+    context.res.setHeader(
+      'Set-Cookie',
+      'token=; HttpOnly; Secure; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT',
+    );
+
+    return true;
+  }
+
   @Query(() => User, { nullable: true })
   @UseMiddleware(AuthMiddleware)
   async me(@Ctx() context: { user: User }): Promise<User | null> {

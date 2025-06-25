@@ -5,7 +5,7 @@ import { UserRole } from '../entities/user.entity';
 @Resolver()
 export class AppointmentTypeResolver {
   @Query(() => [AppointmentType])
-  @Authorized([UserRole.SECRETARY])
+  @Authorized([UserRole.SECRETARY, UserRole.DOCTOR])
   async getAppointmentTypes(): Promise<AppointmentType[]> {
     return AppointmentType.find();
   }

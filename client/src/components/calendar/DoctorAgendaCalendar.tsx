@@ -30,7 +30,7 @@ export default function DoctorAgendaCalendar({
     <article className="flex-1" aria-label="Agenda du médecin">
       <DayPilotCalendar
         ref={calendarRef}
-        viewType="Resources"
+        viewType="WorkWeek"
         startDate={startDate}
         timeFormat="Clock24Hours"
         locale="fr-fr"
@@ -41,16 +41,21 @@ export default function DoctorAgendaCalendar({
             id: index,
             name: capitalize(date.toString('dddd', 'fr-fr')),
             html: `
-      <div class="text-sm font-semibold text-blue">
-        ${capitalize(label)}
-      </div>
-    `,
+              <div class="text-sm font-semibold text-blue">
+                ${capitalize(label)}
+              </div>
+            `,
           };
         })}
         events={appointments.map(event => {
           const snappedStart = roundStartToNextHalfHour(event.start_time);
           const snappedEnd = new Date(snappedStart);
           snappedEnd.setMinutes(snappedStart.getMinutes() + 30);
+
+          const resourceIndex = visibleDays.findIndex(
+            day =>
+              day.toDate().toISOString().slice(0, 10) === snappedStart.toISOString().slice(0, 10),
+          );
 
           return {
             id: event.id,
@@ -66,9 +71,7 @@ export default function DoctorAgendaCalendar({
             `,
             start: new DayPilot.Date(snappedStart.toISOString()),
             end: new DayPilot.Date(snappedEnd.toISOString()),
-            resource: visibleDays.findIndex(
-              day => day.toString().slice(0, 10) === snappedStart.toISOString().slice(0, 10),
-            ),
+            resource: resourceIndex,
           };
         })}
         onEventClick={onEventClick}

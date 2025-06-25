@@ -3,6 +3,7 @@ import NoteDoctor from '@/components/doctor/NoteDoctor';
 import { useGetAppointmentsByIdQuery } from '@/types/graphql-generated';
 import { useParams } from 'react-router-dom';
 import BiometricDataComponent from '@/components/appointement/BiometricData';
+import AdministrativeDoc from '@/components/doctor/AdministrativeDoc';
 
 export default function UpdateAppointementDoctor() {
   const { id } = useParams();
@@ -25,7 +26,10 @@ export default function UpdateAppointementDoctor() {
       <section className="p-4 md:row-span-2 grid-cols-1 col-span-1 2xl:col-span-1">
         <div className="bg-white rounded-2xl p-4">
           <UpdatePatient patientNum={dataAppointment.getAppointmentsById.patient.id} />
-        </div>{' '}
+        </div>
+        <div className="mt-4">
+          <AdministrativeDoc appointmentId={+(id || '0')} />
+        </div>
         {/* TODO: make a PatientInformations component instead of this div */}
       </section>
 

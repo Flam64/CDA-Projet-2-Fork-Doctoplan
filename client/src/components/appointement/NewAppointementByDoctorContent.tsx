@@ -89,6 +89,7 @@ export default function NewAppointementByDoctorContent() {
           appointmentTypes={appointmentTypes}
           appointments={appointments}
           onAppointmentCreated={refetch}
+          doctorId={Number(doctorId)}
         />
       </section>
     </>

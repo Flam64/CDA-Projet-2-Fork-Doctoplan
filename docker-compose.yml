@@ -13,6 +13,7 @@ services:
       - WDS_SOCKET_HOST=localhost
       - WATCHPACK_POLLING=true
       - VITE_APOLLO_SERVER=${VITE_APOLLO_SERVER}
+      - VITE_FRONTEND_URL=${FRONTEND_URL}
       - VITE_SERVER_API_MAIL=${VITE_SERVER_API_MAIL}
     depends_on:
       - codegen
@@ -79,6 +80,11 @@ services:
     environment:
       - GRPC_PORT=${GRPC_PORT}
       - PORT=${LOGS_PORT}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+    depends_on:
+      redis:
+        condition: service_healthy
 
   upload:
     build:
@@ -159,6 +165,8 @@ services:
         condition: service_started
       mail:
         condition: service_started
+      upload:                    
+        condition: service_started
 
   redis:
     image: redis
@@ -166,7 +174,7 @@ services:
     ports:
       - "6379:6379"
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
       timeout: 5s
       retries: 5

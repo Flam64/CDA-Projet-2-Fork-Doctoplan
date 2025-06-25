@@ -59,20 +59,22 @@ export default function User() {
           />
           <img
             src={searchIcon}
-            alt="search icon"
-            className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5"
+            alt=""
+            role="presentation"
+            className="absolute right-3 top-1/2 -translate-y-1/2"
+            aria-hidden="true"
           />
         </div>
 
         {loading && <p className="text-center">Chargement...</p>}
         <div className="space-y-4">
-          {users.map(({ id, firstname, lastname, email, status, departement }) => (
+          {users.map(({ id, firstname, lastname, email, status, departement, role }) => (
             <section
               key={id}
               className="bg-white border border-borderColor rounded-md p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
             >
               <p className="text-sm">
-                {firstname} {lastname} - {email} - {departement.label}
+                {firstname} {lastname} - {email} - {departement.label} - {role}
               </p>
               <div className="flex gap-2 w-full md:w-auto">
                 <Link

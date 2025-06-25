@@ -1,4 +1,4 @@
-import { useGetLogByIdQuery } from '@/types/graphql-generated';
+import { useLogById } from '@/hooks/useLogs';
 import { X } from 'lucide-react';
 
 type LogDetailModalProps = {
@@ -8,10 +8,7 @@ type LogDetailModalProps = {
 };
 
 export default function LogDetailModal({ logId, isOpen, onClose }: LogDetailModalProps) {
-  const { data, loading, error } = useGetLogByIdQuery({
-    variables: { id: logId },
-    skip: !isOpen,
-  });
+  const { data, loading, error } = useLogById(isOpen ? logId : null);
 
   if (!isOpen) return null;
 
@@ -37,7 +34,7 @@ export default function LogDetailModal({ logId, isOpen, onClose }: LogDetailModa
           </section>
         )}
 
-        {data?.getLogById && (
+        {data && (
           <section className="p-6 overflow-y-auto">
             <div className="space-y-4">
               <div>
@@ -45,7 +42,7 @@ export default function LogDetailModal({ logId, isOpen, onClose }: LogDetailModa
                   Titre
                 </label>
                 <p id="titre" className="text-blue font-medium">
-                  {data.getLogById.titre}
+                  {data.titre}
                 </p>
               </div>
 
@@ -54,7 +51,7 @@ export default function LogDetailModal({ logId, isOpen, onClose }: LogDetailModa
                   Date et heure
                 </label>
                 <p id="date" className="text-gray-800">
-                  {new Date(data.getLogById.createAt).toLocaleString('fr-FR')}
+                  {new Date(data.createAt).toLocaleString('fr-FR')}
                 </p>
               </div>
 
@@ -64,7 +61,7 @@ export default function LogDetailModal({ logId, isOpen, onClose }: LogDetailModa
                 </label>
                 <div className="bg-gray-50 rounded-lg p-4 border">
                   <pre id="metadata" className="text-sm text-gray-800 overflow-x-auto">
-                    {JSON.stringify(data.getLogById.metadata, null, 2)}
+                    {JSON.stringify(JSON.parse(data.metadata), null, 2)}
                   </pre>
                 </div>
               </div>

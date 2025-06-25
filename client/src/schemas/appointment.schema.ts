@@ -36,6 +36,7 @@ export const GET_APPOINTEMENTS_DOC_SECRETARY = gql`
       id
       name
       url
+      createdAt
     }
   }
 `;
