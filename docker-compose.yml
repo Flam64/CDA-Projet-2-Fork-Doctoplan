@@ -15,6 +15,7 @@ services:
       - VITE_APOLLO_SERVER=${VITE_APOLLO_SERVER}
       - VITE_FRONTEND_URL=${FRONTEND_URL}
       - VITE_SERVER_API_MAIL=${VITE_SERVER_API_MAIL}
+      - VITE_SERVER_URL=${VITE_SERVER_API_MAIL}
     depends_on:
       - codegen
 
