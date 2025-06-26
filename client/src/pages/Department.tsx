@@ -39,8 +39,8 @@ export default function Department() {
   };
   return (
     <>
-      <div className="container  mx-auto pt-4 pr-12 pl-12 pb-12 flex flex-col gap-4">
-        <div className="flex items-center mb-4">
+      <main className="container  mx-auto pt-4 pr-12 pl-12 pb-12 flex overflow-hidden flex-col gap-4">
+        <header className="flex items-center mb-4">
           <h2 className="text-xl mr-5 font-semibold text-gray-700">Gestion des services</h2>
           {error && <p>Erro</p>}
           {loading && <p>Loading</p>}
@@ -65,8 +65,8 @@ export default function Department() {
               </div>
             )}
           </>
-        </div>
-        <div className="bg-bgBodyColor mb-4">
+        </header>
+        <section className="bg-bgBodyColor p-4">
           <div className="bg-white m-4 w-2/5 relative border border-borderColor rounded-full">
             <label htmlFor="dep" className="sr-only">
               Chercher un service
@@ -93,7 +93,7 @@ export default function Department() {
                 key={department.id}
                 className="bg-white border border-borderColor rounded-md p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
               >
-                <p>
+                <p className="text-sm">
                   {department.label} - Bat {department.building} - Aile {department.wing} -{' '}
                   {department.level}
                 </p>
@@ -132,15 +132,17 @@ export default function Department() {
               </div>
             ))}
           </div>
-        </div>
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePaginatation}
-          totalItems={totalDepartments}
-          pageSize={depPerPage}
-        />
-      </div>
+          <div className="mt-6">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePaginatation}
+              totalItems={totalDepartments}
+              pageSize={depPerPage}
+            />
+          </div>
+        </section>
+      </main>
     </>
   );
 }

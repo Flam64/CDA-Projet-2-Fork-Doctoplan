@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useGetNextAppointmentsByPatientQuery } from '@/types/graphql-generated';
 import ModuleList from '../ModuleList';
 import inputPersonnal from '@/types/numPatient.type';
@@ -41,17 +41,19 @@ export default function NextRdv({ patientNum }: inputPersonnal) {
         getKey={item => item.id}
         renderItem={item => (
           <>
-            <span className="font-bold text-gray-800">
-              {item.doctor.firstname} {item.doctor.lastname}
-            </span>
-            <span className="text-gray-600">
-              - {item.doctor.departement.label} -{' '}
-              {new Date(item.start_time).toLocaleDateString('fr-FR')} -{' '}
-              {new Date(item.start_time).toLocaleTimeString('fr-FR', {
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
-            </span>
+            <Link to={`/secretary/appointment/${item.id}/update`}>
+              <span className="font-bold text-gray-800">
+                {item.doctor.firstname} {item.doctor.lastname}
+              </span>
+              <span className="text-gray-600">
+                - {item.doctor.departement.label} -{' '}
+                {new Date(item.start_time).toLocaleDateString('fr-FR')} -{' '}
+                {new Date(item.start_time).toLocaleTimeString('fr-FR', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+              </span>
+            </Link>
           </>
         )}
       />
