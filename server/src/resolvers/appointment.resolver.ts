@@ -6,7 +6,7 @@ import { Appointment, AppointmentStatus } from '../entities/appointment.entity';
 import { Between, Equal, MoreThan, LessThan } from 'typeorm';
 import { UserRole, User } from '../entities/user.entity';
 import { Patient } from '../entities/patient.entity';
-import { AppointmentCreateInput } from '../types/appointment.type';
+import { AppointmentCreateInput, DatesInput } from '../types/appointment.type';
 import { AppointmentType } from '../entities/appointment-type.entity';
 
 @Resolver()
@@ -72,6 +72,30 @@ export class AppointmentResolver {
       },
       order: { start_time: 'ASC' },
     });
+  }
+
+  // 📌 Check if doctor has appointments between two dates
+  @Query(() => Boolean)
+  @Authorized([UserRole.SECRETARY, UserRole.DOCTOR])
+  async checkDoctorDateAppointments(
+    @Arg('doctorId') doctorId: number,
+    @Arg('dates') dates: DatesInput,
+  ): Promise<boolean> {
+    const start = new Date(`${dates.start}T00:00:00.000Z`);
+    const end = new Date(`${dates.end}T23:59:59.999Z`);
+    const appointments = await Appointment.find({
+      where: {
+        doctor: {
+          id: doctorId,
+        },
+        start_time: Between(start, end),
+      },
+      relations: ['doctor', 'doctor.departement'],
+    });
+    if (appointments.length > 0) {
+      return true;
+    }
+    return false;
   }
 
   // 📌 Next Appointments by Patient

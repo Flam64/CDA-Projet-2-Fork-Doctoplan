@@ -81,3 +81,11 @@ export class AppointmentNoteInput {
   @Field(() => [AppointmentDocInput], { nullable: true })
   document: AppointmentDocInput[];
 }
+@InputType()
+export class DatesInput {
+  @Field()
+  start: string;
+
+  @Field()
+  end: string;
+}

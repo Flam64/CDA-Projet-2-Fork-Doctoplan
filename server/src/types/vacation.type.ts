@@ -7,7 +7,4 @@ export class VacationInput {
 
   @Field()
   end: string;
-
-  @Field()
-  type: string;
 }
