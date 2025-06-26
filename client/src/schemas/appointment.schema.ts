@@ -42,8 +42,8 @@ export const GET_APPOINTEMENTS_DOC_SECRETARY = gql`
 `;
 
 export const GET_LAST_APPOINTEMENTS = gql`
-  query GetLastAppointmentsByPatient($patientId: String!) {
-    getLastAppointmentsByPatient(patientId: $patientId) {
+  query GetLastAppointmentsByPatient($patientId: String!, $limit: Int) {
+    getLastAppointmentsByPatient(patientId: $patientId, limit: $limit) {
       id
       doctor {
         departement {
