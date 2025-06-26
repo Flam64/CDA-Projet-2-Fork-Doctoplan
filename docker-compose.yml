@@ -93,6 +93,11 @@ services:
     volumes:
       - ./upload:/app
       - /app/node_modules
+    environment:
+      - SERVER_PORT=${SERVER_PORT_UPLOAD}
+      - APP_PORT=${NGINX_PORT}
+      - SERVER_URL=${SERVER_API_MAIL}
+      - JWT_SECRET=${JWT_SECRET}
 
   seed:
     build:
@@ -165,7 +170,7 @@ services:
         condition: service_started
       mail:
         condition: service_started
-      upload:                    
+      upload:
         condition: service_started
 
   redis:

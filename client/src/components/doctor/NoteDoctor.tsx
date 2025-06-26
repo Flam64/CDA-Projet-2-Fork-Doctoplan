@@ -2,13 +2,16 @@ import { useGetAppointmentNoteByIdQuery } from '@/types/graphql-generated';
 import AddNoteDoctor from '@/components/doctor/AddNoteDoctor';
 import SeeNoteDoctor from '@/components/doctor/SeeNoteDoctor';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 
 type NoteDoctorProps = {
   appointmentId: number;
   isAllNote?: boolean;
+  doctorId?: number;
 };
 
-export default function NoteDoctor({ appointmentId, isAllNote }: NoteDoctorProps) {
+export default function NoteDoctor({ appointmentId, isAllNote, doctorId }: NoteDoctorProps) {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const {
     data: dataNote,
@@ -49,7 +52,11 @@ export default function NoteDoctor({ appointmentId, isAllNote }: NoteDoctorProps
             </button>
           </div>
         )}
-        <AddNoteDoctor appointmentId={appointmentId} refetchNote={refetchNote} />
+        {+(user?.id || '0') === doctorId && (
+          <>
+            <AddNoteDoctor appointmentId={appointmentId} refetchNote={refetchNote} />
+          </>
+        )}
         {isAllNote ? (
           <SeeNoteDoctor doctorNote={dataNote} />
         ) : (

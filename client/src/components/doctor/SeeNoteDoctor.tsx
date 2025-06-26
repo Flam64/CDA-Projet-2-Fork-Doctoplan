@@ -61,7 +61,7 @@ export default function SeeNoteDoctor({ doctorNote, nbNotes }: SeeNoteDoctorProp
                         aria-expanded={isModalOpen}
                         className="unstyled-button text-left"
                       >
-                        {cutStringNote(note.description, 100)}
+                        {cutStringNote(note.description, 200)}
                       </button>
                     ) : (
                       <p className="text-black text-sm">{note.description}</p>

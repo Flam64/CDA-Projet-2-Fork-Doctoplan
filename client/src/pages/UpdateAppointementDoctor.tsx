@@ -4,6 +4,7 @@ import { useGetAppointmentsByIdQuery } from '@/types/graphql-generated';
 import { useParams } from 'react-router-dom';
 import BiometricDataComponent from '@/components/appointement/BiometricData';
 import AdministrativeDoc from '@/components/doctor/AdministrativeDoc';
+import LastAllRdv from '@/components/doctor/LastAllRdv';
 
 export default function UpdateAppointementDoctor() {
   const { id } = useParams();
@@ -37,11 +38,17 @@ export default function UpdateAppointementDoctor() {
       <div className="grid 2xl:col-span-3 col-span-1">
         {/* Section 2 */}
         <section className="p-4">
-          <NoteDoctor appointmentId={+(id || '0')} />
+          <NoteDoctor
+            appointmentId={+(id || '0')}
+            doctorId={+dataAppointment.getAppointmentsById.doctor.id}
+          />
         </section>
       </div>
       <section className="p-4 lg:col-span-2">
         <BiometricDataComponent />
+      </section>
+      <section className="p-4 lg:col-span-1">
+        <LastAllRdv patientNum={dataAppointment.getAppointmentsById.patient.id} />
       </section>
     </div>
   );

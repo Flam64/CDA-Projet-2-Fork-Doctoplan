@@ -1,4 +1,4 @@
-import { Resolver, Query, Arg, Ctx, Authorized, Mutation, UseMiddleware } from 'type-graphql';
+import { Resolver, Query, Arg, Ctx, Authorized, Mutation, UseMiddleware, Int } from 'type-graphql';
 import { GraphQLError } from 'graphql';
 import { AuthMiddleware } from '../middlewares/auth.middleware';
 import log from '../utils/log';
@@ -92,8 +92,18 @@ export class AppointmentResolver {
 
   // 📌 Last Appointments by Patient
   @Query(() => [Appointment])
-  @Authorized([UserRole.SECRETARY])
-  async getLastAppointmentsByPatient(@Arg('patientId') patientId: string): Promise<Appointment[]> {
+  @Authorized([UserRole.SECRETARY, UserRole.DOCTOR])
+  async getLastAppointmentsByPatient(
+    @Arg('patientId') patientId: string,
+    @Arg('limit', () => Int, { defaultValue: 999 }) limit: number,
+  ): Promise<Appointment[]> {
+    if (limit < 1 || limit > 999) {
+      throw new GraphQLError('La limite doit être comprise entre 1 et 100', {
+        extensions: {
+          code: 'LIMIT_OUT_OF_RANGE',
+        },
+      });
+    }
     return Appointment.find({
       where: {
         patient: {
