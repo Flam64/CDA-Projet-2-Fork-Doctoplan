@@ -21,6 +21,7 @@ import DoctorAgendaPage from './pages/DoctorAgendaPage';
 import DoctorPlanning from './pages/DoctorPlanning';
 import CreatePlanning from './pages/CreatePlanning';
 import AppointementDoctorAllNote from './pages/AppointementDoctorAllNote';
+import DoctorVacation from './pages/DoctorVacation';
 
 const router = createBrowserRouter([
   {
@@ -109,6 +110,10 @@ const router = createBrowserRouter([
           {
             path: '/doctor',
             element: <DoctorAgendaPage />,
+          },
+          {
+            path: '/doctor/vacation',
+            element: <DoctorVacation />,
           },
           {
             path: '/doctor/appointment/create',

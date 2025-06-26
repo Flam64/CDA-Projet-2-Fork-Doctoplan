@@ -17,10 +17,6 @@ export class Vacation extends BaseEntity {
   @Column({ type: 'date' })
   end: string;
 
-  @Field()
-  @Column()
-  type: string;
-
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 

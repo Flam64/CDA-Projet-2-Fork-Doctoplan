@@ -117,6 +117,12 @@ export const GET_APPOINTMENTS_BY_DOCTOR_AND_DATE = gql`
   }
 `;
 
+export const CHECK_DOCTOR_DATE_APPOINTMENTS = gql`
+  query CheckDoctorDateAppointments($dates: DatesInput!, $doctorId: Float!) {
+    checkDoctorDateAppointments(dates: $dates, doctorId: $doctorId)
+  }
+`;
+
 export const GET_DOCTOR_SLOT_BY_DPT = gql`
   query GetDoctorSlotByDepartement($date: String!, $departementId: Float!) {
     getDoctorSlotByDepartement(date: $date, departement_id: $departementId) {
