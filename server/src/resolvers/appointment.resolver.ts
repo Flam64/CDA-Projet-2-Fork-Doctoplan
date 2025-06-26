@@ -92,7 +92,7 @@ export class AppointmentResolver {
 
   // 📌 Last Appointments by Patient
   @Query(() => [Appointment])
-  @Authorized([UserRole.SECRETARY, UserRole.DOCTOR, UserRole.DOCTOR])
+  @Authorized([UserRole.SECRETARY, UserRole.DOCTOR])
   async getLastAppointmentsByPatient(
     @Arg('patientId') patientId: string,
     @Arg('limit', () => Int, { defaultValue: 999 }) limit: number,
