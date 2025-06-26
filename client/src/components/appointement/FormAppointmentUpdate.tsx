@@ -7,7 +7,7 @@ import AppointmentTypesSelect from '@/components/form/AppointmentTypesSelect';
 import { Patient } from '@/types/patient.type';
 import { PatientAppointment } from '@/types/appointement.type';
 import { useAppointmentContext } from '@/hooks/useAppointment';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -27,21 +27,25 @@ export default function FormAppointmentUpdate({
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
-  const isDoctor = user?.role === 'doctor';
   const { handleUpdateAppointment, handleAppointmentChange, handleSelectedDepartment } =
     useAppointmentContext();
+
+  const isDoctor = user?.role === 'doctor';
+
+  const backUrl = (() => {
+    if (location.state?.from === '/secretary') return '/secretary';
+    if (isDoctor) return '/doctor';
+    return `/secretary/doctor/${selectedAppointment.user_id}/agenda`;
+  })();
 
   const handleSubmitInfo = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       await handleUpdateAppointment(idAppointment);
-      if (isDoctor) {
-        navigate('/doctor');
-      } else if (location.state?.from === '/secretary') {
-        navigate('/secretary');
-      } else {
-        navigate(`/secretary/doctor/${selectedAppointment.user_id}/agenda`);
-      }
+
+      setTimeout(() => {
+        navigate(backUrl);
+      }, 2000);
     } catch (error) {
       console.error('Erreur lors de la soumission du formulaire :', error);
     }
@@ -51,12 +55,6 @@ export default function FormAppointmentUpdate({
     handleAppointmentChange(selectedAppointment);
     handleSelectedDepartment(selectedDepartment);
   }, [handleAppointmentChange, selectedAppointment, selectedDepartment, handleSelectedDepartment]);
-
-  const backUrl = isDoctor
-    ? '/doctor'
-    : location.state?.from === '/secretary'
-      ? '/secretary'
-      : `/secretary/doctor/${selectedAppointment.user_id}/agenda`;
 
   return (
     <>
@@ -88,7 +86,7 @@ export default function FormAppointmentUpdate({
             <AppointmentTypesSelect />
           </div>
 
-          {/* Date and Time Selection (adjust width) */}
+          {/* Date and Time Selection */}
           <section className="flex gap-4 items-end whitespace-nowrap w-full max-w-md mx-auto">
             <div className="w-full max-w-[150px]">
               <DateDisplayInput />
@@ -106,13 +104,13 @@ export default function FormAppointmentUpdate({
             <button type="submit" className="standard-button">
               Modifier
             </button>
-            <Link
-              to={backUrl}
-              state={location.state}
+            <button
+              type="button"
               className="standard-button-red text-center mt-4"
+              onClick={() => navigate(backUrl)}
             >
               Annuler
-            </Link>
+            </button>
           </div>
         </section>
       </form>

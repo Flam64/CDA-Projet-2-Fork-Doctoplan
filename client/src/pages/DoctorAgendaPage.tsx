@@ -100,8 +100,8 @@ export default function DoctorAgendaPage() {
     navigate,
     limitDate: DayPilot.Date.today().addMonths(3),
     userRole: user?.role as 'doctor' | 'secretary',
-    doctorId: parsedDoctorId,
     fromPage: 'doctor',
+    ...(parsedDoctorId !== undefined && { doctorId: parsedDoctorId }),
   });
 
   if (doctorLoading) return null;
@@ -144,13 +144,15 @@ export default function DoctorAgendaPage() {
             }
             userRole="doctor"
             renderActionButton={
-              <button
-                type="button"
-                className="standard-button whitespace-nowrap text-base"
-                onClick={() => navigate('/doctor')}
-              >
-                Gérer mes congés
-              </button>
+              user?.role === 'doctor' && (
+                <button
+                  type="button"
+                  className="standard-button whitespace-nowrap text-base"
+                  onClick={() => navigate('/doctor')}
+                >
+                  Gérer mes congés
+                </button>
+              )
             }
           />
         </div>
