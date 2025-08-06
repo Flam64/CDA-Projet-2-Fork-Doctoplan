@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Authentication', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:3205/login');
+    await page.goto('http://localhost:7000/login');
   });
 
   test('Login page displays all elements correctly', async ({ page }) => {
@@ -27,8 +27,8 @@ test.describe('Authentication', () => {
     ).toBeVisible();
     expect(page.url()).toContain('/admin/users');
 
-    await expect(page.getByRole('button', { name: 'Se déconnecter' })).toBeVisible();
-    await page.getByRole('button', { name: 'Se déconnecter' }).click();
+    await expect(page.getByRole('menuitem', { name: 'Se déconnecter' })).toBeVisible();
+    await page.getByRole('menuitem', { name: 'Se déconnecter' }).click();
     await expect(page.getByRole('heading', { name: 'Se connecter à votre compte' })).toBeVisible();
   });
 
@@ -41,11 +41,9 @@ test.describe('Authentication', () => {
 
     await page.getByRole('button', { name: 'Continuer' }).click();
 
-    await expect(page.getByRole('button', { name: 'Se déconnecter' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Ajouter un document' })).toBeVisible();
-    await expect(
-      page.getByRole('textbox', { name: 'Rechercher un patient ou un m' }),
-    ).toBeVisible();
+    await expect(page.getByRole('menuitem', { name: 'Se déconnecter' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Créer un patient' })).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Chercher un patient ou un mé' })).toBeVisible();
 
     expect(page.url()).toContain('/secretary');
   });
