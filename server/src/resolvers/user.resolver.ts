@@ -67,11 +67,15 @@ export class UserResolver {
   @Mutation(() => Boolean)
   async sendResetPassword(@Arg('email') { email }: sendEmailInput): Promise<boolean> {
     try {
-      const userExist = await User.findOneBy({ email });
-      if (userExist) {
+      const user = await User.findOneBy({ email });
+      if (user && user.status === UserStatus.ACTIVE) {
         try {
-          // 🔗 creating the jwt token and password reset url
-          const resetToken = jwt.sign({ email }, `${process.env.JWT_SECRET}`);
+          // 🔗 Creation of the jwt token and password reset URL, with a validity of 15 minutes
+          const resetToken = jwt.sign(
+            { userId: user.id, email: user.email },
+            `${process.env.JWT_SECRET}`,
+            { expiresIn: '15m' },
+          );
 
           const url = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
 
@@ -81,31 +85,27 @@ export class UserResolver {
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ email, url }),
+            body: JSON.stringify({ email: user.email, url }),
           });
           if (response.ok) {
             // ♻️ log the password reset request
             await log('Demande de réinitialisation de mot de passe', {
-              email: email,
+              email: user.email,
             });
-            return true;
+          } else {
+            console.error(`Erreur envoi mail reset password: ${response.statusText}`);
+            await log('Erreur envoi mail reset password', { email: user.email });
           }
-          return false;
         } catch (error) {
           console.error(error);
-          throw new GraphQLError("Impossible d'envoyer l'email", {
-            extensions: {
-              code: 'SEND_MAIL_ERROR',
-              originalError: "Une erreur s'est produite dans l'envoi de l'email",
-            },
-          });
         }
+      } else {
+        // log suspicious password reset request
+        await log('⚠️ Demande de réinitialisation suspecte de mot de passe', {
+          email: email,
+        });
       }
-      // log suspicious password reset request
-      await log('⚠️ Demande de réinitialisation suspecte de mot de passe', {
-        email: email,
-      });
-      return false; // the user does not exist
+      return true; // always returns true: good security practice
     } catch (error) {
       console.error(error); // pour eviter une erreur Eslint
       throw new GraphQLError('Erreur lors de la verification utilisateur', {
@@ -122,12 +122,13 @@ export class UserResolver {
   async resetPassword(@Arg('input') { token, password }: ResetPasswordInput): Promise<boolean> {
     try {
       // 📤 retrieve the email in the token
-      const { email } = jwt.verify(token, process.env.JWT_SECRET || '') as unknown as {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || '') as {
+        userId: number;
         email: string;
       };
 
       // then check that the user exists
-      const userUpdate = await User.findOneBy({ email });
+      const userUpdate = await User.findOneBy({ id: decoded.userId });
       if (!userUpdate) {
         throw new GraphQLError('Impossible de modifier le mot de passe', {
           extensions: {
@@ -137,8 +138,7 @@ export class UserResolver {
         });
       }
       // ⚙️ hash and update new password
-      const hashedPassword = await argon2.hash(password);
-      userUpdate.password = hashedPassword;
+      userUpdate.password = await argon2.hash(password);
       await userUpdate.save();
 
       // 📋 log the user's password reset action
@@ -150,6 +150,19 @@ export class UserResolver {
       return true;
     } catch (error) {
       console.error(error);
+
+      // Managing invalid or expired tokens
+      if (error instanceof jwt.TokenExpiredError) {
+        throw new GraphQLError('Lien de réinitialisation expiré', {
+          extensions: { code: 'TOKEN_EXPIRED' },
+        });
+      }
+      if (error instanceof jwt.JsonWebTokenError) {
+        throw new GraphQLError('Lien de réinitialisation invalide', {
+          extensions: { code: 'INVALID_TOKEN' },
+        });
+      }
+
       throw new GraphQLError('Impossible de changer le mot de passe', {
         extensions: {
           code: 'USER_ERROR',
