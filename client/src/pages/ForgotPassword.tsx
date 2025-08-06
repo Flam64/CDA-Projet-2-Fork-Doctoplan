@@ -28,8 +28,8 @@ export default function ForgotPassword() {
         variables: { email: { email: input.email } },
       });
       if (data) {
-        toast.success(`Un mail à été envoyé à l'adresse ${input.email}`);
-        setMessage(`Un mail à été envoyé à l'adresse ${input.email}`);
+        toast.success('Un mail de réinitialisation à été envoyé');
+        setMessage('Un mail de réinitialisation à été envoyé');
 
         // ⏳ Pause to display the message before redirecting to the login page
         setTimeout(() => {
@@ -41,11 +41,7 @@ export default function ForgotPassword() {
     } catch (error) {
       // an error is sent and we remain on the page
       toast.warning('Impossible de réinitialiser le mot de passe');
-      setError(
-        error instanceof Error
-          ? error.message
-          : 'Une erreur est survenue lors de la réinitialisation du mot de passe.',
-      );
+      setError(error instanceof Error ? error.message : 'Une erreur inttendue est survenue.');
     }
   };
 
@@ -83,9 +79,13 @@ export default function ForgotPassword() {
             })}
             placeholder="example@email.com"
             className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+            aria-invalid={errors.email ? 'true' : 'false'}
+            aria-describedby={errors.email ? 'email-error' : undefined}
           />
           {errors.email?.message && (
-            <p className="text-sm text-accent">{errors.email.message as ReactNode}</p>
+            <p id="email-error" className="text-sm text-accent" role="alert">
+              {errors.email.message as ReactNode}
+            </p>
           )}
         </div>
 
@@ -98,7 +98,11 @@ export default function ForgotPassword() {
           </Link>
         </div>
 
-        <button type="submit" className="cta block mx-auto">
+        <button
+          type="submit"
+          className="cta block mx-auto"
+          aria-label="Envoyer un email de réinitialisation du mot de passe"
+        >
           Continuer
         </button>
       </form>
