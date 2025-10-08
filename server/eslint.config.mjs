@@ -7,8 +7,6 @@ import globals from 'globals';
 
 export default [
   js.configs.recommended,
-
-  // 🌐 Config générale pour ton projet (code applicatif)
   {
     files: ['**/*.{js,ts}'],
     languageOptions: {
