@@ -4,6 +4,7 @@ import { User, UserRole, UserStatus } from '../entities/user.entity';
 import { Departement } from '../entities/departement.entity';
 import { seedDoctors } from './seed-fakeDoctors';
 import { seedTestAppointments } from './seedTestAppointments';
+import { Planning } from '../entities/planning.entity';
 import 'reflect-metadata';
 import 'dotenv/config';
 
@@ -14,7 +15,6 @@ async function seedDatabase() {
     await dataSource.initialize();
     console.info('📊 Database connection initialized');
 
-    // ✅ Execute migrations befor seed in order to have all the department to create new doctor user
     await dataSource.runMigrations();
     console.info('📦 Migrations executed successfully');
 
@@ -96,6 +96,74 @@ async function seedDatabase() {
       console.info('✅ Agent user created successfully');
     } else {
       console.info('👤 Agent user already exists, skipping creation');
+    }
+
+    const existingDevDoctor = await User.findOne({
+      where: { email: 'doctor@doctoplan.com' },
+    });
+
+    if (!existingDevDoctor) {
+      console.info('👤 Dev doctor not found, creating...');
+
+      const hashedDoctorPassword = await argon2.hash(
+        process.env.DEV_DOCTOR_PASSWORD || 'doctor123',
+      );
+
+      const doctorUser = new User();
+      doctorUser.email = 'doctor@doctoplan.com';
+      doctorUser.password = hashedDoctorPassword;
+      doctorUser.role = UserRole.DOCTOR;
+      doctorUser.firstname = 'Dev';
+      doctorUser.lastname = 'Doctor';
+      let pediatrieDepartement = await Departement.findOne({ where: { label: 'Pédiatrie' } });
+      if (!pediatrieDepartement) {
+        pediatrieDepartement = new Departement();
+        pediatrieDepartement.label = 'Pédiatrie';
+        pediatrieDepartement.building = 'B';
+        pediatrieDepartement.wing = 'gauche';
+        pediatrieDepartement.level = '1er';
+        await pediatrieDepartement.save();
+      }
+      doctorUser.departement = pediatrieDepartement;
+      doctorUser.profession = 'Pédiatre';
+      doctorUser.gender = 'F';
+      doctorUser.tel = '0707070707';
+      doctorUser.status = UserStatus.ACTIVE;
+      doctorUser.activationDate = new Date().toISOString().slice(0, 10);
+
+      await doctorUser.save();
+
+      const planning = new Planning();
+      planning.user = doctorUser;
+      planning.start = new Date().toISOString().slice(0, 10);
+
+      planning.monday_start = '09:00';
+      planning.monday_end = '17:00';
+
+      planning.tuesday_start = '09:00';
+      planning.tuesday_end = '17:00';
+
+      planning.wednesday_start = '09:00';
+      planning.wednesday_end = '17:00';
+
+      planning.thursday_start = '09:00';
+      planning.thursday_end = '17:00';
+
+      planning.friday_start = '09:00';
+      planning.friday_end = '17:00';
+
+      planning.saturday_start = null;
+      planning.saturday_end = null;
+      planning.sunday_start = null;
+      planning.sunday_end = null;
+
+      await planning.save();
+
+      console.info('🗓️ Planning hebdomadaire (lun–ven 9h–17h) ajouté pour Dev Doctor');
+
+      console.info('✅ Dev doctor user and full weekly planning created successfully');
+    } else {
+      console.info('👤 Dev doctor already exists, skipping creation');
     }
 
     try {

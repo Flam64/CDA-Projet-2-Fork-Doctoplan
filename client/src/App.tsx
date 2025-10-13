@@ -5,15 +5,23 @@ import Login from '@/pages/Login';
 import PageNotFound from '@/pages/PageNotFound';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Department from '@/pages/Department';
-
 import PatientFileSecretary from '@/pages/PatientFileSecretary';
 import SecretaryDashboard from '@/pages/secretaryDashboard/SecretaryDashboard';
 import ForgotPassword from '@/pages/ForgotPassword';
 import User from '@/pages/User';
 import Logs from '@/pages/Logs';
 import CreateUser from '@/pages/CreateUser';
+import NewAppointementByDoctor from './pages/NewAppointementByDoctor';
+import NewAppointementByPatient from './pages/NewAppointementByPatient';
+import UpdateAppointement from './pages/UpdateAppointement';
+import UpdateAppointementDoctor from './pages/UpdateAppointementDoctor';
 import Agent from '@/pages/Agent';
 import ResetPassword from './pages/ResetPassword';
+import DoctorAgendaPage from './pages/DoctorAgendaPage';
+import DoctorPlanning from './pages/DoctorPlanning';
+import CreatePlanning from './pages/CreatePlanning';
+import AppointementDoctorAllNote from './pages/AppointementDoctorAllNote';
+import DoctorVacation from './pages/DoctorVacation';
 
 const router = createBrowserRouter([
   {
@@ -52,6 +60,18 @@ const router = createBrowserRouter([
             element: <CreateUser />,
           },
           {
+            path: '/admin/users/:id/update',
+            element: <CreateUser />,
+          },
+          {
+            path: '/admin/users/:id/planning',
+            element: <DoctorPlanning />,
+          },
+          {
+            path: '/admin/users/:id/planning/create',
+            element: <CreatePlanning />,
+          },
+          {
             path: '/admin/logs',
             element: <Logs />,
           },
@@ -68,8 +88,48 @@ const router = createBrowserRouter([
             element: <PatientFileSecretary />,
           },
           {
+            path: '/secretary/doctor/:id/appointment/create',
+            element: <NewAppointementByDoctor />,
+          },
+          {
+            path: '/secretary/doctor/:id/agenda',
+            element: <DoctorAgendaPage />,
+          },
+          {
+            path: '/secretary/appointment/:id/update',
+            element: <UpdateAppointement />,
+          },
+          {
+            path: '/secretary/patient/:id/appointment/create',
+            element: <NewAppointementByPatient />,
+          },
+          {
             path: '/agent',
             element: <Agent />,
+          },
+          {
+            path: '/doctor',
+            element: <DoctorAgendaPage />,
+          },
+          {
+            path: '/doctor/vacation',
+            element: <DoctorVacation />,
+          },
+          {
+            path: '/doctor/appointment/create',
+            element: <NewAppointementByDoctor />,
+          },
+          {
+            path: '/doctor/appointment/:id/update',
+            element: <UpdateAppointementDoctor />,
+          },
+          {
+            path: '/doctor/appointment/:id/AllNotes',
+            element: <AppointementDoctorAllNote />,
+          },
+          {
+            path: '/doctor/patient/:id',
+            element: <PatientFileSecretary />,
           },
         ],
       },

@@ -26,7 +26,7 @@ const PATIENT_UPDATE_MUTATION = gql`
       social_number
       city {
         city
-        postal_code
+        zip_code
       }
     }
   }
@@ -62,11 +62,11 @@ describe('PatientResolver', () => {
       email: 'stephane.gosselin@monemail.fr',
       firstname: 'Stéphane',
       gender: 'M',
-      id: 1,
+      id: '1',
       lastname: 'Gosselin',
       note: '',
       phone_number: '0404040404',
-      postal_code: '69009',
+      zip_code: '69009',
       private_assurance: '',
       referring_physician: '',
       social_number: '111111111111111',
@@ -144,7 +144,7 @@ describe('PatientResolver', () => {
   });
 
   it('should return error because user not exists', async () => {
-    testUpdatePatient.id = 1111111;
+    testUpdatePatient.id = '1111111';
 
     const result = await graphql({
       schema,

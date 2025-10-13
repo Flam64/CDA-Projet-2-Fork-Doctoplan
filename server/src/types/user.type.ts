@@ -1,14 +1,14 @@
 import { Field, InputType, Int, ObjectType } from 'type-graphql';
 import { User, UserRole, UserStatus } from '../entities/user.entity';
-import { Matches } from 'class-validator';
+import { IsEmail, Matches } from 'class-validator';
+import { Planning } from '../entities/planning.entity';
+import { CreatePeriodOfPlanningInput } from './planning.type';
 
 @InputType()
 export class CreateUserInput {
   @Field()
+  @IsEmail()
   email: string;
-
-  @Field()
-  password: string;
 
   @Field()
   firstname: string;
@@ -25,9 +25,6 @@ export class CreateUserInput {
   @Field({ nullable: true })
   activationDate?: string;
 
-  @Field({ nullable: true })
-  profession: string;
-
   @Field()
   departementId: number;
 
@@ -36,6 +33,9 @@ export class CreateUserInput {
 
   @Field(() => String, { nullable: true })
   status?: UserStatus;
+
+  @Field(() => [CreatePeriodOfPlanningInput], { nullable: true })
+  plannings?: Planning[];
 }
 
 @ObjectType()
@@ -47,6 +47,18 @@ export class UsersWithTotal {
   total: number;
 }
 
+// 👮 verification that the email corresponds to the domain @hopital.gouv.fr
+@InputType()
+export class sendEmailInput {
+  @Field()
+  // 🔥 le regEx definitif devra être /^[a-zA-Z0-9._%+-]+@hopital\.gouv\.fr$/
+  @Matches(/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/, {
+    message: 'Adresse mail non conforme',
+  })
+  email: string;
+}
+
+// 👮 checking password entry rules
 @InputType()
 export class ResetPasswordInput {
   @Field()

@@ -1,8 +1,8 @@
 import { useGetDoctorsByDepartementQuery } from '@/types/graphql-generated';
 
-export default function useResources(label: string) {
+export default function useResources(id: string) {
   const { data, loading, error } = useGetDoctorsByDepartementQuery({
-    variables: { label },
+    variables: { id: parseInt(id) },
   });
 
   const doctors = data?.getDoctorsByDepartement ?? [];

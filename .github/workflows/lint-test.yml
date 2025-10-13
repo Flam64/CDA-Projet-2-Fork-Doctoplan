@@ -1,8 +1,6 @@
 name: Lint and Format
 
 on:
-  push:
-    branches: [main, dev]
   pull_request:
     branches: [main, dev]
 
@@ -31,7 +29,7 @@ jobs:
   lint-server:
     name: Lint Server
     runs-on: ubuntu-latest
-    steps:
+    steps: 
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -48,6 +46,48 @@ jobs:
 
       - name: Run ESLint
         run: npm run lint:server
+
+  lint-mail:
+    name: Lint Mail
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm run install:mail
+
+      - name: Run ESLint
+        run: npm run lint:mail
+
+  lint-upload:
+    name: Lint Upload
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm run install:upload
+
+      - name: Run ESLint
+        run: npm run lint:upload
 
   format-check:
     name: Format Check
@@ -67,9 +107,17 @@ jobs:
           npm ci
           npm run install:client
           npm run install:server
+          npm run install:mail
+          npm run install:upload
 
       - name: Check Client Formatting
         run: npm run format:client
 
       - name: Check Server Formatting
         run: npm run format:server
+
+      - name: Check Mail Formatting
+        run: npm run format:mail
+
+      - name: Check Upload Formatting
+        run: npm run format:upload

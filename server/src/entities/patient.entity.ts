@@ -7,8 +7,8 @@ import { PatientDoc } from './patient-doc.entity';
 @Entity('patient')
 export class Patient extends BaseEntity {
   @Field(() => ID)
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
@@ -68,7 +68,7 @@ export class Patient extends BaseEntity {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
 
-  @Field(() => City)
+  @Field(() => City, { nullable: true })
   @ManyToOne(() => City, (city) => city.patients)
   city: City;
 

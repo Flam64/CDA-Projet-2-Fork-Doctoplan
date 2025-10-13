@@ -1,4 +1,5 @@
-import { Field, InputType } from 'type-graphql';
+import { Field, InputType, Int, ObjectType } from 'type-graphql';
+import { Departement } from '../entities/departement.entity';
 
 @InputType()
 export class DepartementInput {
@@ -13,4 +14,13 @@ export class DepartementInput {
 
   @Field()
   level: string;
+}
+
+@ObjectType()
+export class DepartementsWithTotal {
+  @Field(() => [Departement])
+  departements: Departement[];
+
+  @Field(() => Int)
+  total: number;
 }

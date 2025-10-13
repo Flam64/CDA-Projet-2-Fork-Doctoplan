@@ -14,9 +14,9 @@ export class CityResolver {
 
   @Query(() => [City])
   @Authorized([UserRole.SECRETARY, UserRole.DOCTOR])
-  async getCityByCP(@Arg('postal_code') postal_code: string): Promise<City[] | null> {
+  async getCityByCP(@Arg('zip_code') zip_code: string): Promise<City[] | null> {
     return await City.find({
-      where: { postal_code: postal_code },
+      where: { zip_code: zip_code },
     });
   }
 }

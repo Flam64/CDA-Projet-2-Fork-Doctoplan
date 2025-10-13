@@ -1,9 +1,19 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, BaseEntity } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
+  BaseEntity,
+} from 'typeorm';
 import { ObjectType, Field, ID, Int } from 'type-graphql';
 import { User } from './user.entity';
 import { Patient } from './patient.entity';
 import { AppointmentType } from './appointment-type.entity';
+import { appointmentDocSecretary } from './appointmentDocSecretary.entity';
 import { Departement } from './departement.entity';
+import { appointmentNote } from './appointmentNote.entity';
 
 export enum AppointmentStatus {
   CONFIRMED = 'confirmed',
@@ -65,4 +75,12 @@ export class Appointment extends BaseEntity {
   @ManyToOne(() => Departement, { eager: true })
   @JoinColumn({ name: 'departement_id' })
   departement: Departement;
+
+  @Field(() => [appointmentDocSecretary])
+  @OneToMany(() => appointmentDocSecretary, (administrativeDoc) => administrativeDoc.appointmentDoc)
+  administrativeDoc: appointmentDocSecretary[];
+
+  @Field(() => [appointmentNote])
+  @OneToMany(() => appointmentNote, (doctorNote) => doctorNote.appointmentNote)
+  doctorNote: appointmentNote[];
 }

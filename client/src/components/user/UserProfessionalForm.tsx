@@ -12,7 +12,7 @@ type UserFormProps = {
   formData: CreateUserInput;
 };
 
-export default function UserProfessionalForm({ handleInputChange, formData }: UserFormProps) {
+export default function UserProfessionalForm({ handleInputChange, formData, id }: UserFormProps) {
   const { data } = useGetDepartementsQuery();
   const userRole = [
     { key: 'admin', value: 'Admin' },
@@ -29,19 +29,6 @@ export default function UserProfessionalForm({ handleInputChange, formData }: Us
   return (
     <section className="w-full md:w-2/5">
       <h3 className="text-blue mb-2">Information professionnelles</h3>
-      <SelectForm
-        title="Profession"
-        name="profession"
-        option={[
-          { key: '', value: 'Sélectionner une profession' },
-          ...(data?.getDepartements?.map(department => ({
-            key: department.id,
-            value: department.label,
-          })) || []),
-        ]}
-        value={formData.profession ?? ''}
-        handle={e => handleInputChange(e, 'profession')}
-      />
       <SelectForm
         title="Service"
         name="departementId"
@@ -77,6 +64,7 @@ export default function UserProfessionalForm({ handleInputChange, formData }: Us
         option={[{ key: '', value: 'Sélectionner un role' }, ...userRole]}
         value={formData.role ?? ''}
         handle={e => handleInputChange(e, 'role')}
+        disabled={id ? true : false}
       />
     </section>
   );

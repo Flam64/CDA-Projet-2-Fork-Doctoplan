@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 const verifyToken = (token: string): { id: number; email: string; role: string } => {
@@ -9,7 +9,7 @@ const verifyToken = (token: string): { id: number; email: string; role: string }
 export const authMiddleware = (roleaccess: string[]) => {
   return function (req: Request, res: Response, next: NextFunction) {
     const cookieHeader = req.headers.cookie as string | undefined;
-    if(!cookieHeader) {
+    if (!cookieHeader) {
       res.sendStatus(401);
       return;
     }
@@ -30,11 +30,11 @@ export const authMiddleware = (roleaccess: string[]) => {
     }
 
     const decoded = verifyToken(token);
-    if(roleaccess.includes(decoded.role)) {
+    if (roleaccess.includes(decoded.role)) {
       next();
     } else {
       res.sendStatus(401);
       return;
     }
-  }
+  };
 };

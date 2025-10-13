@@ -29,17 +29,43 @@ export default [
       'no-console': ['error', { allow: ['info', 'warn', 'error'] }],
       '@typescript-eslint/no-unused-expressions': [
         'error',
+        { allowShortCircuit: true, allowTernary: true },
+      ],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
         {
-          allowShortCircuit: true,
-          allowTernary: true,
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+          destructuredArrayIgnorePattern: '^_',
         },
       ],
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/no-explicit-any': 'warn',
     },
   },
+
+  // 🧪 Spécifique aux fichiers de tests Jest
+  {
+    files: ['**/*.test.ts', '**/*.spec.ts', '**/__tests__/**/*.ts'],
+    languageOptions: {
+      globals: {
+        ...globals.jest, // ⬅️ ajoute describe, it, expect, jest, beforeAll, etc.
+        ...globals.node,
+      },
+    },
+    rules: {
+      // 🔇 on assouplit certaines règles dans les tests
+      'no-undef': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+      'no-console': 'off', // souvent utile pour debug test
+    },
+  },
+
+  // 🚫 Ignore les dossiers build
   {
     ignores: ['node_modules/**', 'dist/**'],
   },
+
   eslintConfigPrettier,
 ];

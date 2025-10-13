@@ -97,9 +97,9 @@ describe('AgentResolver', () => {
       }).save());
 
     testCity =
-      (await City.findOne({ where: { postal_code: '12345' } })) ||
+      (await City.findOne({ where: { zip_code: '12345' } })) ||
       (await City.create({
-        postal_code: '12345',
+        zip_code: '12345',
         city: 'Test City',
       }).save());
 

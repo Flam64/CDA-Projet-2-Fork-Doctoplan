@@ -1,0 +1,40 @@
+import UpdatePatient from '../components/patientFile/UpdatePatient';
+import NoteDoctor from '@/components/doctor/NoteDoctor';
+import { useGetAppointmentsByIdQuery } from '@/types/graphql-generated';
+import { useParams } from 'react-router-dom';
+
+export default function AppointementDoctorAllNote() {
+  const { id } = useParams();
+
+  const {
+    data: dataAppointment,
+    error: errorAppointment,
+    loading: loadingAppointment,
+  } = useGetAppointmentsByIdQuery({
+    variables: { id: +(id || 0) },
+  });
+
+  if (errorAppointment) return;
+  if (loadingAppointment) return;
+  if (!dataAppointment) return;
+
+  return (
+    <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-4 gap-6 w-full items-start">
+      {/* Colonne 1 */}
+      <section className="p-4 md:row-span-2 grid-cols-1 col-span-1 2xl:col-span-1">
+        <div className="bg-white rounded-2xl p-4">
+          <UpdatePatient patientNum={dataAppointment.getAppointmentsById.patient.id} />
+        </div>{' '}
+        {/* TODO: make a PatientInformations component instead of this div */}
+      </section>
+
+      {/* Colonne 2 */}
+      <div className="grid 2xl:col-span-3 col-span-1">
+        {/* Section 2 */}
+        <section className="p-4">
+          <NoteDoctor appointmentId={+(id || '0')} isAllNote={true} />
+        </section>
+      </div>
+    </div>
+  );
+}

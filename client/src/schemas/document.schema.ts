@@ -10,7 +10,7 @@ export const DOCUMENTTYPE_QUERY_BYTYPE = gql`
 `;
 
 export const DOCUMENT_QUERY_BYPATIENT = gql`
-  query GetDocumentByID($patientId: Float!) {
+  query GetDocumentByID($patientId: String!) {
     getDocumentByID(patientId: $patientId) {
       id
       name

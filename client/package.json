@@ -15,7 +15,14 @@
     "format:file": "prettier --check",
     "codegen": "graphql-codegen",
     "codegen:watch": "graphql-codegen --watch",
-    "test-component": "vitest"
+    "test-component": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:codegen": "playwright codegen http://localhost:7000",
+    "test:e2e:report": "playwright show-report",
+    "test:e2e:install": "playwright install"
   },
   "dependencies": {
     "@apollo/client": "^3.13.5",
@@ -25,17 +32,21 @@
     "@parcel/watcher": "^2.5.1",
     "@tailwindcss/vite": "^4.0.16",
     "axios": "^1.9.0",
+    "chart.js": "^4.5.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react": "^7.37.4",
     "framer-motion": "^12.6.1",
-    "graphql": "^16.10.0",
+    "graphql": "^16.11.0",
     "lucide-react": "^0.484.0",
     "react": "^19.0.0",
+    "react-chartjs-2": "^5.3.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.56.4",
     "react-router-dom": "^7.4.0",
     "react-toastify": "^11.0.5",
-    "tailwindcss": "^4.0.16"
+    "reflect-metadata": "^0.2.2",
+    "tailwindcss": "^4.0.16",
+    "type-graphql": "^2.0.0-rc.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
@@ -43,8 +54,10 @@
     "@graphql-codegen/typescript": "^4.1.6",
     "@graphql-codegen/typescript-operations": "^4.6.0",
     "@graphql-codegen/typescript-react-apollo": "^4.3.2",
+    "@playwright/test": "^1.52.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",
@@ -57,6 +70,7 @@
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.24.1",
     "vite": "^6.2.0",
+    "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.1.4"
   }
 }

@@ -47,8 +47,8 @@ import { Field, ObjectType } from 'type-graphql';
           WHEN date_part('isodow', tt.jour) = 7 THEN sunday_end
         END AS fin_libreapp
       FROM planning a
-      JOIN "user" u on u.id = a.user_id and u.status = 'active'
-      CROSS JOIN jours tt
+      INNER JOIN "user" u on u.id = a.user_id and u.status = 'active'
+      INNER JOIN jours tt ON tt.jour >= (a.start)::DATE AND tt.jour <= COALESCE((a."end")::DATE, tt.jour)
     ),
     appointement AS (
       SELECT
@@ -114,11 +114,12 @@ import { Field, ObjectType } from 'type-graphql';
       )
     )
     SELECT
+      ROW_NUMBER() OVER (ORDER BY l.jour, l.debut_libre) AS id,
       jour,
       l.user_id,
       u.firstname,
       u.lastname,
-      u."departementId",
+      u."departementId" departement_id,
       debut_libre,
       fin_libre
     FROM libres l
@@ -128,6 +129,10 @@ import { Field, ObjectType } from 'type-graphql';
   `,
 })
 export class DoctorAppointmentSlot extends BaseEntity {
+  @Field()
+  @ViewColumn()
+  id: number;
+
   @Field()
   @ViewColumn()
   jour: string;

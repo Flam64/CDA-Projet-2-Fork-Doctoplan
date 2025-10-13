@@ -14,6 +14,12 @@ import { PlanningResolver } from './resolvers/planning.resolver';
 import { AgentResolver } from './resolvers/agent.resolver';
 import { JSONScalar } from './scalar/json.scalar';
 import { doctorAppointmentSlotResolver } from './resolvers/doctorAppointmentSlot.resolver';
+import { AppointmentTypeResolver } from './resolvers/appointement-type.resolver';
+import { NoteResolver } from './resolvers/note.resolvers';
+import { appointmentDocSecretaryResolver } from './resolvers/appointmentDocSecretary.resolver';
+import { appointmentDocDoctorResolver } from './resolvers/appointmentDocDoctor.resolver';
+import { appointmentNoteResolver } from './resolvers/appointmentNote.resolver';
+import { VacationResolver } from './resolvers/vacation.resolver';
 
 export default async function createSchema() {
   return await buildSchema({
@@ -30,6 +36,12 @@ export default async function createSchema() {
       PlanningResolver,
       AgentResolver,
       doctorAppointmentSlotResolver,
+      AppointmentTypeResolver,
+      NoteResolver,
+      appointmentDocSecretaryResolver,
+      appointmentDocDoctorResolver,
+      appointmentNoteResolver,
+      VacationResolver,
     ],
     validate: true,
     authChecker: async ({ context }, roles) => {

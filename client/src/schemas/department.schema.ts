@@ -13,6 +13,22 @@ export const DEPARTMENT = gql`
   }
 `;
 
+export const GET_DEPARTMENT_PAGINATION = gql`
+  query GetAllDepartementsWithPagination($search: String, $page: Int, $limit: Int) {
+    getAllDepartementsWithPagination(search: $search, page: $page, limit: $limit) {
+      total
+      departements {
+        id
+        label
+        building
+        wing
+        level
+        status
+      }
+    }
+  }
+`;
+
 export const CREATE_DEPARTMENT = gql`
   mutation CreateDepartement($data: DepartementInput!) {
     createDepartement(data: $data)

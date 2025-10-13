@@ -4,7 +4,7 @@ import { IsEmail, Matches, Length } from 'class-validator';
 @InputType()
 export class PatientInput {
   @Field(() => ID)
-  id?: number;
+  id?: string;
 
   @Field({ nullable: true })
   @IsEmail()
@@ -62,7 +62,7 @@ export class PatientInput {
 
   @Field()
   @Matches(/[\d]*/)
-  postal_code: string;
+  zip_code: string;
 
   @Field()
   city: string;

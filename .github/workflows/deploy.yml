@@ -1,0 +1,44 @@
+name: Continuous Deployment
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+              
+      - name: Deploy via SSH to VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script: |
+            cd /var/www/app/doctplan
+
+            echo "📂 Dossier actuel: $(pwd)"
+
+            echo "🔄 Récupération des dernières modifications..."
+            git pull origin main
+
+            echo "🛑 Arrêt des conteneurs existants..."
+            docker compose down
+
+            echo "🔨 Construction et démarrage des nouveaux conteneurs..."
+            docker compose up --build -d
+
+            echo "🧹 Nettoyage des images Docker inutilisées..."
+            docker image prune -f
+
+            echo "✅ Statut des conteneurs:"
+            docker compose ps
+
+            echo "🎉 Déploiement terminé!"

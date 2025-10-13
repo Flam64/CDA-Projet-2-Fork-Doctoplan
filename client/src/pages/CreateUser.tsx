@@ -1,39 +1,40 @@
 import { useEffect, useState } from 'react';
 import {
-  useGetAllUsersQuery,
   useCreateUserMutation,
-  useCreateDoctorPlanningMutation,
+  useGetUserByIdLazyQuery,
+  useUpdateUserMutation,
 } from '@/types/graphql-generated';
 import { ApolloError } from '@apollo/client';
 import UserPersonalForm from '@/components/user/UserPersonalForm';
 import UserProfessionalForm from '@/components/user/UserProfessionalForm';
 import UserPlanning from '@/components/user/UserPlanning';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import UserButtons from '@/components/user/UserButtons';
-
-type CreateUserModalProps = {
-  id?: string | null;
-};
+import { formatInputPlanning } from '@/utils/formatInputPlanning';
 
 type FormDataType = {
   lastname: string;
   firstname: string;
   email: string;
-  password: string;
   role: string;
   status: string;
   activationDate: string | null;
   departementId: number;
   gender: string;
   tel: string;
-  profession: string;
 };
 
 export type Planning = {
-  [day: string]: {
+  period: {
     start: string;
     end: string;
-    off: boolean;
+    days: {
+      [day: string]: {
+        start: string;
+        end: string;
+        off: boolean;
+      };
+    };
   };
 };
 
@@ -41,14 +42,12 @@ const initialFormData: FormDataType = {
   lastname: '',
   firstname: '',
   email: '',
-  password: '',
   role: '',
   status: 'active',
   activationDate: null,
   departementId: 0,
   gender: '',
   tel: '',
-  profession: '',
 };
 
 const days = [
@@ -61,42 +60,95 @@ const days = [
   { fr: 'Dimanche', en: 'Sunday' },
 ];
 
-const initialPlanning: Planning = days.reduce((acc, day) => {
-  acc[day.en] = { start: '', end: '', off: false };
-  return acc;
-}, {} as Planning);
+const initialPlanning: Planning = days.reduce(
+  (acc, day) => {
+    acc.period.days[day.en] = { start: '', end: '', off: false };
+    return acc;
+  },
+  {
+    period: {
+      start: '',
+      end: '',
+      days: {},
+    },
+  } as Planning,
+);
 
-export default function CreateUser({ id }: CreateUserModalProps) {
-  const { data, refetch } = useGetAllUsersQuery();
+export default function CreateUser() {
+  const { id } = useParams();
   const [createUser] = useCreateUserMutation();
-  const [createPlanning] = useCreateDoctorPlanningMutation();
+  const [updateUser] = useUpdateUserMutation();
   const [error, setError] = useState('');
   const [isDoctor, setIsDoctor] = useState(false);
   const [isDisable, setIsDisable] = useState(false);
   const [formData, setFormData] = useState<FormDataType>(initialFormData);
   const [userPlanning, setUserPlanning] = useState<Planning>(initialPlanning);
   const navigate = useNavigate();
+  const [getFullUserInfo, { data: fullUserInfoData, refetch }] = useGetUserByIdLazyQuery();
   useEffect(() => {
     if (id) {
-      const user = data?.getAllUsers?.find(user => user.id === id);
-      if (user) {
-        setFormData({
-          lastname: user.lastname,
-          firstname: user.firstname,
-          email: user.email,
-          password: '',
-          role: user.role,
-          status: user.status || 'active',
-          departementId: Number(user.departement?.id),
-          activationDate: user.activationDate || null,
-          gender: user.gender || '',
-          tel: user.tel || '',
-          profession: user.profession || '',
+      const getUserInfo = async () => {
+        await getFullUserInfo({
+          variables: {
+            id,
+          },
         });
+      };
+      getUserInfo();
+    }
+  }, [id, getFullUserInfo]);
+
+  useEffect(() => {
+    const user = fullUserInfoData?.getUserById;
+    if (user) {
+      setFormData({
+        lastname: user.lastname,
+        firstname: user.firstname,
+        email: user.email,
+        role: user.role,
+        status: user.status || 'active',
+        departementId: Number(user.departement?.id),
+        activationDate: user.activationDate || null,
+        gender: user.gender || '',
+        tel: user.tel || '',
+      });
+      if (user.role === 'doctor') {
+        setIsDoctor(true);
+        const planning = user.plannings?.[0];
+        setUserPlanning(prev => ({
+          period: {
+            start:
+              planning && planning.start
+                ? new Date(planning.start).toLocaleDateString('fr-FR')
+                : '',
+            end: planning && planning.end ? new Date(planning.end).toLocaleDateString('fr-FR') : '',
+            days: Object.fromEntries(
+              Object.keys(prev.period.days).map(day => {
+                const lowerDay = day.toLowerCase();
+                const startKey = `${lowerDay}_start` as keyof typeof planning;
+                const endKey = `${lowerDay}_end` as keyof typeof planning;
+
+                return [
+                  day,
+                  {
+                    start: formatTime(planning?.[startKey] || ''),
+                    end: formatTime(planning?.[endKey] || ''),
+                    off: false,
+                  },
+                ];
+              }),
+            ),
+          },
+        }));
       }
     }
-  }, [id, data, formData]);
+  }, [fullUserInfoData]);
 
+  const formatTime = (timeStr: string) => {
+    if (!timeStr) return '';
+    const [hours, minutes] = timeStr.split(':');
+    return `${parseInt(hours, 10)}h${minutes}`;
+  };
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setError('');
     setIsDisable(false);
@@ -114,7 +166,9 @@ export default function CreateUser({ id }: CreateUserModalProps) {
     setError('');
     if (
       isDoctor &&
-      !Object.values(userPlanning).some(day => (day.start !== '' && day.end !== '') || day.off)
+      !Object.values(userPlanning.period.days).some(
+        day => (day.start !== '' && day.end !== '') || day.off,
+      )
     ) {
       setError('Au moins un jour doit être rempli.');
       return;
@@ -123,43 +177,36 @@ export default function CreateUser({ id }: CreateUserModalProps) {
       setIsDisable(true);
     }
     try {
+      const planningInput = formatInputPlanning(userPlanning, isDoctor);
+      const variables = {
+        input: {
+          ...formData,
+          departementId: +formData.departementId,
+          ...(isDoctor &&
+            !id && {
+              plannings: [
+                {
+                  start: formData.activationDate ?? new Date().toDateString(),
+                  ...planningInput,
+                },
+              ],
+            }),
+        },
+      };
       if (!id) {
-        const createdUser = await createUser({
-          variables: { input: { ...formData, departementId: +formData.departementId } },
+        await createUser({
+          variables: variables,
         });
-
-        if (isDoctor && createdUser.data) {
-          const planningInput = Object.keys(userPlanning).reduce(
-            (acc, day) => {
-              const dayLower = day.toLowerCase();
-              acc[`${dayLower}_start`] =
-                (userPlanning[day].off || userPlanning[day].start) === ''
-                  ? null
-                  : userPlanning[day].start;
-              acc[`${dayLower}_end`] =
-                userPlanning[day].off || userPlanning[day].end === ''
-                  ? null
-                  : userPlanning[day].end;
-              return acc;
-            },
-            {} as Record<string, string | null>,
-          );
-          await createPlanning({
-            variables: {
-              createDoctorPlanningId: createdUser.data?.createUser.id,
-              input: {
-                start: new Date().toISOString(),
-                end: null,
-                ...planningInput,
-              },
-            },
-          });
-        }
       } else {
-        // updateUser
+        await updateUser({
+          variables: {
+            ...variables,
+            updateUserId: id,
+          },
+        });
       }
       await refetch();
-      navigate('/users');
+      navigate('/admin/users');
     } catch (err) {
       setError(
         err instanceof ApolloError
@@ -198,9 +245,9 @@ export default function CreateUser({ id }: CreateUserModalProps) {
               }}
             />
           </article>
-          {!isDoctor && <UserButtons id={id ?? null} isDisable={isDisable} />}
+          {(!isDoctor || id) && <UserButtons id={id ?? null} isDisable={isDisable} />}
         </section>
-        {isDoctor && (
+        {isDoctor && !id && (
           <UserPlanning
             userPlanning={userPlanning}
             setUserPlanning={setUserPlanning}
@@ -208,6 +255,7 @@ export default function CreateUser({ id }: CreateUserModalProps) {
             setError={setError}
             isDisable={isDisable}
             setIsDisable={setIsDisable}
+            id={id ?? ''}
           />
         )}
       </form>

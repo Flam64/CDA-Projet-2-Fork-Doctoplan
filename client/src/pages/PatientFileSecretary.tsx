@@ -2,7 +2,7 @@ import AdminDocs from '../components/patientFile/AdminDocs';
 import FollowBy from '../components/patientFile/FollowBy';
 import LastRdv from '../components/patientFile/LastRdv';
 import NextRdv from '../components/patientFile/NextRdv';
-import PersonnalInformation from '../components/patientFile/PersonnalInformation';
+import UpdatePatient from '../components/patientFile/UpdatePatient';
 import { useParams } from 'react-router-dom';
 
 export default function PatientFileSecretary() {
@@ -11,26 +11,28 @@ export default function PatientFileSecretary() {
     return <div className="flex items-center justify-center h-screen">Patient not found</div>;
   }
   return (
-    <div className="flex flex-wrap gap-10 p-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full items-start">
       {/* Colonne 1 */}
-      <section className="flex flex-col gap-6 flex-1 min-w-[600px] max-w-[700px]">
-        <div className="bg-white rounded-2xl shadow p-4">
-          <PersonnalInformation patientNum={parseInt(id)} />
+      <section className="p-4 md:row-span-2">
+        <div className="bg-white rounded-2xl p-4">
+          <UpdatePatient patientNum={id} />
         </div>{' '}
         {/* TODO: make a PatientInformations component instead of this div */}
       </section>
 
       {/* Colonne 2 */}
-      <section className="flex flex-col gap-6 flex-1 min-w-[500px] max-w-[700px]">
-        <NextRdv patientNum={parseInt(id)} />
-        <AdminDocs patientNum={parseInt(id)} />
-      </section>
-
-      {/* Colonne 3 */}
-      <section className="flex flex-col gap-6 flex-1 min-w-[400px] max-w-[700px]">
-        <LastRdv patientNum={parseInt(id)} />
-        <FollowBy patientNum={parseInt(id)} />
-      </section>
+      <div className="grid lg:col-span-2 lg:grid-cols-2">
+        {/* Section 2 */}
+        <section className="p-4">
+          <NextRdv patientNum={id} />
+          <AdminDocs patientNum={id} />
+        </section>
+        {/* Section 3 */}
+        <section className="p-4">
+          <LastRdv patientNum={id} />
+          <FollowBy patientNum={id} />
+        </section>
+      </div>
     </div>
   );
 }

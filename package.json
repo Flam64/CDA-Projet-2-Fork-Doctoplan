@@ -7,16 +7,23 @@
     "prepare": "husky",
     "lint:client": "cd client && npm run lint",
     "lint:server": "cd server && npm run lint",
+    "lint:mail": "cd mail && npm run lint",
+    "lint:upload": "cd upload && npm run lint",
     "format:client": "cd client && npm run format",
     "format:server": "cd server && npm run format",
+    "format:mail": "cd mail && npm run format",
+    "format:upload": "cd upload && npm run format",
     "check": "npm run lint:client && npm run lint:server && npm run format:client && npm run format:server",
     "dev": "concurrently -n \"client,server\" -c \"cyan.bold,green.bold\" \"npm run dev:client\" \"npm run dev:server\"",
     "dev:docker": "docker compose up",
     "dev:client": "cd client && npm run dev",
     "dev:server": "cd server && npm run dev",
+    "dev:upload": "cd upload && npm run dev",
     "install:all": "npm install && cd client && npm install && cd ../server && npm install",
     "install:client": "cd client && npm install",
-    "install:server": "cd server && npm install"
+    "install:server": "cd server && npm install",
+    "install:mail": "cd mail && npm install",
+    "install:upload": "cd upload && npm install"
   },
   "lint-staged": {
     "client/**/*.{js,jsx,ts,tsx}": [
@@ -26,6 +33,14 @@
     "server/**/*.{js,ts,mjs}": [
       "npm --prefix server run lint:file",
       "npm --prefix server run format:file"
+    ],
+    "mail/**/*.{js,ts}": [
+      "npm --prefix mail run lint:file",
+      "npm --prefix mail run format:file"
+    ],
+    "upload/**/*.{js,ts}": [
+      "npm --prefix upload run lint:file",
+      "npm --prefix upload run format:file"
     ]
   },
   "devDependencies": {

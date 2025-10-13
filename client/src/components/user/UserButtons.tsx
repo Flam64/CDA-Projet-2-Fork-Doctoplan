@@ -8,7 +8,7 @@ export default function UserButtons({ id, isDisable }: UserButtonProps) {
   return (
     <div className="flex justify-end p-2 mt-4">
       <Link
-        to={'/users'}
+        to={'/admin/users'}
         className="inline-flex items-center mr-2 p-3 rounded-md bg-white border border-red-600 px-4 text-sm font-medium text-red-600 shadow-sm hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
       >
         Annuler

@@ -1,5 +1,5 @@
 type inputPersonnal = {
-  patientNum: number;
+  patientNum: string;
 };
 
 export default inputPersonnal;

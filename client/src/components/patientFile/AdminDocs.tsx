@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import inputPersonnal from '@/types/numPatient.type';
-import CreateUploadModal from '@/components/patientFile/CreateUploadModal';
+import CreateUploadModal from '@/components/modals/CreateUploadModal';
 import { useGetDocumentByIdQuery } from '@/types/graphql-generated';
 import { Link } from 'react-router-dom';
+import { FocusTrapModal } from '@/utils/modal';
 
 export default function AdminDocs({ patientNum }: inputPersonnal) {
   const [showAddDocPatientModal, setshowAddDocPatientModal] = useState(false);
@@ -25,13 +26,17 @@ export default function AdminDocs({ patientNum }: inputPersonnal) {
       </button>
       {showAddDocPatientModal && (
         <div className="fixed inset-0 z-50 flex justify-center  items-center bg-bgModalColor backdrop-blur-xs">
-          <CreateUploadModal
-            patientNum={patientNum}
-            onClose={() => {
-              setshowAddDocPatientModal(false);
-            }}
-            GetDocumentByIdQuery={GetDocumentByIdQuery}
-          />
+          <FocusTrapModal>
+            <CreateUploadModal
+              id={patientNum}
+              onClose={() => {
+                setshowAddDocPatientModal(false);
+              }}
+              GetDocumentByIdQuery={GetDocumentByIdQuery}
+              route={'/upload/patient-file'}
+              typedoc={'patient'}
+            />
+          </FocusTrapModal>
         </div>
       )}
       <ul className="space-y-2">

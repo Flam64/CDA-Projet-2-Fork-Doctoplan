@@ -7,9 +7,16 @@ import { grpcClient } from './utils/grpcClient';
 
 import 'dotenv/config';
 import 'reflect-metadata';
+import redisClient from './database/redis';
 
 async function startServer() {
   await dataSource.initialize();
+  try {
+    await redisClient.connect();
+    console.info('Redis connected');
+  } catch (error) {
+    console.error('redis not connected', error);
+  }
 
   const schema = await createSchema();
 

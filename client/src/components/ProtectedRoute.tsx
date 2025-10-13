@@ -1,4 +1,4 @@
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 
 type ProtectedRouteProps = {
@@ -7,6 +7,7 @@ type ProtectedRouteProps = {
 
 export default function ProtectedRoute({ redirectPath = '/login' }: ProtectedRouteProps) {
   const { user, isLoading } = useAuth();
+  const location = useLocation();
 
   if (isLoading) {
     return (
@@ -17,7 +18,13 @@ export default function ProtectedRoute({ redirectPath = '/login' }: ProtectedRou
   }
 
   if (!user) {
-    return <Navigate to={redirectPath} replace />;
+    return <Navigate to={redirectPath} />;
+  }
+
+  const roleUrl = location.pathname.split('/')[1];
+
+  if (roleUrl !== user.role) {
+    return <Navigate to={user.role === 'admin' ? '/admin/users' : `/${user.role}`} replace />;
   }
 
   return <Outlet />;

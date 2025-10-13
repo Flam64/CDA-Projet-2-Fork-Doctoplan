@@ -1,11 +1,11 @@
 import { useState } from 'react';
 
-import { useGetLogsQuery } from '@/types/graphql-generated';
 import { Search, FileText } from 'lucide-react';
 
 import LogTable from '@/components/logs/LogTable';
 import LogDetailModal from '@/components/logs/LogDetailModal';
 import Pagination from '@/components/logs/Pagination';
+import { useLogs } from '@/hooks/useLogs';
 
 export default function Logs() {
   const [currentPage, setCurrentPage] = useState(0);
@@ -15,15 +15,13 @@ export default function Logs() {
   const pageSize = 10;
   const offset = currentPage * pageSize;
 
-  const { data, loading, error, refetch } = useGetLogsQuery({
-    variables: {
-      limit: pageSize,
-      offset,
-      search: searchTerm || null,
-    },
+  const { data, loading, error, refetch } = useLogs({
+    limit: pageSize,
+    offset,
+    search: searchTerm || undefined,
   });
 
-  const totalPages = Math.ceil((data?.getLogs.total || 0) / pageSize);
+  const totalPages = Math.ceil((data?.total || 0) / pageSize);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -79,21 +77,29 @@ export default function Logs() {
           </main>
         )}
 
-        {data?.getLogs.logs && !loading && (
+        {data?.logs && !loading ? (
           <>
-            <LogTable logs={data.getLogs.logs} onViewLog={setSelectedLogId} />
+            <LogTable logs={data.logs} onViewLog={setSelectedLogId} />
 
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
               onPageChange={handlePageChange}
-              totalItems={data.getLogs.total}
+              totalItems={data.total}
               pageSize={pageSize}
             />
           </>
+        ) : (
+          <main className="p-8 text-center">
+            <FileText className="mx-auto text-gray-300 mb-4" size={48} />
+            <p className="text-gray-600">Aucun log disponible</p>
+            <p className="text-sm text-gray-400 mt-2">
+              Les logs apparaîtront ici une fois disponibles
+            </p>
+          </main>
         )}
 
-        {data?.getLogs.logs.length === 0 && !loading && (
+        {data && data?.logs && data?.logs.length === 0 && !loading && (
           <main className="p-8 text-center">
             <FileText className="mx-auto text-gray-300 mb-4" size={48} />
             <p className="text-gray-600">Aucun log trouvé</p>

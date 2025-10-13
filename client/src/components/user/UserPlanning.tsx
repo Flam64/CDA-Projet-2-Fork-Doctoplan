@@ -1,6 +1,7 @@
 import { Planning } from '@/pages/CreateUser';
 import UserButtons from './UserButtons';
 import { useMemo } from 'react';
+import { useUserPlanningState } from '@/hooks/useUserPlanningState';
 
 const days = [
   { fr: 'Lundi', en: 'Monday' },
@@ -19,6 +20,7 @@ type UserPlanningProps = {
   isDisable: boolean;
   setError: (error: string) => void;
   setIsDisable: (isDisable: boolean) => void;
+  id?: string;
 };
 
 export default function UserPlanning({
@@ -28,6 +30,7 @@ export default function UserPlanning({
   setError,
   isDisable,
   setIsDisable,
+  id,
 }: UserPlanningProps) {
   const timeOptions = useMemo(() => {
     return Array.from({ length: 48 }, (_, i) => {
@@ -42,9 +45,15 @@ export default function UserPlanning({
     const [h, m] = time.split('h');
     return parseInt(h) * 60 + parseInt(m);
   };
+  const userPlanningState = useUserPlanningState(id ?? '');
+  const planning = userPlanningState.user?.plannings?.find(plan => plan.end === null);
+
+  const possibleDate = planning?.start
+    ? new Date(new Date(planning.start).setMonth(new Date(planning.start).getMonth() + 3))
+    : undefined;
 
   const calculateTotalWeeklyMinutes = (planning: Planning): number => {
-    return Object.values(planning).reduce((total, { start, end }) => {
+    return Object.values(planning.period.days).reduce((total, { start, end }) => {
       const startMin = getMinutes(start);
       const endMin = getMinutes(end);
       if (startMin !== null && endMin !== null && endMin > startMin) {
@@ -54,47 +63,81 @@ export default function UserPlanning({
     }, 0);
   };
 
-  const handleChange = (day: string, field: 'start' | 'end', value: string) => {
+  const handleChange = (day: string, field: 'start' | 'end' | 'startPeriod', value: string) => {
     setIsDisable(false);
     setError('');
 
     setUserPlanning(prev => {
-      const updatedDay = {
-        ...prev[day],
-        [field]: value,
-      };
+      if (field === 'startPeriod') {
+        const updatedPlanning = {
+          ...prev,
+          period: {
+            ...prev.period,
+            start: value,
+          },
+        };
+        return updatedPlanning;
+      } else {
+        const updatedDay = {
+          ...prev.period.days[day],
+          [field]: value,
+        };
+        const startMin = getMinutes(updatedDay.start);
+        const endMin = getMinutes(updatedDay.end);
 
-      const startMin = getMinutes(updatedDay.start);
-      const endMin = getMinutes(updatedDay.end);
+        if (startMin !== null && endMin !== null && startMin >= endMin) {
+          setError("L'heure de fin doit être supérieure à l'heure de début.");
+          setIsDisable(true);
+          return prev;
+        }
 
-      if (startMin !== null && endMin !== null && startMin >= endMin) {
-        setError("L'heure de fin doit être supérieure à l'heure de début.");
-        setIsDisable(true);
-        return prev;
+        if ((startMin !== null && endMin === null) || (endMin !== null && startMin === null)) {
+          setError('Les deux horaires doivent être remplis.');
+          setIsDisable(true);
+        }
+
+        const updatedPlanning = {
+          ...prev,
+          period: {
+            ...prev.period,
+            days: {
+              ...prev.period.days,
+              [day]: updatedDay,
+            },
+          },
+        };
+        const totalHours = calculateTotalWeeklyMinutes(updatedPlanning) / 60;
+        if (totalHours > 48) {
+          setError('Le total hebdomadaire dépasse 48 heures.');
+          setIsDisable(true);
+        }
+
+        return updatedPlanning;
       }
-
-      if ((startMin !== null && endMin === null) || (endMin !== null && startMin === null)) {
-        setError('Les deux horaires doivent être remplis.');
-        setIsDisable(true);
-      }
-
-      const updatedPlanning = {
-        ...prev,
-        [day]: updatedDay,
-      };
-
-      const totalHours = calculateTotalWeeklyMinutes(updatedPlanning) / 60;
-      if (totalHours > 48) {
-        setError('Le total hebdomadaire dépasse 48 heures.');
-        setIsDisable(true);
-      }
-
-      return updatedPlanning;
     });
   };
   return (
     <section className="bg-white items-center p-12 mb-4">
-      <h3 className="text-blue font-semibold mb-6">Planning du nouvel utilisateur</h3>
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-blue font-semibold ">
+          {id ? `Ajouter un nouveau planning` : 'Planning du nouveau médecin'}
+        </h3>
+        {id && (
+          <>
+            <label className="mr-2" htmlFor="planning">
+              Date de début
+            </label>
+            <input
+              id="planning"
+              type="date"
+              required={true}
+              value={userPlanning.period.start}
+              min={possibleDate?.toISOString().split('T')[0]}
+              onChange={e => handleChange('period', 'startPeriod', e.target.value)}
+            />
+          </>
+        )}
+      </div>
       {error && (
         <div className="p-3 mb-4 text-sm text-red-700 bg-red-100 rounded-lg" role="alert">
           {error}
@@ -107,7 +150,7 @@ export default function UserPlanning({
             <div className="flex flex-col items-start gap-2">
               <span>Début</span>
               <select
-                value={userPlanning[en].start}
+                value={userPlanning.period.days[en].start}
                 onChange={e => handleChange(en, 'start', e.target.value)}
                 className="border border-gray-300 rounded p-1"
               >
@@ -122,7 +165,7 @@ export default function UserPlanning({
             <div className="flex flex-col items-start gap-2">
               <span>Fin</span>
               <select
-                value={userPlanning[en].end}
+                value={userPlanning.period.days[en].end}
                 onChange={e => handleChange(en, 'end', e.target.value)}
                 className="border border-gray-300 rounded p-1"
               >

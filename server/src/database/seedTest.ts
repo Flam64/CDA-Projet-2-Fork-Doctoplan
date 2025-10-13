@@ -46,7 +46,7 @@ export async function seedTestDatabase() {
   }).save();
 
   const newcity = await City.create({
-    postal_code: '69009',
+    zip_code: '69009',
     city: 'LYON',
   }).save();
 

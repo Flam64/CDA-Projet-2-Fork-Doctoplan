@@ -2,6 +2,8 @@ import { BaseEntity, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColum
 import { Field, ID, ObjectType } from 'type-graphql';
 import { Planning } from './planning.entity';
 import { Departement } from './departement.entity';
+import { Note } from './note.entity';
+import { Vacation } from './docVacation.entity';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -27,7 +29,8 @@ export class User extends BaseEntity {
   @Column({ unique: true })
   email: string;
 
-  @Column()
+  @Field({ nullable: true })
+  @Column({ nullable: true })
   password: string;
 
   @Field(() => String)
@@ -59,7 +62,7 @@ export class User extends BaseEntity {
   profession: string;
 
   @Field(() => Departement)
-  @ManyToOne(() => Departement, (departement: Departement) => departement.user)
+  @ManyToOne(() => Departement, (departement: Departement) => departement.user, { eager: true })
   departement: Departement;
 
   @Field(() => String)
@@ -85,4 +88,12 @@ export class User extends BaseEntity {
   @Field()
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
+
+  @Field(() => [Note], { nullable: true })
+  @OneToMany(() => Note, (note) => note.user)
+  notes: Note[];
+
+  @Field(() => [Vacation], { nullable: true })
+  @OneToMany(() => Vacation, (vacation) => vacation.user)
+  vacation: Vacation[];
 }

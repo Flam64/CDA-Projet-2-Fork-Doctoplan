@@ -1,4 +1,4 @@
-export interface Appointment {
+export type Appointment = {
   id: string;
   patient_name: string;
   start_time: string;
@@ -7,4 +7,4 @@ export interface Appointment {
   statut: string;
   appointment_type: string;
   doctor_id: string;
-}
+};

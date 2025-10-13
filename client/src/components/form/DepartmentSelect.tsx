@@ -12,7 +12,7 @@ export default function DepartmentSelect({ value, onChange }: DepartmentSelectPr
   if (loading || !data?.getDepartements) return null;
 
   const options = data.getDepartements.map(dep => ({
-    key: dep.label,
+    key: dep.id,
     value: dep.label,
   }));
 

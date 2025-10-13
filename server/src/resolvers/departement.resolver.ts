@@ -1,19 +1,45 @@
-import { Arg, Mutation, Query, Resolver, Authorized } from 'type-graphql';
+import { Arg, Mutation, Query, Resolver, Authorized, Int } from 'type-graphql';
 import { Departement, DepartementStatus } from '../entities/departement.entity';
 import { GraphQLError } from 'graphql';
-import { DepartementInput } from '../types/departement.type';
+import { DepartementInput, DepartementsWithTotal } from '../types/departement.type';
 import { UserRole } from '../entities/user.entity';
+import redisClient from '../database/redis';
+import { ILike } from 'typeorm';
 
 @Resolver()
 export class DepartementResolver {
   @Query(() => [Departement])
   @Authorized([UserRole.SECRETARY, UserRole.DOCTOR, UserRole.ADMIN, UserRole.AGENT])
   async getDepartements(): Promise<Departement[]> {
-    return await Departement.find({
+    const cachedDepartements = await redisClient.get('departements');
+    if (cachedDepartements) {
+      return JSON.parse(cachedDepartements);
+    }
+    const departements = await Departement.find({
       relations: {
         user: true,
       },
     });
+    redisClient.set('departements', JSON.stringify(departements), { EX: 60 * 60 * 24 * 30 });
+    return departements;
+  }
+
+  @Query(() => DepartementsWithTotal)
+  @Authorized([UserRole.SECRETARY, UserRole.DOCTOR, UserRole.ADMIN, UserRole.AGENT])
+  async getAllDepartementsWithPagination(
+    @Arg('limit', () => Int, { nullable: true }) limit?: number,
+    @Arg('page', () => Int, { nullable: true }) page?: number,
+    @Arg('search', { nullable: true }) search?: string,
+  ) {
+    const take = limit ?? 0;
+    const skip = page && page > 0 ? (page - 1) * take : 0;
+    const [departements, total] = await Departement.findAndCount({
+      order: { label: 'ASC' },
+      take,
+      skip,
+      where: [{ label: ILike(`%${search}%`) }],
+    });
+    return { departements, total };
   }
 
   @Mutation(() => Boolean)
@@ -27,6 +53,7 @@ export class DepartementResolver {
       newDepartement.level = data.level;
 
       await newDepartement.save();
+      redisClient.del('departements');
       return true;
     } catch (error) {
       console.error(error);
@@ -57,6 +84,7 @@ export class DepartementResolver {
     department.wing = data.wing;
     department.level = data.level;
     department.save();
+    redisClient.del('departements');
     return true;
   }
 
@@ -77,6 +105,7 @@ export class DepartementResolver {
         : DepartementStatus.ACTIVE;
 
     await Departement.update({ id: department.id }, { ...department });
+    redisClient.del('departements');
     return true;
   }
 }

@@ -1,13 +1,13 @@
 import { gql } from '@apollo/client';
 
 export const PATIENT_QUERY = gql`
-  query GetPatientByID($patientId: Float!) {
+  query GetPatientByID($patientId: String!) {
     getPatientByID(patientId: $patientId) {
       birth_date
       city {
         id
         city
-        postal_code
+        zip_code
       }
       email
       firstname
@@ -55,8 +55,16 @@ export const PATIENT_UPDATE_MUTATION = gql`
       social_number
       city {
         city
-        postal_code
+        zip_code
       }
+    }
+  }
+`;
+
+export const PATIENT_CREATE_MUTATION = gql`
+  mutation createPatient($patientData: PatientInput!) {
+    createPatient(patientData: $patientData) {
+      id
     }
   }
 `;

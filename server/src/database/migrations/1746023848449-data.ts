@@ -51,8 +51,8 @@ export class Data1746023848449 implements MigrationInterface {
             '',
             max(c.id)
         FROM mytable m
-        INNER JOIN city c
-            ON substr(c.postal_code,1,5) = substr(m.code_postal,1,5)
+        LEFT JOIN city c
+            ON substr(c.zip_code,1,5) = substr(m.code_postal,1,5)
         GROUP BY
             m.nom_patient,
             m.social_number,
@@ -65,20 +65,20 @@ export class Data1746023848449 implements MigrationInterface {
       `INSERT INTO planning (start, monday_start, monday_end, tuesday_start, tuesday_end, wednesday_start, wednesday_end, thursday_start, thursday_end, friday_start, friday_end, saturday_start, saturday_end, sunday_start, sunday_end, "user_id")
         SELECT
             CURRENT_DATE + INTERVAL '-1 day',
-            CASE WHEN m."jours_ouvrés" LIKE '%lundi%' then cast(heure_debut as time) end,
-            CASE WHEN m."jours_ouvrés" LIKE '%lundi%' then cast(heure_fin as time) end,
-            CASE WHEN m."jours_ouvrés" LIKE '%mardi%' then cast(heure_debut as time) end,
-            CASE WHEN m."jours_ouvrés" LIKE '%mardi%' then cast(heure_fin as time) end,
-            CASE WHEN m."jours_ouvrés" LIKE '%mercredi%' then cast(heure_debut as time) end,
-            CASE WHEN m."jours_ouvrés" LIKE '%mercredi%' then cast(heure_fin as time) end,
-            CASE WHEN m."jours_ouvrés" LIKE '%jeudi%' then cast(heure_debut as time) end,
-            CASE WHEN m."jours_ouvrés" LIKE '%jeudi%' then cast(heure_fin as time) end,
-            CASE WHEN m."jours_ouvrés" LIKE '%vendredi%' then cast(heure_debut as time) end,
-            CASE WHEN m."jours_ouvrés" LIKE '%vendredi%' then cast(heure_fin as time) end,
-            CASE WHEN m."jours_ouvrés" LIKE '%samedi%' then cast(heure_debut as time) end,
-            CASE WHEN m."jours_ouvrés" LIKE '%samedi%' then cast(heure_fin as time) end,
-            CASE WHEN m."jours_ouvrés" LIKE '%dimanche%' then cast(heure_debut as time) end,
-            CASE WHEN m."jours_ouvrés" LIKE '%dimanche%' then cast(heure_fin as time) end,
+            CASE WHEN m."jours_ouvrés" LIKE '%lundi%' then (DATE_PART('hour',(heure_debut)::TIME) || ':00')::TIME end,
+            CASE WHEN m."jours_ouvrés" LIKE '%lundi%' then (DATE_PART('hour',(heure_fin)::TIME) || ':00')::TIME end,
+            CASE WHEN m."jours_ouvrés" LIKE '%mardi%' then (DATE_PART('hour',(heure_debut)::TIME) || ':00')::TIME end,
+            CASE WHEN m."jours_ouvrés" LIKE '%mardi%' then (DATE_PART('hour',(heure_fin)::TIME) || ':00')::TIME end,
+            CASE WHEN m."jours_ouvrés" LIKE '%mercredi%' then (DATE_PART('hour',(heure_debut)::TIME) || ':00')::TIME end,
+            CASE WHEN m."jours_ouvrés" LIKE '%mercredi%' then (DATE_PART('hour',(heure_fin)::TIME) || ':00')::TIME end,
+            CASE WHEN m."jours_ouvrés" LIKE '%jeudi%' then (DATE_PART('hour',(heure_debut)::TIME) || ':00')::TIME end,
+            CASE WHEN m."jours_ouvrés" LIKE '%jeudi%' then (DATE_PART('hour',(heure_fin)::TIME) || ':00')::TIME end,
+            CASE WHEN m."jours_ouvrés" LIKE '%vendredi%' then (DATE_PART('hour',(heure_debut)::TIME) || ':00')::TIME end,
+            CASE WHEN m."jours_ouvrés" LIKE '%vendredi%' then (DATE_PART('hour',(heure_fin)::TIME) || ':00')::TIME end,
+            CASE WHEN m."jours_ouvrés" LIKE '%samedi%' then (DATE_PART('hour',(heure_debut)::TIME) || ':00')::TIME end,
+            CASE WHEN m."jours_ouvrés" LIKE '%samedi%' then (DATE_PART('hour',(heure_fin)::TIME) || ':00')::TIME end,
+            CASE WHEN m."jours_ouvrés" LIKE '%dimanche%' then (DATE_PART('hour',(heure_debut)::TIME) || ':00')::TIME end,
+            CASE WHEN m."jours_ouvrés" LIKE '%dimanche%' then (DATE_PART('hour',(heure_fin)::TIME) || ':00')::TIME end,
             u.id
         FROM mytable m
         INNER JOIN "user" u ON u.firstname = substr(m.nom_medecin,1,POSITION(' ' IN m.nom_medecin)) AND u.lastname = substr(m.nom_medecin,POSITION(' ' IN m.nom_medecin))
@@ -103,8 +103,22 @@ export class Data1746023848449 implements MigrationInterface {
           departement_id
         )
         SELECT
-          CAST(m.date AS DATE) + INTERVAL '1 year' + CAST(m.rdv_début AS TIME),
-          m.durée,
+          case
+            when DATE_PART('minute',CAST(m.date AS DATE) + CAST(m.rdv_début AS TIME))=45 then
+              CAST(m.date AS DATE) + INTERVAL '1 year' + CAST(DATE_PART('hour',CAST(m.date AS DATE) + CAST(m.rdv_début AS TIME)) || ':30' AS TIME)
+            when DATE_PART('minute',CAST(m.date AS DATE) + CAST(m.rdv_début AS TIME))=15 then
+              CAST(m.date AS DATE) + INTERVAL '1 year' + CAST(DATE_PART('hour',CAST(m.date AS DATE) + CAST(m.rdv_début AS TIME)) || ':00' AS TIME)
+            else
+              CAST(m.date AS DATE) + INTERVAL '1 year' + CAST(m.rdv_début AS TIME)
+          end,
+          case
+            when m.durée = 45 then
+              60
+            when m.durée = 15 then
+              30
+            else
+              m.durée
+          end,
           'confirmed',
           u.id,
           p.id,
@@ -124,6 +138,16 @@ export class Data1746023848449 implements MigrationInterface {
       INSERT INTO doc_type VALUES (3,'Assurance','patient');
       INSERT INTO doc_type VALUES (4,'Carte vitale','patient');
       INSERT INTO doc_type VALUES (5,'Notes','patient');
+    `);
+
+    await queryRunner.query(`
+      INSERT INTO doc_type VALUES (6,'Odronnance','appointment');
+      INSERT INTO doc_type VALUES (7,'Autre','appointment');
+    `);
+
+    await queryRunner.query(`
+      INSERT INTO doc_type VALUES (8,'Scanner','appointmentDoctor');
+      INSERT INTO doc_type VALUES (9,'Autre','appointmentDoctor');
     `);
   }
 

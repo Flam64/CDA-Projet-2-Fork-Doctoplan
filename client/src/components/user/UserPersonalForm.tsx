@@ -61,15 +61,6 @@ export default function UserPersonalForm({ handleInputChange, formData }: UserFo
         handle={handleInputChange}
         required={true}
       />
-      <InputForm
-        title="Password"
-        name="password"
-        type="password"
-        value={formData.password}
-        placeholder="Password"
-        handle={handleInputChange}
-        required={true}
-      />
     </section>
   );
 }

@@ -111,7 +111,10 @@ export default function SearchSection({
           ) : (
             <div className="relative">
               <button
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                onClick={() => {
+                  setIsDropdownOpen(!isDropdownOpen);
+                  setDepartmentSearchTerm('');
+                }}
                 className="w-full pl-12 pr-10 py-3 border border-borderColor rounded-xl focus:outline-none focus:ring-2 focus:ring-blue/20 focus:border-blue transition-all cursor-pointer bg-white flex items-center justify-between"
               >
                 <span className={selectedDepartment ? 'text-gray-900' : 'text-gray-400'}>

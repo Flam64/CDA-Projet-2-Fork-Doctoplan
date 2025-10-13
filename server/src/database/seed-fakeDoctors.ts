@@ -20,10 +20,6 @@ function sanitize(str: string): string {
 export async function seedDoctors() {
   console.info('📋 Fetching all departments...');
   const departements = await Departement.find();
-  console.info(
-    '✅ Found departments:',
-    departements.map((d) => d.label),
-  );
 
   for (const departement of departements) {
     for (let i = 0; i < 6; i++) {
@@ -50,7 +46,6 @@ export async function seedDoctors() {
 
       try {
         await user.save();
-        console.info(`✅ Doctors created`);
       } catch (err) {
         console.warn(`⚠️ Error doctor creation (${email}):`, err.message);
       }

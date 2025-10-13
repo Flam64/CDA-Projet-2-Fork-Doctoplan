@@ -11,7 +11,7 @@ export class City extends BaseEntity {
 
   @Field()
   @Column({ length: 15 })
-  postal_code: string;
+  zip_code: string;
 
   @Field()
   @Column()

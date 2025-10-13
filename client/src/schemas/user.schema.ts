@@ -13,7 +13,6 @@ export const GET_USERS = gql`
         activationDate
         gender
         tel
-        profession
         departement {
           id
           label
@@ -24,30 +23,60 @@ export const GET_USERS = gql`
   }
 `;
 
-export const CREATE_USER = gql`
-  mutation CreateUser($input: CreateUserInput!) {
-    createUser(input: $input) {
+export const GET_USER_BY_ID = gql`
+  query GetUserById($id: String!) {
+    getUserById(id: $id) {
       id
       email
       role
-      departement {
-        label
-        id
-      }
       firstname
       lastname
+      tel
+      gender
       status
       activationDate
-      gender
-      tel
-      profession
+      departement {
+        id
+        label
+      }
+      plannings {
+        id
+        start
+        end
+        monday_start
+        monday_end
+        tuesday_start
+        tuesday_end
+        wednesday_start
+        wednesday_end
+        thursday_start
+        thursday_end
+        friday_start
+        friday_end
+        saturday_start
+        saturday_end
+        sunday_start
+        sunday_end
+      }
     }
   }
 `;
 
+export const CREATE_USER = gql`
+  mutation CreateUser($input: CreateUserInput!) {
+    createUser(input: $input)
+  }
+`;
+
+export const UPDATE_USER = gql`
+  mutation UpdateUser($input: CreateUserInput!, $updateUserId: String!) {
+    updateUser(input: $input, id: $updateUserId)
+  }
+`;
+
 export const GET_DOCTORS_BY_DEPARTEMENT = gql`
-  query GetDoctorsByDepartement($label: String!) {
-    getDoctorsByDepartement(label: $label) {
+  query GetDoctorsByDepartement($id: Float!) {
+    getDoctorsByDepartement(id: $id) {
       id
       email
       role
@@ -67,7 +96,6 @@ export const SEARCH_DOCTORS = gql`
       id
       firstname
       lastname
-      profession
       departement {
         id
         label
@@ -77,7 +105,7 @@ export const SEARCH_DOCTORS = gql`
 `;
 
 export const SEND_RESET_PASSWORD_BY_MAIL = gql`
-  mutation SendResetPassword($email: String!) {
+  mutation SendResetPassword($email: sendEmailInput!) {
     sendResetPassword(email: $email)
   }
 `;

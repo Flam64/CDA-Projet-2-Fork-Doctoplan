@@ -1,5 +1,5 @@
 import { InputType } from 'type-graphql';
-import { IsNumber, Length } from 'class-validator';
+import { IsNumber, Length, IsUUID } from 'class-validator';
 import { Field } from 'type-graphql';
 
 @InputType()
@@ -13,8 +13,8 @@ export class PatientDocInput {
   url: string;
 
   @Field()
-  @IsNumber()
-  patientId: number;
+  @IsUUID()
+  id: string;
 
   @Field()
   @IsNumber()

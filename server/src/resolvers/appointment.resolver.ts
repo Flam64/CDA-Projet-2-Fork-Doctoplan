@@ -1,7 +1,13 @@
-import { Resolver, Query, Arg, Authorized } from 'type-graphql';
-import { Appointment } from '../entities/appointment.entity';
+import { Resolver, Query, Arg, Ctx, Authorized, Mutation, UseMiddleware, Int } from 'type-graphql';
+import { GraphQLError } from 'graphql';
+import { AuthMiddleware } from '../middlewares/auth.middleware';
+import log from '../utils/log';
+import { Appointment, AppointmentStatus } from '../entities/appointment.entity';
 import { Between, Equal, MoreThan, LessThan } from 'typeorm';
-import { UserRole } from '../entities/user.entity';
+import { UserRole, User } from '../entities/user.entity';
+import { Patient } from '../entities/patient.entity';
+import { AppointmentCreateInput, DatesInput } from '../types/appointment.type';
+import { AppointmentType } from '../entities/appointment-type.entity';
 
 @Resolver()
 export class AppointmentResolver {
@@ -21,9 +27,29 @@ export class AppointmentResolver {
     });
   }
 
+  @Query(() => Appointment)
+  @Authorized([UserRole.SECRETARY, UserRole.DOCTOR])
+  async getAppointmentsById(@Arg('Id') Id: number): Promise<Appointment> {
+    try {
+      const myAppointment = Appointment.findOneOrFail({
+        where: {
+          id: Equal(Id),
+        },
+        order: { start_time: 'ASC' },
+      });
+      return myAppointment;
+    } catch {
+      throw new GraphQLError('Rendez-vous incorrect', {
+        extensions: {
+          code: 'APPOINTMENT_FAIL',
+        },
+      });
+    }
+  }
+
   @Query(() => [Appointment])
-  @Authorized([UserRole.SECRETARY])
-  async getDoctorByPatient(@Arg('patientId') patientId: number): Promise<Appointment[]> {
+  @Authorized([UserRole.SECRETARY, UserRole.DOCTOR])
+  async getDoctorByPatient(@Arg('patientId') patientId: string): Promise<Appointment[]> {
     return Appointment.find({
       where: {
         patient: {
@@ -36,7 +62,7 @@ export class AppointmentResolver {
 
   // 📌 Appointments by Doctor
   @Query(() => [Appointment])
-  @Authorized([UserRole.SECRETARY])
+  @Authorized([UserRole.SECRETARY, UserRole.DOCTOR])
   async getAppointmentsByDoctor(@Arg('doctorId') doctorId: number): Promise<Appointment[]> {
     return Appointment.find({
       where: {
@@ -48,10 +74,34 @@ export class AppointmentResolver {
     });
   }
 
-  // 📌 Appointments by Doctor
+  // 📌 Check if doctor has appointments between two dates
+  @Query(() => Boolean)
+  @Authorized([UserRole.SECRETARY, UserRole.DOCTOR])
+  async checkDoctorDateAppointments(
+    @Arg('doctorId') doctorId: number,
+    @Arg('dates') dates: DatesInput,
+  ): Promise<boolean> {
+    const start = new Date(`${dates.start}T00:00:00.000Z`);
+    const end = new Date(`${dates.end}T23:59:59.999Z`);
+    const appointments = await Appointment.find({
+      where: {
+        doctor: {
+          id: doctorId,
+        },
+        start_time: Between(start, end),
+      },
+      relations: ['doctor', 'doctor.departement'],
+    });
+    if (appointments.length > 0) {
+      return true;
+    }
+    return false;
+  }
+
+  // 📌 Next Appointments by Patient
   @Query(() => [Appointment])
-  @Authorized([UserRole.SECRETARY])
-  async getNextAppointmentsByPatient(@Arg('patientId') patientId: number): Promise<Appointment[]> {
+  @Authorized([UserRole.SECRETARY, UserRole.DOCTOR])
+  async getNextAppointmentsByPatient(@Arg('patientId') patientId: string): Promise<Appointment[]> {
     return Appointment.find({
       where: {
         patient: {
@@ -64,10 +114,20 @@ export class AppointmentResolver {
     });
   }
 
-  // 📌 Appointments by Doctor
+  // 📌 Last Appointments by Patient
   @Query(() => [Appointment])
-  @Authorized([UserRole.SECRETARY])
-  async getLastAppointmentsByPatient(@Arg('patientId') patientId: number): Promise<Appointment[]> {
+  @Authorized([UserRole.SECRETARY, UserRole.DOCTOR])
+  async getLastAppointmentsByPatient(
+    @Arg('patientId') patientId: string,
+    @Arg('limit', () => Int, { defaultValue: 999 }) limit: number,
+  ): Promise<Appointment[]> {
+    if (limit < 1 || limit > 999) {
+      throw new GraphQLError('La limite doit être comprise entre 1 et 100', {
+        extensions: {
+          code: 'LIMIT_OUT_OF_RANGE',
+        },
+      });
+    }
     return Appointment.find({
       where: {
         patient: {
@@ -83,7 +143,7 @@ export class AppointmentResolver {
 
   // 📌 Appointments by Day
   @Query(() => [Appointment])
-  @Authorized([UserRole.SECRETARY])
+  @Authorized([UserRole.SECRETARY, UserRole.DOCTOR])
   async getAppointmentsByDate(
     @Arg('date') date: string, // format YYYY-MM-DD
   ): Promise<Appointment[]> {
@@ -103,7 +163,7 @@ export class AppointmentResolver {
 
   // 📌 Appointments by Doctor and Day
   @Query(() => [Appointment])
-  @Authorized([UserRole.SECRETARY])
+  @Authorized([UserRole.SECRETARY, UserRole.DOCTOR])
   async getAppointmentsByDoctorAndDate(
     @Arg('doctorId') doctorId: number,
     @Arg('date') date: string, // format YYYY-MM-DD
@@ -120,5 +180,219 @@ export class AppointmentResolver {
       },
       order: { start_time: 'ASC' },
     });
+  }
+
+  @Mutation(() => Appointment)
+  @UseMiddleware(AuthMiddleware)
+  @Authorized([UserRole.SECRETARY, UserRole.DOCTOR])
+  async createAppointment(
+    @Ctx() context: { user: User },
+    @Arg('appointmentInput') appointmentInput: AppointmentCreateInput,
+  ): Promise<Appointment> {
+    if (context.user.role === UserRole.DOCTOR) {
+      appointmentInput.user_id = context.user.id.toString();
+    }
+
+    const checkDoctor = await User.findOneBy({
+      id: +appointmentInput.user_id,
+      role: UserRole.DOCTOR,
+    });
+    if (!checkDoctor) {
+      throw new GraphQLError('Docteur non trouvé', {
+        extensions: {
+          code: 'DOCTOR_NOT_FOUND',
+        },
+      });
+    }
+
+    const checkSecretary = await User.findOne({
+      where: [
+        { id: +context.user.id, role: UserRole.SECRETARY },
+        { id: +context.user.id, role: UserRole.DOCTOR },
+      ],
+    });
+    if (!checkSecretary) {
+      throw new GraphQLError('Secretaire non trouvé', {
+        extensions: {
+          code: 'SECRETARY_NOT_FOUND',
+        },
+      });
+    }
+
+    const checkPatient = await Patient.findOneBy({ id: appointmentInput.patient_id });
+    if (!checkPatient) {
+      throw new GraphQLError('Patient non trouvé', {
+        extensions: {
+          code: 'PATIENT_NOT_FOUND',
+        },
+      });
+    }
+
+    const checkAppointmentType = await AppointmentType.findOneBy({
+      id: +appointmentInput.appointmentType,
+    });
+    if (!checkAppointmentType) {
+      throw new GraphQLError('Rendez-vous non trouvé', {
+        extensions: {
+          code: 'APPOINTMENT_TYPE_NOT_FOUND',
+        },
+      });
+    }
+    const start_date_input = new Date(appointmentInput.start_time);
+    const now = new Date();
+    const threeMonthsLater = new Date();
+    threeMonthsLater.setMonth(threeMonthsLater.getMonth() + 3);
+    if (start_date_input >= now && start_date_input < threeMonthsLater) {
+      try {
+        const appointment = new Appointment();
+        appointment.start_time = start_date_input;
+        appointment.duration = appointmentInput.duration;
+        appointment.status = appointmentInput.status || AppointmentStatus.CONFIRMED;
+        appointment.doctor = checkDoctor; // Docteur
+        appointment.patient = checkPatient; // Patient
+        appointment.created_by = checkSecretary; // Secretaire
+        appointment.status = AppointmentStatus.CONFIRMED;
+        appointment.departement = checkDoctor.departement; // Docteur service
+        appointment.appointmentType = checkAppointmentType; // Rendez-vous type
+        const appointmentreturn = await appointment.save();
+
+        try {
+          const response = await fetch(`${process.env.SERVER_SEND_MAIL}/mail/appointment/create`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: checkPatient.email,
+              doctor: `${checkDoctor.firstname} ${checkDoctor.lastname}`,
+              date: appointment.start_time.toISOString().split('T')[0],
+              hour: appointment.start_time.toISOString().split('T')[1].slice(0, 5), // HH:MM
+            }),
+          });
+
+          if (!response.ok) {
+            console.error('Échec de l’envoi du mail de confirmation de rendez-vous');
+          }
+        } catch (mailError) {
+          console.error('Erreur lors de l’appel à l’API mail :', mailError);
+        }
+
+        await log('Création rendez-vous', {
+          created_by: checkSecretary.id,
+          appointment: appointmentreturn.id,
+          patient: checkPatient.id,
+          doctor: checkDoctor.id,
+        });
+
+        return appointmentreturn;
+      } catch (error) {
+        throw new GraphQLError(`Échec de la création de du rendez-vous`, {
+          extensions: {
+            code: 'APPOINTMENT_CREATION_FAILED',
+            originalError: error.message,
+          },
+        });
+      }
+    } else {
+      throw new GraphQLError(`Échec de la création de du rendez-vous`, {
+        extensions: {
+          code: 'APPOINTMENT_CREATION_FAILED',
+        },
+      });
+    }
+  }
+
+  @Mutation(() => Appointment)
+  @UseMiddleware(AuthMiddleware)
+  @Authorized([UserRole.SECRETARY, UserRole.DOCTOR])
+  async updateAppointment(
+    @Ctx() context: { user: User },
+    @Arg('appointmentInput') appointmentInput: AppointmentCreateInput,
+    @Arg('id') id: string,
+  ): Promise<Appointment> {
+    const checkAppointment = await Appointment.findOneBy({ id: +id });
+    if (!checkAppointment) {
+      throw new GraphQLError('rendez-vous non trouvé', {
+        extensions: {
+          code: 'APPOINTMENT_NOT_FOUND',
+        },
+      });
+    }
+
+    const checkDoctor = await User.findOneBy({ id: +appointmentInput.user_id });
+    if (!checkDoctor) {
+      throw new GraphQLError('Docteur non trouvé', {
+        extensions: {
+          code: 'DOCTOR_NOT_FOUND',
+        },
+      });
+    }
+
+    const checkSecretary = await User.findOneBy({ id: +context.user.id });
+    if (!checkSecretary) {
+      throw new GraphQLError('Secretaire non trouvé', {
+        extensions: {
+          code: 'SECRETARY_NOT_FOUND',
+        },
+      });
+    }
+
+    const checkPatient = await Patient.findOneBy({ id: appointmentInput.patient_id });
+    if (!checkPatient) {
+      throw new GraphQLError('Patient non trouvé', {
+        extensions: {
+          code: 'PATIENT_NOT_FOUND',
+        },
+      });
+    }
+
+    const checkAppointmentType = await AppointmentType.findOneBy({
+      id: +appointmentInput.appointmentType,
+    });
+    if (!checkAppointmentType) {
+      throw new GraphQLError('Rendez-vous non trouvé', {
+        extensions: {
+          code: 'APPOINTMENT_TYPE_NOT_FOUND',
+        },
+      });
+    }
+    const start_date_input = new Date(appointmentInput.start_time);
+    const now = new Date();
+    const threeMonthsLater = new Date();
+    threeMonthsLater.setMonth(threeMonthsLater.getMonth() + 3);
+    if (start_date_input >= now && start_date_input < threeMonthsLater) {
+      try {
+        checkAppointment.start_time = start_date_input;
+        checkAppointment.duration = appointmentInput.duration;
+        checkAppointment.status = appointmentInput.status || AppointmentStatus.CONFIRMED;
+        checkAppointment.doctor = checkDoctor; // Docteur
+        checkAppointment.patient = checkPatient; // Patient
+        checkAppointment.created_by = checkSecretary; // Secretaire
+        checkAppointment.status = AppointmentStatus.CONFIRMED;
+        checkAppointment.departement = checkDoctor.departement; // Docteur service
+        checkAppointment.appointmentType = checkAppointmentType; // Rendez-vous type
+        const appointmentreturn = await checkAppointment.save();
+
+        await log('Modification rendez-vous', {
+          updated_by: checkSecretary.id,
+          appointment: appointmentreturn.id,
+          patient: checkPatient.id,
+          doctor: checkDoctor.id,
+        });
+
+        return appointmentreturn;
+      } catch (error) {
+        throw new GraphQLError(`Échec de la modification du rendez-vous`, {
+          extensions: {
+            code: 'APPOINTMENT_CREATION_FAILED',
+            originalError: error.message,
+          },
+        });
+      }
+    } else {
+      throw new GraphQLError(`Échec de la modification du rendez-vous`, {
+        extensions: {
+          code: 'APPOINTMENT_CREATION_FAILED',
+        },
+      });
+    }
   }
 }

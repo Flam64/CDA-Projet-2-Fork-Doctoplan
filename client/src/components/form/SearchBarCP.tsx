@@ -1,5 +1,6 @@
 import { ChangeEvent, useState, KeyboardEvent } from 'react';
 import { useGetCityByCpQuery } from '@/types/graphql-generated';
+import searchIcon from '@/assets/search-icon.svg';
 
 type inputFormProps = {
   cpdefault: string;
@@ -7,33 +8,33 @@ type inputFormProps = {
 };
 
 function SearchBarCP({ cpdefault, handle }: inputFormProps) {
-  const [postalCode, setPostalCode] = useState(cpdefault);
+  const [zipCode, setZipCode] = useState(cpdefault);
   const GetCityByCpQuery = useGetCityByCpQuery({
-    variables: { postalCode: postalCode },
+    variables: { zipCode: zipCode },
   });
 
   const newResults = GetCityByCpQuery.data?.getCityByCP.map(result => ({
     id: result.id,
-    postalCode: result.postal_code,
+    zipCode: result.zip_code,
     city: result.city,
   }));
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>, postalCode: string, city: string) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>, zipCode: string, city: string) => {
     if (e.key === 'Enter' || e.key === ' ') {
-      clickResult(postalCode, city);
+      clickResult(zipCode, city);
     }
   };
 
   const handleChangeCP = (e: ChangeEvent<HTMLInputElement>) => {
     const input = e.target.value;
     if (input && input.length === 5) {
-      setPostalCode(input);
+      setZipCode(input);
       GetCityByCpQuery.refetch();
     }
   };
 
-  const clickResult = (postalCode: string, city: string) => {
-    handle(postalCode, city);
+  const clickResult = (zipCode: string, city: string) => {
+    handle(zipCode, city);
     const resultList = document.querySelector('.search-bar') as HTMLDivElement;
     resultList.classList.toggle('hidden');
   };
@@ -50,13 +51,13 @@ function SearchBarCP({ cpdefault, handle }: inputFormProps) {
           <input
             className="w-full bg-transparent outline-none focus:ring-0 focus:border-none"
             type="text"
-            name="new_postal_code"
-            id="new_postal_code"
+            name="new_zip_code"
+            id="new_zip_code"
             placeholder="Code postale"
             onChange={handleChangeCP}
           />
           <img
-            src="/public/search-icon.svg"
+            src={searchIcon}
             alt="search icon"
             className="absolute right-3 top-1/2 -translate-y-1/2"
           />
@@ -79,10 +80,10 @@ function SearchBarCP({ cpdefault, handle }: inputFormProps) {
               className="result-item px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
               role="button"
               tabIndex={0}
-              onClick={() => clickResult(result.postalCode, result.city)}
-              onKeyDown={e => handleKeyDown(e, result.postalCode, result.city)}
+              onClick={() => clickResult(result.zipCode, result.city)}
+              onKeyDown={e => handleKeyDown(e, result.zipCode, result.city)}
             >
-              {result.postalCode} - {result.city}
+              {result.zipCode} - {result.city}
             </div>
           ))}
       </div>
