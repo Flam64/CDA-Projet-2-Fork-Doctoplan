@@ -27,7 +27,8 @@ jobs:
             echo "📂 Dossier actuel: $(pwd)"
 
             echo "🔄 Récupération des dernières modifications..."
-            git pull origin main
+            git fetch origin main
+            git reset --hard origin/main
 
             echo "🛑 Arrêt des conteneurs existants..."
             docker compose down
