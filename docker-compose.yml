@@ -16,6 +16,7 @@ services:
       - VITE_FRONTEND_URL=${FRONTEND_URL}
       - VITE_SERVER_API_MAIL=${VITE_SERVER_API_MAIL}
       - VITE_SERVER_URL=${VITE_SERVER_API_MAIL}
+      - VITE_ALLOWED_HOST=${VITE_ALLOWED_HOST}
     depends_on:
       - codegen
 
