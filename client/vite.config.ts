@@ -2,6 +2,7 @@ import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
+import { env } from 'process';
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -21,7 +22,7 @@ export default defineConfig({
       interval: 1000,
     },
     host: '0.0.0.0',
-    allowedHosts: ['odyssey.remote-cda4.wilders.dev', 'localhost'],
+    allowedHosts: [env.VITE_ALLOWED_HOST || 'localhost'],
     hmr: {
       clientPort: 5173,
       port: 5173,
