@@ -11,7 +11,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy to VPS
+      - name: Checkout code
+        uses: actions/checkout@v4
+              
+      - name: Deploy via SSH to VPS
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
