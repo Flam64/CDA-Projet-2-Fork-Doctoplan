@@ -28,8 +28,8 @@ export default function ForgotPassword() {
         variables: { email: { email: input.email } },
       });
       if (data) {
-        toast.success('Un mail de réinitialisation à été envoyé');
-        setMessage('Un mail de réinitialisation à été envoyé');
+        toast.success("Si l'adresse existe, un mail de réinitialisation à été envoyé");
+        setMessage("Si l'adresse existe, un mail de réinitialisation à été envoyé");
 
         // ⏳ Pause to display the message before redirecting to the login page
         setTimeout(() => {
