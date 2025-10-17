@@ -105,9 +105,9 @@ export class UserResolver {
           email: email,
         });
       }
-      return true; // always returns true: good security practice
+      return true; // always returns true
     } catch (error) {
-      console.error(error); // pour eviter une erreur Eslint
+      console.error(error);
       throw new GraphQLError('Erreur lors de la verification utilisateur', {
         extensions: {
           code: 'USER_ERROR',
