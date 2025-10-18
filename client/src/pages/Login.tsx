@@ -30,7 +30,7 @@ export default function LoginPage() {
     } catch (error) {
       setError(
         error instanceof Error
-          ? error.message
+          ? 'Une erreur est survenue lors de la connexion'
           : 'Une erreur est survenue lors de la connexion. Veuillez réessayer.',
       );
     }
