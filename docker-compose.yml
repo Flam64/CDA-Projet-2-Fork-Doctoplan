@@ -133,7 +133,7 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
-    restart: unless-sotopped
+    restart: unless-stopped
   adminer:
     image: adminer
     ports:
