@@ -28,8 +28,8 @@ export default function ForgotPassword() {
         variables: { email: { email: input.email } },
       });
       if (data) {
-        toast.success('Un mail de réinitialisation à été envoyé');
-        setMessage('Un mail de réinitialisation à été envoyé');
+        toast.success("Si l'adresse existe, un mail de réinitialisation à été envoyé");
+        setMessage("Si l'adresse existe, un mail de réinitialisation à été envoyé");
 
         // ⏳ Pause to display the message before redirecting to the login page
         setTimeout(() => {
@@ -46,8 +46,14 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="w-full max-w-md px-8 py-10 mx-auto bg-white rounded-lg shadow-sm">
-      <h2 className="mb-6 text-center">Réinitialisation de mot de passe</h2>
+    <div
+      className="w-full max-w-md px-8 py-10 mx-auto bg-white rounded-lg shadow-sm"
+      role="region"
+      aria-labelledby="reset-password-title"
+    >
+      <h1 id="reset-password-title" className="mb-6 text-center">
+        Réinitialisation de mot de passe
+      </h1>
 
       {/* 📜 information block or error (error & message)*/}
       {error && (
@@ -80,8 +86,13 @@ export default function ForgotPassword() {
             placeholder="example@email.com"
             className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
             aria-invalid={errors.email ? 'true' : 'false'}
-            aria-describedby={errors.email ? 'email-error' : undefined}
+            aria-describedby={errors.email ? 'email-error' : 'email-help'}
           />
+          {/* 📌 Hidden help for screen readers*/}
+          <p id="email-help" className="sr-only">
+            Saisissez votre adresse e-mail pour recevoir un lien de réinitialisation.
+          </p>
+
           {errors.email?.message && (
             <p id="email-error" className="text-sm text-accent" role="alert">
               {errors.email.message as ReactNode}
